@@ -7,9 +7,9 @@ extends CharacterBody2D
 # =============================================
 
 @export var patrol_distance:  float = 100.0
-@export var patrol_speed:     float = 72.0
-@export var chase_speed:      float = 115.0
-@export var chase_range:      float = 130.0
+@export var patrol_speed:     float = 88.0
+@export var chase_speed:      float = 145.0
+@export var chase_range:      float = 180.0
 @export var move_right_first: bool  = true
 
 var start_pos: Vector2 = Vector2.ZERO
