@@ -14,8 +14,8 @@ const HOLE_SCENE:   String = "res://scenes/Hole.tscn"
 const THORN_SCENE:  String = "res://scenes/Thorn.tscn"
 
 # Safe play area (inside border walls)
-const AREA_MIN := Vector2(80.0,  80.0)
-const AREA_MAX := Vector2(560.0, 420.0)
+const AREA_MIN := Vector2(96.0,  105.0)
+const AREA_MAX := Vector2(928.0, 640.0)
 
 var transitioning: bool = false
 
@@ -37,7 +37,7 @@ func _spawn_all() -> void:
 	var used: Array = []
 
 	# Keep centre clear for player start
-	used.append(Vector2(320, 240))
+	used.append(Vector2(512, 380))
 
 	for _i in range(config["carrot_count"]):
 		_spawn(CARROT_SCENE, used, false)
@@ -81,6 +81,7 @@ func _spawn(scene_path: String, used: Array, golden: bool) -> void:
 		return
 	var obj := packed.instantiate()
 	add_child(obj)
+	obj.scale = Vector2(1.2, 1.2)
 	obj.global_position = _random_pos(used)
 	# Property setter handles the colour update
 	if "is_golden" in obj:
@@ -96,6 +97,7 @@ func _spawn_hazard(scene_path: String, used: Array, is_hole: bool) -> void:
 		return
 	var obj := packed.instantiate()
 	add_child(obj)
+	obj.scale = Vector2(1.18, 1.18)
 	obj.global_position = _random_pos(used, 60.0)
 	# Property setter handles the colour update
 	if "is_hole" in obj:
@@ -110,9 +112,10 @@ func _spawn_fox(used: Array) -> void:
 		return
 	var fox := packed.instantiate()
 	add_child(fox)
+	fox.scale = Vector2(1.08, 1.08)
 	fox.global_position = _random_pos(used, 100.0)
 	if "patrol_distance" in fox:
-		fox.patrol_distance = randf_range(70.0, 140.0)
+		fox.patrol_distance = randf_range(100.0, 190.0)
 	if "move_right_first" in fox:
 		fox.move_right_first = (randi() % 2 == 0)
 
