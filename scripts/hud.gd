@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var score_label:  Label          = $MarginContainer/TopBar/ScoreLabel
 @onready var time_label:   Label          = $MarginContainer/TopBar/TimeLabel
 @onready var level_label:  Label          = $MarginContainer/TopBar/LevelLabel
+@onready var tip_label:    Label          = $MarginContainer/TopBar/TipLabel
 @onready var hearts_box:   HBoxContainer  = $MarginContainer/TopBar/HeartsContainer
 
 var heart_labels: Array = []
@@ -26,7 +27,8 @@ func _ready() -> void:
 	_on_score_changed(GameManager.score)
 	_on_lives_changed(GameManager.lives)
 	_on_time_changed(GameManager.time_remaining)
-	level_label.text = "🌿 Level " + str(GameManager.current_level)
+	level_label.text = "🌿 " + SettingsManager.text("level") + " " + str(GameManager.current_level)
+	tip_label.text = SettingsManager.text("dash_tip")
 
 func _on_score_changed(val: int) -> void:
 	if score_label:

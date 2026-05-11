@@ -9,12 +9,16 @@ signal lives_changed(new_lives: int)
 signal time_changed(new_time: float)
 signal level_won
 signal game_over
+signal carrot_wallet_changed(new_total: int)
 
 var score:              int    = 0
 var lives:              int    = 3
 var current_level:      int    = 1
 var selected_character: String = "white_bunny"
 var levels_unlocked:    int    = 1
+var carrot_wallet:      int    = 0
+var level_carrots_earned: int  = 0
+var last_banked_carrots: int    = 0
 
 var level_configs: Array = [
 	{
@@ -42,12 +46,20 @@ var timer_running:       bool  = false
 var _level_won_emitted:  bool  = false
 var _gameover_emitted:   bool  = false
 
+const SAVE_PATH: String = "user://progress.cfg"
+const SAVE_SECTION: String = "progress"
+
+func _ready() -> void:
+	load_progress()
+
 # ── Level Setup ──────────────────────────────────────────────────────────────
 
 func start_level(level_num: int) -> void:
 	current_level        = level_num
 	var config: Dictionary = get_level_config(level_num)
 	score                = 0
+	level_carrots_earned = 0
+	last_banked_carrots  = 0
 	lives                = config["lives"]
 	time_remaining       = config["time_limit"]
 	timer_running        = false
@@ -83,8 +95,9 @@ func _apply_difficulty(config: Dictionary) -> Dictionary:
 
 # ── Score ────────────────────────────────────────────────────────────────────
 
-func add_score(points: int) -> void:
+func add_score(points: int, carrot_currency: int = 1) -> void:
 	score += points
+	level_carrots_earned += max(carrot_currency, 0)
 	score_changed.emit(score)
 	var config: Dictionary = get_level_config(current_level)
 	if score >= config["required_score"] and not _level_won_emitted:
@@ -131,6 +144,35 @@ func unlock_next_level() -> void:
 	var next: int = current_level + 1
 	if next > levels_unlocked and next <= level_configs.size():
 		levels_unlocked = next
+	bank_level_carrots()
+	save_progress()
+
+func bank_level_carrots() -> void:
+	last_banked_carrots = level_carrots_earned
+	if level_carrots_earned <= 0:
+		return
+	carrot_wallet += level_carrots_earned
+	level_carrots_earned = 0
+	carrot_wallet_changed.emit(carrot_wallet)
+
+func load_progress() -> void:
+	var config := ConfigFile.new()
+	var err := config.load(SAVE_PATH)
+	if err != OK:
+		return
+	carrot_wallet = int(config.get_value(SAVE_SECTION, "carrot_wallet", 0))
+	levels_unlocked = int(config.get_value(SAVE_SECTION, "levels_unlocked", levels_unlocked))
+	selected_character = str(config.get_value(SAVE_SECTION, "selected_character", selected_character))
+	carrot_wallet_changed.emit(carrot_wallet)
+
+func save_progress() -> void:
+	var config := ConfigFile.new()
+	config.set_value(SAVE_SECTION, "carrot_wallet", carrot_wallet)
+	config.set_value(SAVE_SECTION, "levels_unlocked", levels_unlocked)
+	config.set_value(SAVE_SECTION, "selected_character", selected_character)
+	var err := config.save(SAVE_PATH)
+	if err != OK:
+		push_warning("GameManager: could not save progress file.")
 
 func get_star_rating() -> int:
 	var config: Dictionary = get_level_config(current_level)
@@ -150,7 +192,12 @@ func reset_game() -> void:
 	current_level      = 1
 	selected_character = "white_bunny"
 	levels_unlocked    = 1
+	carrot_wallet      = 0
+	level_carrots_earned = 0
+	last_banked_carrots = 0
 	time_remaining     = 70.0
 	timer_running      = false
 	_level_won_emitted = false
 	_gameover_emitted  = false
+	save_progress()
+	carrot_wallet_changed.emit(carrot_wallet)
