@@ -23,12 +23,14 @@ config/features=PackedStringArray("4.6", "Mobile")
 
 GameManager="*res://scripts/game_manager.gd"
 AudioManager="*res://scripts/audio_manager.gd"
+SettingsManager="*res://scripts/settings_manager.gd"
 
 [display]
 
 window/size/viewport_width=1024
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [input]
 
