@@ -17,11 +17,13 @@ extends CharacterBody2D
 var start_pos: Vector2 = Vector2.ZERO
 var dir:       float   = 1.0
 var _player:   Node2D  = null
+var _base_scale: Vector2 = Vector2.ONE
 
 @onready var hurt_area: Area2D = $HurtArea
 
 func _ready() -> void:
 	start_pos = global_position
+	_base_scale = scale
 	dir       = 1.0 if move_right_first else -1.0
 	if hurt_area:
 		hurt_area.body_entered.connect(_on_hurt_area_body_entered)
@@ -43,7 +45,7 @@ func _physics_process(delta: float) -> void:
 			var chase_dir: Vector2 = to_player / dist
 			desired_velocity = chase_dir * chase_speed
 			if abs(chase_dir.x) > 0.08:
-				scale.x = -1.0 if chase_dir.x < 0.0 else 1.0
+				scale.x = -_base_scale.x if chase_dir.x < 0.0 else _base_scale.x
 		velocity = velocity.move_toward(desired_velocity, acceleration * delta)
 		move_and_slide()
 		return
@@ -51,7 +53,7 @@ func _physics_process(delta: float) -> void:
 	# ── Fallback patrol only if the player is not available ──────────────────
 	velocity = velocity.move_toward(Vector2(dir * patrol_speed, 0.0), acceleration * delta)
 	if abs(velocity.x) > 1.0:
-		scale.x = -1.0 if velocity.x < 0.0 else 1.0
+		scale.x = -_base_scale.x if velocity.x < 0.0 else _base_scale.x
 	move_and_slide()
 
 	var offset: float = global_position.x - start_pos.x

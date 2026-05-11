@@ -20,7 +20,7 @@ color = Color(0.22, 0.6, 0.22, 1)
 layout_mode = 0
 offset_left = 0.0
 offset_top = 0.0
-offset_right = 960.0
+offset_right = 1280.0
 offset_bottom = 86.0
 color = Color(0.18, 0.5, 0.18, 1)
 
@@ -28,7 +28,7 @@ color = Color(0.18, 0.5, 0.18, 1)
 layout_mode = 0
 offset_left = 0.0
 offset_top = 630.0
-offset_right = 960.0
+offset_right = 1280.0
 offset_bottom = 720.0
 color = Color(0.18, 0.5, 0.18, 1)
 
@@ -42,9 +42,9 @@ color = Color(1, 0.8, 0.1, 1)
 
 [node name="Flower2" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 850.0
+offset_left = 1120.0
 offset_top = 120.0
-offset_right = 885.0
+offset_right = 1155.0
 offset_bottom = 155.0
 color = Color(1, 0.4, 0.7, 1)
 
@@ -58,9 +58,9 @@ color = Color(1, 0.4, 0.7, 1)
 
 [node name="Flower4" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 820.0
+offset_left = 1090.0
 offset_top = 540.0
-offset_right = 855.0
+offset_right = 1125.0
 offset_bottom = 575.0
 color = Color(1, 0.8, 0.1, 1)
 
@@ -74,17 +74,17 @@ color = Color(1, 0.5, 0, 1)
 
 [node name="CarrotDeco2" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 800.0
+offset_left = 1065.0
 offset_top = 230.0
-offset_right = 825.0
+offset_right = 1090.0
 offset_bottom = 268.0
 color = Color(1, 0.5, 0, 1)
 
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 80.0
+offset_left = 200.0
 offset_top = 34.0
-offset_right = 880.0
+offset_right = 1080.0
 offset_bottom = 120.0
 theme_override_font_sizes/font_size = 52
 text = "🥕 Bunny Carrot Adventure 🐰"
@@ -127,25 +127,25 @@ color = Color(0.95, 0.95, 0.95, 1)
 
 [node name="FoxDecoBody" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 700.0
+offset_left = 940.0
 offset_top = 185.0
-offset_right = 775.0
+offset_right = 1015.0
 offset_bottom = 235.0
 color = Color(0.93, 0.42, 0.06, 1)
 
 [node name="FoxDecoTail" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 650.0
+offset_left = 890.0
 offset_top = 193.0
-offset_right = 705.0
+offset_right = 945.0
 offset_bottom = 225.0
 color = Color(1, 0.83, 0.58, 1)
 
 [node name="FoxDecoEye" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 760.0
+offset_left = 1000.0
 offset_top = 197.0
-offset_right = 770.0
+offset_right = 1010.0
 offset_bottom = 207.0
 color = Color(0.03, 0.02, 0.02, 1)
 
