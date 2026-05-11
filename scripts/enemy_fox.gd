@@ -11,7 +11,12 @@ extends CharacterBody2D
 @export var chase_speed:      float = 132.0
 @export var chase_range:      float = 9999.0
 @export var acceleration:     float = 520.0
-@export var arrival_distance: float = 28.0
+@export var arrival_distance: float = 52.0
+@export var separation_distance: float = 72.0
+@export var separation_strength: float = 150.0
+@export var attack_recoil_speed: float = 210.0
+@export var attack_pause_duration: float = 0.45
+@export var damage_cooldown: float = 0.9
 @export var move_right_first: bool  = true
 
 var start_pos: Vector2 = Vector2.ZERO
@@ -21,10 +26,13 @@ var _base_scale: Vector2 = Vector2.ONE
 var _facing_left: bool = false
 var _visual_rects: Array = []
 var _visual_offsets: Dictionary = {}
+var _attack_pause_timer: float = 0.0
+var _damage_cooldown_timer: float = 0.0
 
 @onready var hurt_area: Area2D = $HurtArea
 
 func _ready() -> void:
+	add_to_group("fox")
 	start_pos = global_position
 	_base_scale = Vector2(abs(scale.x), abs(scale.y))
 	scale = _base_scale
@@ -35,24 +43,25 @@ func _ready() -> void:
 		hurt_area.body_entered.connect(_on_hurt_area_body_entered)
 
 func _physics_process(delta: float) -> void:
+	_attack_pause_timer = max(_attack_pause_timer - delta, 0.0)
+	_damage_cooldown_timer = max(_damage_cooldown_timer - delta, 0.0)
+
 	# ── Cache player reference ───────────────────────────────────────────────
 	if not _player or not is_instance_valid(_player):
 		var group: Array = get_tree().get_nodes_in_group("player")
 		_player = group[0] if group.size() > 0 else null
 
 	# ── World search / chase mode ────────────────────────────────────────────
-	# Always move toward the bunny when it exists instead of rapidly flipping
-	# between short left/right patrol turns at the edge of a patrol range.
+	# Chase the bunny, but keep a personal-space ring so foxes do not stack
+	# on top of the player and trap the physics body.
 	if _player and is_instance_valid(_player):
-		var to_player: Vector2 = _player.global_position - global_position
-		var dist: float = to_player.length()
-		var desired_velocity := Vector2.ZERO
-		if dist > arrival_distance:
-			var chase_dir: Vector2 = to_player / dist
-			desired_velocity = chase_dir * chase_speed
-			if abs(chase_dir.x) > 0.08:
-				_apply_facing(chase_dir.x < 0.0)
+		var desired_velocity: Vector2 = _get_chase_velocity()
+		desired_velocity += _get_fox_separation_velocity()
+		if desired_velocity.length() > chase_speed:
+			desired_velocity = desired_velocity.normalized() * chase_speed
 		velocity = velocity.move_toward(desired_velocity, acceleration * delta)
+		if abs(velocity.x) > 1.0:
+			_apply_facing(velocity.x < 0.0)
 		move_and_slide()
 		return
 
@@ -67,6 +76,32 @@ func _physics_process(delta: float) -> void:
 		dir = -1.0
 	elif offset < -patrol_distance and dir < 0.0:
 		dir = 1.0
+
+func _get_chase_velocity() -> Vector2:
+	var to_player: Vector2 = _player.global_position - global_position
+	var dist: float = to_player.length()
+	if dist <= 0.001:
+		return Vector2.ZERO
+	var away_from_player: Vector2 = -to_player / dist
+	if _attack_pause_timer > 0.0:
+		return away_from_player * attack_recoil_speed
+	if dist < arrival_distance:
+		var push_ratio: float = 1.0 - (dist / arrival_distance)
+		return away_from_player * separation_strength * push_ratio
+	var chase_dir: Vector2 = to_player / dist
+	return chase_dir * chase_speed
+
+func _get_fox_separation_velocity() -> Vector2:
+	var separation := Vector2.ZERO
+	for fox in get_tree().get_nodes_in_group("fox"):
+		if fox == self or not is_instance_valid(fox) or not (fox is Node2D):
+			continue
+		var away: Vector2 = global_position - (fox as Node2D).global_position
+		var dist: float = away.length()
+		if dist > 0.001 and dist < separation_distance:
+			var force: float = 1.0 - (dist / separation_distance)
+			separation += (away / dist) * separation_strength * force
+	return separation
 
 func _cache_visual_offsets() -> void:
 	var visual_names := [
@@ -101,5 +136,11 @@ func _apply_facing(face_left: bool) -> void:
 		rect.offset_bottom = float(offsets[3])
 
 func _on_hurt_area_body_entered(body: Node2D) -> void:
+	if _damage_cooldown_timer > 0.0:
+		return
 	if body.is_in_group("player") and body.has_method("take_damage"):
 		body.take_damage()
+		_damage_cooldown_timer = damage_cooldown
+		_attack_pause_timer = attack_pause_duration
+		var away: Vector2 = global_position - body.global_position
+		velocity = (away.normalized() if away.length() > 0.001 else Vector2.RIGHT) * attack_recoil_speed
