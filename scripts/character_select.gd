@@ -8,6 +8,7 @@ extends Control
 @onready var brown_btn:   Button    = $CenterContainer/VBoxContainer/BrownButton
 @onready var confirm_btn: Button    = $CenterContainer/VBoxContainer/ConfirmButton
 @onready var back_btn:    Button    = $BackButton
+@onready var title_label: Label     = $TitleLabel
 @onready var preview:     ColorRect = $PreviewRect
 @onready var ear_l:       ColorRect = $PreviewEarL
 @onready var ear_r:       ColorRect = $PreviewEarR
@@ -19,11 +20,19 @@ const BROWN := Color(0.60, 0.35, 0.10)
 var _selected: String = "white_bunny"
 
 func _ready() -> void:
+	_apply_language()
 	white_btn.pressed.connect(func(): _pick("white_bunny"))
 	brown_btn.pressed.connect(func(): _pick("brown_bunny"))
 	confirm_btn.pressed.connect(_on_confirm)
 	back_btn.pressed.connect(_on_back)
 	_update_preview()
+
+func _apply_language() -> void:
+	title_label.text = SettingsManager.text("choose_bunny")
+	white_btn.text = SettingsManager.text("white_bunny_button")
+	brown_btn.text = SettingsManager.text("brown_bunny_button")
+	confirm_btn.text = SettingsManager.text("confirm_play")
+	back_btn.text = "← " + SettingsManager.text("back")
 
 func _pick(char_name: String) -> void:
 	AudioManager.play_button_click()
@@ -36,7 +45,7 @@ func _update_preview() -> void:
 	if ear_l:     ear_l.color   = col
 	if ear_r:     ear_r.color   = col
 	if name_label:
-		name_label.text = "White Bunny 🐰" if _selected == "white_bunny" else "Brown Bunny 🐰"
+		name_label.text = SettingsManager.text("white_bunny") if _selected == "white_bunny" else SettingsManager.text("brown_bunny")
 
 func _on_confirm() -> void:
 	AudioManager.play_button_click()
