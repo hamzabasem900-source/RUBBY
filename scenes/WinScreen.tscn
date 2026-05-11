@@ -18,45 +18,45 @@ color = Color(0.98, 0.95, 0.25, 1)
 
 [node name="Star1" type="Label" parent="."]
 layout_mode = 0
-offset_left = 80.0
+offset_left = 85.3
 offset_top = 88.0
-offset_right = 170.0
+offset_right = 181.3
 offset_bottom = 170.0
 theme_override_font_sizes/font_size = 58
 text = "⭐"
 
 [node name="Star2" type="Label" parent="."]
 layout_mode = 0
-offset_left = 790.0
+offset_left = 842.7
 offset_top = 88.0
-offset_right = 880.0
+offset_right = 938.7
 offset_bottom = 170.0
 theme_override_font_sizes/font_size = 58
 text = "⭐"
 
 [node name="Star3" type="Label" parent="."]
 layout_mode = 0
-offset_left = 95.0
+offset_left = 101.3
 offset_top = 560.0
-offset_right = 185.0
+offset_right = 197.3
 offset_bottom = 650.0
 theme_override_font_sizes/font_size = 58
 text = "⭐"
 
 [node name="Star4" type="Label" parent="."]
 layout_mode = 0
-offset_left = 775.0
+offset_left = 826.7
 offset_top = 560.0
-offset_right = 865.0
+offset_right = 922.7
 offset_bottom = 650.0
 theme_override_font_sizes/font_size = 58
 text = "⭐"
 
 [node name="WinBanner" type="Label" parent="."]
 layout_mode = 0
-offset_left = 100.0
+offset_left = 106.7
 offset_top = 34.0
-offset_right = 860.0
+offset_right = 917.3
 offset_bottom = 112.0
 theme_override_colors/font_color = Color(0.15, 0.35, 0.1, 1)
 theme_override_font_sizes/font_size = 58
@@ -90,18 +90,18 @@ horizontal_alignment = 1
 
 [node name="NextButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(430, 68)
+custom_minimum_size = Vector2(458.7, 68)
 theme_override_font_sizes/font_size = 30
 text = "➡ Next Level"
 
 [node name="ReplayButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(430, 64)
+custom_minimum_size = Vector2(458.7, 64)
 theme_override_font_sizes/font_size = 28
 text = "🔄 Play Again"
 
 [node name="MenuButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(430, 64)
+custom_minimum_size = Vector2(458.7, 64)
 theme_override_font_sizes/font_size = 28
 text = "🏠 Main Menu"

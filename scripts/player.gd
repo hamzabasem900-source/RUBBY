@@ -12,7 +12,7 @@ const DASH_DURATION:     float = 0.16
 const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
 const WORLD_MIN: Vector2 = Vector2(32.0, 88.0)
-const WORLD_MAX: Vector2 = Vector2(928.0, 694.0)
+const WORLD_MAX: Vector2 = Vector2(992.0, 694.0)
 
 var invincible:      bool  = false
 var invincible_timer: float = 0.0
@@ -21,6 +21,9 @@ var _dashing:       bool   = false
 var _dash_timer:    float  = 0.0
 var _dash_cooldown: float  = 0.0
 var _dash_dir:      Vector2 = Vector2.RIGHT
+var _hop_time:      float = 0.0
+var _bunny_icon_base_position: Vector2 = Vector2.ZERO
+var _bunny_icon_base_scale: Vector2 = Vector2.ONE
 
 var character_colors: Dictionary = {
 	"white_bunny": Color(0.95, 0.95, 0.95),
@@ -46,6 +49,9 @@ func _ready() -> void:
 	if tail:   tail.color   = Color(col.r * 0.88, col.g * 0.88, col.b * 0.88)
 	if bunny_icon:
 		bunny_icon.text = "🐰" if GameManager.selected_character == "white_bunny" else "🐇"
+		_bunny_icon_base_position = bunny_icon.position
+		_bunny_icon_base_scale = bunny_icon.scale
+		bunny_icon.pivot_offset = bunny_icon.size * 0.5
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
@@ -69,6 +75,7 @@ func _physics_process(delta: float) -> void:
 		velocity = _dash_dir * DASH_SPEED
 		move_and_slide()
 		_keep_inside_world()
+		_animate_bunny(delta, _dash_dir, true)
 		if _dash_timer <= 0.0:
 			_dashing = false
 		return
@@ -102,6 +109,26 @@ func _physics_process(delta: float) -> void:
 	velocity = dir * SPEED
 	move_and_slide()
 	_keep_inside_world()
+	_animate_bunny(delta, dir, false)
+
+func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
+	if not bunny_icon:
+		return
+	var t: float = min(delta * 10.0, 1.0)
+	if dir.length() <= 0.0:
+		_hop_time = 0.0
+		bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position, t)
+		bunny_icon.scale = bunny_icon.scale.lerp(_bunny_icon_base_scale, t)
+		bunny_icon.rotation = lerp(bunny_icon.rotation, 0.0, t)
+		return
+
+	_hop_time += delta * (18.0 if dash_active else 11.0)
+	var hop: float = abs(sin(_hop_time)) * (12.0 if dash_active else 8.0)
+	var squash: float = abs(sin(_hop_time * 1.15))
+	var tilt: float = clamp(dir.x, -1.0, 1.0) * (0.16 if dash_active else 0.09)
+	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
+	bunny_icon.scale = _bunny_icon_base_scale * Vector2(1.0 + squash * 0.05, 1.0 - squash * 0.04)
+	bunny_icon.rotation = tilt
 
 func _keep_inside_world() -> void:
 	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)

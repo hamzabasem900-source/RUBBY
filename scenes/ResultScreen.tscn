@@ -18,9 +18,9 @@ color = Color(0.25, 0.55, 0.95, 1)
 
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 120.0
+offset_left = 128.0
 offset_top = 36.0
-offset_right = 840.0
+offset_right = 896.0
 offset_bottom = 106.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 52
@@ -61,18 +61,18 @@ horizontal_alignment = 1
 
 [node name="RetryButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(430, 66)
+custom_minimum_size = Vector2(458.7, 66)
 theme_override_font_sizes/font_size = 30
 text = "🔄 Retry"
 
 [node name="MapButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(430, 62)
+custom_minimum_size = Vector2(458.7, 62)
 theme_override_font_sizes/font_size = 28
 text = "🗺 Level Map"
 
 [node name="MenuButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(430, 62)
+custom_minimum_size = Vector2(458.7, 62)
 theme_override_font_sizes/font_size = 28
 text = "🏠 Main Menu"

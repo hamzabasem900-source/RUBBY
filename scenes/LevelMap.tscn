@@ -19,65 +19,65 @@ color = Color(0.5, 0.78, 1, 1)
 [node name="Meadow" type="ColorRect" parent="."]
 layout_mode = 0
 offset_top = 92.0
-offset_right = 960.0
+offset_right = 1024.0
 offset_bottom = 720.0
 color = Color(0.31, 0.68, 0.25, 1)
 
 [node name="River" type="Line2D" parent="."]
-points = PackedVector2Array(40, 640, 190, 560, 330, 575, 485, 485, 610, 455, 760, 340, 930, 310)
+points = PackedVector2Array(42.7, 640, 202.7, 560, 352, 575, 517.3, 485, 650.7, 455, 810.7, 340, 992, 310)
 width = 46.0
 default_color = Color(0.18, 0.52, 0.92, 1)
 
 [node name="Trail" type="Line2D" parent="."]
-points = PackedVector2Array(135, 582, 245, 495, 365, 412, 500, 340, 620, 250, 748, 180)
+points = PackedVector2Array(144, 582, 261.3, 495, 389.3, 412, 533.3, 340, 661.3, 250, 797.9, 180)
 width = 58.0
 default_color = Color(0.73, 0.55, 0.32, 1)
 
 [node name="TrailCenter" type="Line2D" parent="."]
-points = PackedVector2Array(135, 582, 245, 495, 365, 412, 500, 340, 620, 250, 748, 180)
+points = PackedVector2Array(144, 582, 261.3, 495, 389.3, 412, 533.3, 340, 661.3, 250, 797.9, 180)
 width = 8.0
 default_color = Color(0.9, 0.76, 0.48, 1)
 
 [node name="Forest" type="Label" parent="."]
 layout_mode = 0
-offset_left = 32.0
+offset_left = 34.1
 offset_top = 145.0
-offset_right = 260.0
+offset_right = 277.3
 offset_bottom = 245.0
 theme_override_font_sizes/font_size = 42
 text = "🌲 🌳 🌲\n🌳 🌲 🌳"
 
 [node name="Farm" type="Label" parent="."]
 layout_mode = 0
-offset_left = 650.0
+offset_left = 693.3
 offset_top = 420.0
-offset_right = 910.0
+offset_right = 970.7
 offset_bottom = 530.0
 theme_override_font_sizes/font_size = 38
 text = "🏡  🥕🥕\n🌻🌻🌻"
 
 [node name="Mountain" type="Label" parent="."]
 layout_mode = 0
-offset_left = 700.0
+offset_left = 746.7
 offset_top = 86.0
-offset_right = 930.0
+offset_right = 992.0
 offset_bottom = 140.0
 theme_override_font_sizes/font_size = 42
 text = "⛰️  ⛰️"
 
 [node name="TitlePanel" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 145.0
+offset_left = 154.7
 offset_top = 18.0
-offset_right = 815.0
+offset_right = 869.3
 offset_bottom = 82.0
 color = Color(0.08, 0.2, 0.08, 0.62)
 
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 160.0
+offset_left = 170.7
 offset_top = 27.0
-offset_right = 800.0
+offset_right = 853.3
 offset_bottom = 78.0
 theme_override_colors/font_color = Color(1, 1, 0.68, 1)
 theme_override_font_sizes/font_size = 36
@@ -86,18 +86,18 @@ horizontal_alignment = 1
 
 [node name="Level1Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 82.0
+offset_left = 87.5
 offset_top = 515.0
-offset_right = 278.0
+offset_right = 296.5
 offset_bottom = 600.0
 theme_override_font_sizes/font_size = 24
 text = "🌱 1\nEasy Garden"
 
 [node name="Level1Info" type="Label" parent="."]
 layout_mode = 0
-offset_left = 74.0
+offset_left = 78.9
 offset_top = 603.0
-offset_right = 286.0
+offset_right = 305.1
 offset_bottom = 638.0
 theme_override_colors/font_color = Color(0.03, 0.12, 0.03, 1)
 theme_override_font_sizes/font_size = 16
@@ -106,9 +106,9 @@ horizontal_alignment = 1
 
 [node name="Level2Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 402.0
+offset_left = 428.8
 offset_top = 295.0
-offset_right = 618.0
+offset_right = 659.2
 offset_bottom = 383.0
 theme_override_font_sizes/font_size = 24
 text = "🌻 2\nFox Crossing"
@@ -116,9 +116,9 @@ disabled = true
 
 [node name="Level2Info" type="Label" parent="."]
 layout_mode = 0
-offset_left = 398.0
+offset_left = 424.5
 offset_top = 386.0
-offset_right = 622.0
+offset_right = 663.5
 offset_bottom = 420.0
 theme_override_colors/font_color = Color(0.03, 0.12, 0.03, 1)
 theme_override_font_sizes/font_size = 16
@@ -127,9 +127,9 @@ horizontal_alignment = 1
 
 [node name="Lock2Label" type="Label" parent="."]
 layout_mode = 0
-offset_left = 404.0
+offset_left = 430.9
 offset_top = 424.0
-offset_right = 616.0
+offset_right = 657.1
 offset_bottom = 452.0
 theme_override_colors/font_color = Color(1, 0.96, 0.22, 1)
 theme_override_font_sizes/font_size = 18
@@ -138,9 +138,9 @@ horizontal_alignment = 1
 
 [node name="Level3Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 650.0
+offset_left = 693.3
 offset_top = 137.0
-offset_right = 880.0
+offset_right = 938.7
 offset_bottom = 230.0
 theme_override_font_sizes/font_size = 24
 text = "🌿 3\nThorny Hill"
@@ -148,9 +148,9 @@ disabled = true
 
 [node name="Level3Info" type="Label" parent="."]
 layout_mode = 0
-offset_left = 648.0
+offset_left = 691.2
 offset_top = 234.0
-offset_right = 882.0
+offset_right = 940.8
 offset_bottom = 268.0
 theme_override_colors/font_color = Color(0.03, 0.12, 0.03, 1)
 theme_override_font_sizes/font_size = 16
@@ -159,9 +159,9 @@ horizontal_alignment = 1
 
 [node name="Lock3Label" type="Label" parent="."]
 layout_mode = 0
-offset_left = 652.0
+offset_left = 695.5
 offset_top = 270.0
-offset_right = 878.0
+offset_right = 936.5
 offset_bottom = 298.0
 theme_override_colors/font_color = Color(1, 0.96, 0.22, 1)
 theme_override_font_sizes/font_size = 18
@@ -170,17 +170,17 @@ horizontal_alignment = 1
 
 [node name="LegendPanel" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 28.0
+offset_left = 29.9
 offset_top = 58.0
-offset_right = 300.0
+offset_right = 320.0
 offset_bottom = 115.0
 color = Color(1, 1, 1, 0.32)
 
 [node name="LegendLabel" type="Label" parent="."]
 layout_mode = 0
-offset_left = 42.0
+offset_left = 44.8
 offset_top = 66.0
-offset_right = 288.0
+offset_right = 307.2
 offset_bottom = 109.0
 theme_override_colors/font_color = Color(0.05, 0.15, 0.05, 1)
 theme_override_font_sizes/font_size = 18
@@ -188,9 +188,9 @@ text = "Follow the trail:\nCollect carrots → unlock areas"
 
 [node name="BackButton" type="Button" parent="."]
 layout_mode = 0
-offset_left = 28.0
+offset_left = 29.9
 offset_top = 660.0
-offset_right = 185.0
+offset_right = 197.3
 offset_bottom = 705.0
 theme_override_font_sizes/font_size = 22
 text = "← Back"
