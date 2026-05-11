@@ -118,8 +118,8 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 		return
 	var t: float = min(delta * 10.0, 1.0)
 	if abs(dir.x) > 0.05:
-		# The bunny artwork naturally faces right, so mirror only the
-		# visual Label when moving left. The physics root stays positive.
+		# The bunny emoji artwork renders facing left in-game, so mirror only
+		# the visual Label when moving right. The physics root stays positive.
 		_bunny_facing_right = dir.x > 0.0
 
 	if dir.length() <= 0.0:
@@ -139,7 +139,7 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	bunny_icon.rotation = tilt
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
-	var facing_sign := 1.0 if _bunny_facing_right else -1.0
+	var facing_sign := -1.0 if _bunny_facing_right else 1.0
 	return _bunny_icon_base_scale * Vector2(
 		facing_sign * (1.0 + squash * 0.05),
 		1.0 - squash * 0.04
