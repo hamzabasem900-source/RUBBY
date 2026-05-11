@@ -24,6 +24,7 @@ var _dash_dir:      Vector2 = Vector2.RIGHT
 var _hop_time:      float = 0.0
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
+var _bunny_facing_right: bool = false
 
 var character_colors: Dictionary = {
 	"white_bunny": Color(0.95, 0.95, 0.95),
@@ -50,7 +51,8 @@ func _ready() -> void:
 	if bunny_icon:
 		bunny_icon.text = "🐰" if GameManager.selected_character == "white_bunny" else "🐇"
 		_bunny_icon_base_position = bunny_icon.position
-		_bunny_icon_base_scale = bunny_icon.scale
+		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y))
+		bunny_icon.scale = _get_bunny_facing_scale(0.0)
 		bunny_icon.pivot_offset = bunny_icon.size * 0.5
 	# Connect pickup area for carrot detection
 	if pickup:
@@ -115,20 +117,33 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	if not bunny_icon:
 		return
 	var t: float = min(delta * 10.0, 1.0)
+	if abs(dir.x) > 0.05:
+		# The bunny emoji artwork naturally faces left, so mirror only the
+		# visual Label when moving right. The physics root stays positive.
+		_bunny_facing_right = dir.x > 0.0
+
 	if dir.length() <= 0.0:
 		_hop_time = 0.0
 		bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position, t)
-		bunny_icon.scale = bunny_icon.scale.lerp(_bunny_icon_base_scale, t)
+		bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(0.0), t)
 		bunny_icon.rotation = lerp(bunny_icon.rotation, 0.0, t)
 		return
 
 	_hop_time += delta * (18.0 if dash_active else 11.0)
 	var hop: float = abs(sin(_hop_time)) * (12.0 if dash_active else 8.0)
 	var squash: float = abs(sin(_hop_time * 1.15))
-	var tilt: float = clamp(dir.x, -1.0, 1.0) * (0.16 if dash_active else 0.09)
+	var tilt_sign: float = 1.0 if _bunny_facing_right else -1.0
+	var tilt: float = tilt_sign * (0.16 if dash_active else 0.09)
 	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
-	bunny_icon.scale = _bunny_icon_base_scale * Vector2(1.0 + squash * 0.05, 1.0 - squash * 0.04)
+	bunny_icon.scale = _get_bunny_facing_scale(squash)
 	bunny_icon.rotation = tilt
+
+func _get_bunny_facing_scale(squash: float) -> Vector2:
+	var facing_sign := -1.0 if _bunny_facing_right else 1.0
+	return _bunny_icon_base_scale * Vector2(
+		facing_sign * (1.0 + squash * 0.05),
+		1.0 - squash * 0.04
+	)
 
 func _keep_inside_world() -> void:
 	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
