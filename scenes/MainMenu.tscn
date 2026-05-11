@@ -1,0 +1,257 @@
+[gd_scene format=3 uid="uid://dup67efmsqwb1"]
+
+[ext_resource type="Script" uid="uid://cmlq05o7ubvvy" path="res://scripts/main_menu.gd" id="1_mainmenu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_normal"]
+bg_color = Color(0.06, 0.07, 0.06, 0.3)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_pressed"]
+bg_color = Color(0.03, 0.04, 0.03, 0.55)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_hover"]
+bg_color = Color(0.08, 0.09, 0.08, 0.45)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.42)
+shadow_size = 8
+
+[node name="MainMenu" type="Control" unique_id=434504000]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mainmenu")
+
+[node name="Background" type="ColorRect" parent="." unique_id=402590028]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.22, 0.6, 0.22, 1)
+
+[node name="TopGrass" type="ColorRect" parent="." unique_id=1227587134]
+layout_mode = 0
+offset_right = 1024.0
+offset_bottom = 86.0
+color = Color(0.18, 0.5, 0.18, 1)
+
+[node name="BottomGrass" type="ColorRect" parent="." unique_id=1750608754]
+layout_mode = 0
+offset_top = 630.0
+offset_right = 1024.0
+offset_bottom = 720.0
+color = Color(0.18, 0.5, 0.18, 1)
+
+[node name="Flower1" type="ColorRect" parent="." unique_id=1873977210]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 80.0
+offset_right = 59.7
+offset_bottom = 106.0
+color = Color(1, 0.8, 0.1, 1)
+
+[node name="Flower2" type="ColorRect" parent="." unique_id=1563488732]
+layout_mode = 0
+offset_left = 906.7
+offset_top = 120.0
+offset_right = 944.0
+offset_bottom = 155.0
+color = Color(1, 0.4, 0.7, 1)
+
+[node name="Flower3" type="ColorRect" parent="." unique_id=1534200972]
+layout_mode = 0
+offset_left = 112.0
+offset_top = 560.0
+offset_right = 149.3
+offset_bottom = 595.0
+color = Color(1, 0.4, 0.7, 1)
+
+[node name="Flower4" type="ColorRect" parent="." unique_id=545469208]
+layout_mode = 0
+offset_left = 874.7
+offset_top = 540.0
+offset_right = 912.0
+offset_bottom = 575.0
+color = Color(1, 0.8, 0.1, 1)
+
+[node name="CarrotDeco1" type="ColorRect" parent="." unique_id=1846537244]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 210.0
+offset_right = 154.7
+offset_bottom = 248.0
+color = Color(1, 0.5, 0, 1)
+
+[node name="CarrotDeco2" type="ColorRect" parent="." unique_id=401496395]
+layout_mode = 0
+offset_left = 853.3
+offset_top = 230.0
+offset_right = 880.0
+offset_bottom = 268.0
+color = Color(1, 0.5, 0, 1)
+
+[node name="TitleLabel" type="Label" parent="." unique_id=1860905998]
+layout_mode = 0
+offset_left = 85.3
+offset_top = 34.0
+offset_right = 938.7
+offset_bottom = 120.0
+theme_override_font_sizes/font_size = 52
+text = "🥕 Bunny Carrot Adventure 🐰"
+horizontal_alignment = 1
+
+[node name="SubTitle" type="Label" parent="." unique_id=755169849]
+layout_mode = 0
+offset_left = 224.0
+offset_top = 126.0
+offset_right = 800.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(1, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 24
+text = "Collect carrots, avoid foxes, dash past danger!"
+horizontal_alignment = 1
+
+[node name="BunnyBody" type="ColorRect" parent="." unique_id=19662353]
+layout_mode = 0
+offset_left = 467.2
+offset_top = 190.0
+offset_right = 556.8
+offset_bottom = 274.0
+color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="BunnyEarL" type="ColorRect" parent="." unique_id=951265078]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 140.0
+offset_right = 501.3
+offset_bottom = 195.0
+color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="BunnyEarR" type="ColorRect" parent="." unique_id=2066965937]
+layout_mode = 0
+offset_left = 522.7
+offset_top = 140.0
+offset_right = 544.0
+offset_bottom = 195.0
+color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="FoxDecoBody" type="ColorRect" parent="." unique_id=586560426]
+layout_mode = 0
+offset_left = 746.7
+offset_top = 185.0
+offset_right = 826.7
+offset_bottom = 235.0
+color = Color(0.93, 0.42, 0.06, 1)
+
+[node name="FoxDecoTail" type="ColorRect" parent="." unique_id=865299710]
+layout_mode = 0
+offset_left = 693.3
+offset_top = 193.0
+offset_right = 752.0
+offset_bottom = 225.0
+color = Color(1, 0.83, 0.58, 1)
+
+[node name="FoxDecoEye" type="ColorRect" parent="." unique_id=1250245074]
+layout_mode = 0
+offset_left = 810.7
+offset_top = 197.0
+offset_right = 821.3
+offset_bottom = 207.0
+color = Color(0.03, 0.02, 0.02, 1)
+
+[node name="SettingsButton" type="Button" parent="." unique_id=2020442695]
+layout_mode = 0
+offset_left = 942.0
+offset_top = 20.0
+offset_right = 1014.0
+offset_bottom = 92.0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.55, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBoxFlat_settings_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_settings_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_settings_hover")
+text = "⚙"
+
+[node name="SettingsHint" type="Label" parent="." unique_id=689941497]
+layout_mode = 0
+offset_left = 884.0
+offset_top = 92.0
+offset_right = 1020.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(1, 1, 0.72, 1)
+theme_override_font_sizes/font_size = 16
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=243046620]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1667740610]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=329783512]
+custom_minimum_size = Vector2(384, 68)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 30
+text = "▶  Start Game"
+
+[node name="InstructionsButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=109384244]
+custom_minimum_size = Vector2(384, 62)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "📖  Instructions"
+
+[node name="LevelMapButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=147229407]
+custom_minimum_size = Vector2(384, 62)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "🗺  Level Map"
+
+[node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1372957119]
+custom_minimum_size = Vector2(384, 62)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 26
+text = "✖  Quit"
+
+[node name="SettingsButton2" type="Button" parent="." unique_id=584602620]
+z_index = 100
+layout_mode = 0
+offset_left = 942.0
+offset_top = 20.0
+offset_right = 1014.0
+offset_bottom = 92.0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.55, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBoxFlat_settings_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_settings_pressed")
+theme_override_styles/hover = SubResource("StyleBoxFlat_settings_hover")
+text = "⚙"

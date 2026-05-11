@@ -1,0 +1,91 @@
+[gd_scene load_steps=2 format=3 uid="uid://gameover"]
+
+[ext_resource type="Script" path="res://scripts/game_over.gd" id="1_go"]
+
+[node name="GameOver" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_go")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.88, 0.38, 0.38, 1)
+
+[node name="Cloud1" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 74.7
+offset_top = 70.0
+offset_right = 234.7
+offset_bottom = 128.0
+color = Color(1, 0.68, 0.68, 0.45)
+
+[node name="Cloud2" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 746.7
+offset_top = 92.0
+offset_right = 933.3
+offset_bottom = 150.0
+color = Color(1, 0.68, 0.68, 0.45)
+
+[node name="SadBunny" type="Label" parent="."]
+layout_mode = 0
+offset_left = 768.0
+offset_top = 470.0
+offset_right = 970.7
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 88
+text = "🐰💧"
+horizontal_alignment = 1
+
+[node name="GameOverBanner" type="Label" parent="."]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 34.0
+offset_right = 896.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 58
+text = "😢 Oh No!"
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+offset_top = 40.0
+
+[node name="MessageLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 34
+text = "Don't give up!"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.92, 1)
+theme_override_font_sizes/font_size = 28
+text = "You got: 0 points"
+horizontal_alignment = 1
+
+[node name="TryAgainButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(458.7, 68)
+theme_override_font_sizes/font_size = 30
+text = "🔄 Try Again!"
+
+[node name="MenuButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(458.7, 64)
+theme_override_font_sizes/font_size = 28
+text = "🏠 Main Menu"

@@ -1,0 +1,7 @@
+res://scripts/settings_manager.gd
+res://scenes/MainMenu.tscn
+res://scripts/audio_manager.gd
+res://scripts/collectible_carrot.gd
+res://scripts/game_manager.gd
+res://scripts/main_menu.gd
+res://scripts/settings_menu.gd
