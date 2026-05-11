@@ -24,7 +24,7 @@ var _dash_dir:      Vector2 = Vector2.RIGHT
 var _hop_time:      float = 0.0
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
-var _bunny_facing_right: bool = false
+var _bunny_facing_right: bool = true
 
 var character_colors: Dictionary = {
 	"white_bunny": Color(0.95, 0.95, 0.95),
@@ -49,7 +49,7 @@ func _ready() -> void:
 	if ear_r:  ear_r.color  = col
 	if tail:   tail.color   = Color(col.r * 0.88, col.g * 0.88, col.b * 0.88)
 	if bunny_icon:
-		bunny_icon.text = "🐰" if GameManager.selected_character == "white_bunny" else "🐇"
+		bunny_icon.text = "🐇"
 		_bunny_icon_base_position = bunny_icon.position
 		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y))
 		bunny_icon.scale = _get_bunny_facing_scale(0.0)
@@ -118,8 +118,8 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 		return
 	var t: float = min(delta * 10.0, 1.0)
 	if abs(dir.x) > 0.05:
-		# The bunny emoji artwork naturally faces left, so mirror only the
-		# visual Label when moving right. The physics root stays positive.
+		# The bunny artwork naturally faces right, so mirror only the
+		# visual Label when moving left. The physics root stays positive.
 		_bunny_facing_right = dir.x > 0.0
 
 	if dir.length() <= 0.0:
@@ -139,7 +139,7 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	bunny_icon.rotation = tilt
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
-	var facing_sign := -1.0 if _bunny_facing_right else 1.0
+	var facing_sign := 1.0 if _bunny_facing_right else -1.0
 	return _bunny_icon_base_scale * Vector2(
 		facing_sign * (1.0 + squash * 0.05),
 		1.0 - squash * 0.04
