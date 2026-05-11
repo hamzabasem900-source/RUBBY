@@ -30,7 +30,7 @@ var level_configs: Array = [
 		"carrot_count": 16, "golden_carrot_count": 3
 	},
 	{
-		"level": 3, "time_limit": 45.0, "lives": 3,
+		"level": 3, "time_limit": 45.0, "lives": 2,
 		"required_score": 160, "fox_count": 3,
 		"hole_count": 7, "thorn_count": 6,
 		"carrot_count": 20, "golden_carrot_count": 4
