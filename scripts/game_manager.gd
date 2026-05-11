@@ -58,10 +58,32 @@ func start_level(level_num: int) -> void:
 	time_changed.emit(time_remaining)
 
 func get_level_config(level_num: int) -> Dictionary:
+	var selected_config: Dictionary = level_configs[0]
 	for cfg in level_configs:
 		if cfg["level"] == level_num:
-			return cfg
-	return level_configs[0]
+			selected_config = cfg
+			break
+	return _apply_difficulty(selected_config)
+
+func _apply_difficulty(config: Dictionary) -> Dictionary:
+	var adjusted := config.duplicate(true)
+	var difficulty := _load_saved_difficulty()
+	match difficulty:
+		"Easy":
+			adjusted["time_limit"] = float(adjusted["time_limit"]) + 15.0
+			adjusted["lives"] = int(adjusted["lives"]) + 1
+			adjusted["required_score"] = int(float(adjusted["required_score"]) * 0.85)
+		"Hard":
+			adjusted["time_limit"] = max(25.0, float(adjusted["time_limit"]) - 10.0)
+			adjusted["lives"] = max(1, int(adjusted["lives"]) - 1)
+			adjusted["required_score"] = int(float(adjusted["required_score"]) * 1.15)
+	return adjusted
+
+func _load_saved_difficulty() -> String:
+	var config := ConfigFile.new()
+	if config.load("user://settings.cfg") != OK:
+		return "Normal"
+	return str(config.get_value("game", "difficulty", "Normal"))
 
 # ── Score ────────────────────────────────────────────────────────────────────
 

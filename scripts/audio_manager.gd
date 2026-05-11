@@ -24,9 +24,12 @@ const AUDIO_PATHS: Dictionary = {
 const MUSIC_KEYS: Array[String] = ["menu_music", "gameplay_music"]
 
 func _ready() -> void:
+	_ensure_audio_bus("Music")
+	_ensure_audio_bus("SFX")
 	for key in AUDIO_PATHS.keys():
 		var player := AudioStreamPlayer.new()
 		player.name = key
+		player.bus = "Music" if MUSIC_KEYS.has(key) else "SFX"
 		player.volume_db = _get_volume_for(key)
 		add_child(player)
 		_players[key] = player
@@ -58,6 +61,13 @@ func _get_volume_for(sound_name: String) -> float:
 			return -2.0
 		_:
 			return 0.0
+
+func _ensure_audio_bus(bus_name: String) -> void:
+	if AudioServer.get_bus_index(bus_name) != -1:
+		return
+	AudioServer.add_bus()
+	var idx := AudioServer.get_bus_count() - 1
+	AudioServer.set_bus_name(idx, bus_name)
 
 func _set_stream_loop(stream: AudioStream, loop: bool) -> void:
 	# MP3, WAV, and OGG stream resources expose a loop property in Godot.
