@@ -6,11 +6,13 @@ extends CharacterBody2D
 #           Space / Enter  to DASH (short speed burst, 1.2 s cooldown)
 # =============================================
 
-const SPEED:             float = 190.0
-const DASH_SPEED:        float = 460.0
+const SPEED:             float = 220.0
+const DASH_SPEED:        float = 540.0
 const DASH_DURATION:     float = 0.16
 const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
+const WORLD_MIN: Vector2 = Vector2(32.0, 88.0)
+const WORLD_MAX: Vector2 = Vector2(992.0, 694.0)
 
 var invincible:      bool  = false
 var invincible_timer: float = 0.0
@@ -19,6 +21,10 @@ var _dashing:       bool   = false
 var _dash_timer:    float  = 0.0
 var _dash_cooldown: float  = 0.0
 var _dash_dir:      Vector2 = Vector2.RIGHT
+var _hop_time:      float = 0.0
+var _bunny_icon_base_position: Vector2 = Vector2.ZERO
+var _bunny_icon_base_scale: Vector2 = Vector2.ONE
+var _bunny_facing_right: bool = true
 
 var character_colors: Dictionary = {
 	"white_bunny": Color(0.95, 0.95, 0.95),
@@ -30,6 +36,7 @@ var character_colors: Dictionary = {
 @onready var ear_r:   ColorRect = $EarRight
 @onready var tail:    ColorRect = $Tail
 @onready var pickup:  Area2D    = $PickupArea
+@onready var bunny_icon: Label = $BunnyIcon
 
 func _ready() -> void:
 	add_to_group("player")
@@ -41,6 +48,12 @@ func _ready() -> void:
 	if ear_l:  ear_l.color  = col
 	if ear_r:  ear_r.color  = col
 	if tail:   tail.color   = Color(col.r * 0.88, col.g * 0.88, col.b * 0.88)
+	if bunny_icon:
+		bunny_icon.text = "🐇"
+		_bunny_icon_base_position = bunny_icon.position
+		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y))
+		bunny_icon.scale = _get_bunny_facing_scale(0.0)
+		bunny_icon.pivot_offset = bunny_icon.size * 0.5
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
@@ -63,6 +76,8 @@ func _physics_process(delta: float) -> void:
 		_dash_timer -= delta
 		velocity = _dash_dir * DASH_SPEED
 		move_and_slide()
+		_keep_inside_world()
+		_animate_bunny(delta, _dash_dir, true)
 		if _dash_timer <= 0.0:
 			_dashing = false
 		return
@@ -79,8 +94,10 @@ func _physics_process(delta: float) -> void:
 		dir.y -= 1.0
 
 	if dir.length() > 0.0:
-		dir      = dir.normalized()
-		scale.x  = -1.0 if dir.x < 0 else 1.0
+		dir = dir.normalized()
+		# Keep the CharacterBody scale positive so the bunny icon, collision,
+		# and pickup area do not mirror or jitter when moving left.
+		scale.x = abs(scale.x)
 		_dash_dir = dir
 
 	# ── Trigger dash (Space or Enter while moving) ───────────────────────────
@@ -93,6 +110,43 @@ func _physics_process(delta: float) -> void:
 
 	velocity = dir * SPEED
 	move_and_slide()
+	_keep_inside_world()
+	_animate_bunny(delta, dir, false)
+
+func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
+	if not bunny_icon:
+		return
+	var t: float = min(delta * 10.0, 1.0)
+	if abs(dir.x) > 0.05:
+		# The bunny emoji artwork renders facing left in-game, so mirror only
+		# the visual Label when moving right. The physics root stays positive.
+		_bunny_facing_right = dir.x > 0.0
+
+	if dir.length() <= 0.0:
+		_hop_time = 0.0
+		bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position, t)
+		bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(0.0), t)
+		bunny_icon.rotation = lerp(bunny_icon.rotation, 0.0, t)
+		return
+
+	_hop_time += delta * (18.0 if dash_active else 11.0)
+	var hop: float = abs(sin(_hop_time)) * (12.0 if dash_active else 8.0)
+	var squash: float = abs(sin(_hop_time * 1.15))
+	var tilt_sign: float = 1.0 if _bunny_facing_right else -1.0
+	var tilt: float = tilt_sign * (0.16 if dash_active else 0.09)
+	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
+	bunny_icon.scale = _get_bunny_facing_scale(squash)
+	bunny_icon.rotation = tilt
+
+func _get_bunny_facing_scale(squash: float) -> Vector2:
+	var facing_sign := -1.0 if _bunny_facing_right else 1.0
+	return _bunny_icon_base_scale * Vector2(
+		facing_sign * (1.0 + squash * 0.05),
+		1.0 - squash * 0.04
+	)
+
+func _keep_inside_world() -> void:
+	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
 
 func take_damage() -> void:
 	if invincible:
