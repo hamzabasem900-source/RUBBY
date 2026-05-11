@@ -6,11 +6,13 @@ extends CharacterBody2D
 #           Space / Enter  to DASH (short speed burst, 1.2 s cooldown)
 # =============================================
 
-const SPEED:             float = 190.0
-const DASH_SPEED:        float = 460.0
+const SPEED:             float = 220.0
+const DASH_SPEED:        float = 540.0
 const DASH_DURATION:     float = 0.16
 const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
+const WORLD_MIN: Vector2 = Vector2(26.0, 72.0)
+const WORLD_MAX: Vector2 = Vector2(934.0, 694.0)
 
 var invincible:      bool  = false
 var invincible_timer: float = 0.0
@@ -63,6 +65,7 @@ func _physics_process(delta: float) -> void:
 		_dash_timer -= delta
 		velocity = _dash_dir * DASH_SPEED
 		move_and_slide()
+		_keep_inside_world()
 		if _dash_timer <= 0.0:
 			_dashing = false
 		return
@@ -93,6 +96,10 @@ func _physics_process(delta: float) -> void:
 
 	velocity = dir * SPEED
 	move_and_slide()
+	_keep_inside_world()
+
+func _keep_inside_world() -> void:
+	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
 
 func take_damage() -> void:
 	if invincible:
