@@ -3,13 +3,15 @@ extends CharacterBody2D
 # =============================================
 # Fox Enemy — Patrol + Chase AI
 # The fox patrols a fixed range but switches to
-# chasing the player when it gets close enough.
+# searching for and chasing the player across the whole world.
 # =============================================
 
 @export var patrol_distance:  float = 100.0
-@export var patrol_speed:     float = 72.0
-@export var chase_speed:      float = 115.0
-@export var chase_range:      float = 130.0
+@export var patrol_speed:     float = 62.0
+@export var chase_speed:      float = 132.0
+@export var chase_range:      float = 9999.0
+@export var acceleration:     float = 520.0
+@export var arrival_distance: float = 28.0
 @export var move_right_first: bool  = true
 
 var start_pos: Vector2 = Vector2.ZERO
@@ -24,26 +26,32 @@ func _ready() -> void:
 	if hurt_area:
 		hurt_area.body_entered.connect(_on_hurt_area_body_entered)
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	# ── Cache player reference ───────────────────────────────────────────────
 	if not _player or not is_instance_valid(_player):
 		var group: Array = get_tree().get_nodes_in_group("player")
 		_player = group[0] if group.size() > 0 else null
 
-	# ── Chase mode ───────────────────────────────────────────────────────────
+	# ── World search / chase mode ────────────────────────────────────────────
+	# Always move toward the bunny when it exists instead of rapidly flipping
+	# between short left/right patrol turns at the edge of a patrol range.
 	if _player and is_instance_valid(_player):
-		var dist: float = global_position.distance_to(_player.global_position)
-		if dist < chase_range:
-			var chase_dir: Vector2 = \
-				(_player.global_position - global_position).normalized()
-			velocity = chase_dir * chase_speed
-			scale.x  = -1.0 if chase_dir.x < 0.0 else 1.0
-			move_and_slide()
-			return
+		var to_player: Vector2 = _player.global_position - global_position
+		var dist: float = to_player.length()
+		var desired_velocity := Vector2.ZERO
+		if dist > arrival_distance:
+			var chase_dir: Vector2 = to_player / dist
+			desired_velocity = chase_dir * chase_speed
+			if abs(chase_dir.x) > 0.08:
+				scale.x = -1.0 if chase_dir.x < 0.0 else 1.0
+		velocity = velocity.move_toward(desired_velocity, acceleration * delta)
+		move_and_slide()
+		return
 
-	# ── Patrol mode ──────────────────────────────────────────────────────────
-	velocity = Vector2(dir * patrol_speed, 0.0)
-	scale.x  = -1.0 if dir < 0.0 else 1.0
+	# ── Fallback patrol only if the player is not available ──────────────────
+	velocity = velocity.move_toward(Vector2(dir * patrol_speed, 0.0), acceleration * delta)
+	if abs(velocity.x) > 1.0:
+		scale.x = -1.0 if velocity.x < 0.0 else 1.0
 	move_and_slide()
 
 	var offset: float = global_position.x - start_pos.x
