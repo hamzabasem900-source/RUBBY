@@ -1,0 +1,110 @@
+[gd_scene load_steps=2 format=3 uid="uid://charselect"]
+
+[ext_resource type="Script" path="res://scripts/character_select.gd" id="1_cs"]
+
+[node name="CharacterSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_cs")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.45, 0.8, 0.45, 1)
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 20.0
+offset_right = 580.0
+offset_bottom = 68.0
+theme_override_colors/font_color = Color(0.1, 0.3, 0.1, 1)
+theme_override_font_sizes/font_size = 32
+text = "Choose Your Bunny! 🐰"
+horizontal_alignment = 1
+
+[node name="PreviewBg" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 255.0
+offset_top = 80.0
+offset_right = 385.0
+offset_bottom = 210.0
+color = Color(0.6, 0.85, 0.6, 1)
+
+[node name="PreviewRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 284.0
+offset_top = 96.0
+offset_right = 356.0
+offset_bottom = 176.0
+color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="PreviewEarL" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 290.0
+offset_top = 76.0
+offset_right = 306.0
+offset_bottom = 100.0
+color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="PreviewEarR" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 334.0
+offset_top = 76.0
+offset_right = 350.0
+offset_bottom = 100.0
+color = Color(0.95, 0.95, 0.95, 1)
+
+[node name="CharNameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 200.0
+offset_top = 214.0
+offset_right = 440.0
+offset_bottom = 248.0
+theme_override_colors/font_color = Color(0.1, 0.3, 0.1, 1)
+theme_override_font_sizes/font_size = 22
+text = "White Bunny"
+horizontal_alignment = 1
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+offset_top = 60.0
+
+[node name="WhiteButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(280, 56)
+theme_override_font_sizes/font_size = 22
+text = "⬜ White Bunny"
+
+[node name="BrownButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(280, 56)
+theme_override_font_sizes/font_size = 22
+text = "🟫 Brown Bunny"
+
+[node name="ConfirmButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(280, 60)
+theme_override_colors/font_color = Color(0.1, 0.3, 0.1, 1)
+theme_override_font_sizes/font_size = 24
+text = "✔ Let's Go! Play!"
+
+[node name="BackButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 430.0
+offset_right = 160.0
+offset_bottom = 468.0
+theme_override_font_sizes/font_size = 22
+text = "← Back"

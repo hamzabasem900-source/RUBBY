@@ -1,0 +1,205 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/game_level.gd" id="1_gl"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="2_hud"]
+[ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
+
+[sub_resource type="RectangleShape2D" id="wall_top"]
+size = Vector2(640, 16)
+
+[sub_resource type="RectangleShape2D" id="wall_bottom"]
+size = Vector2(640, 16)
+
+[sub_resource type="RectangleShape2D" id="wall_left"]
+size = Vector2(16, 480)
+
+[sub_resource type="RectangleShape2D" id="wall_right"]
+size = Vector2(16, 480)
+
+[node name="GameLevel" type="Node2D"]
+script = ExtResource("1_gl")
+
+[node name="GardenBackground" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.3, 0.68, 0.22, 1)
+
+[node name="PathH" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 210.0
+offset_right = 640.0
+offset_bottom = 258.0
+color = Color(0.72, 0.58, 0.38, 1)
+
+[node name="PathV" type="ColorRect" parent="."]
+offset_left = 294.0
+offset_top = 0.0
+offset_right = 346.0
+offset_bottom = 480.0
+color = Color(0.72, 0.58, 0.38, 1)
+
+[node name="GrassPatch1" type="ColorRect" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 80.0
+offset_bottom = 60.0
+color = Color(0.25, 0.6, 0.18, 1)
+
+[node name="GrassPatch2" type="ColorRect" parent="."]
+offset_left = 560.0
+offset_top = 30.0
+offset_right = 620.0
+offset_bottom = 70.0
+color = Color(0.25, 0.6, 0.18, 1)
+
+[node name="GrassPatch3" type="ColorRect" parent="."]
+offset_left = 20.0
+offset_top = 400.0
+offset_right = 80.0
+offset_bottom = 460.0
+color = Color(0.25, 0.6, 0.18, 1)
+
+[node name="GrassPatch4" type="ColorRect" parent="."]
+offset_left = 560.0
+offset_top = 400.0
+offset_right = 620.0
+offset_bottom = 460.0
+color = Color(0.25, 0.6, 0.18, 1)
+
+[node name="DecoFlower1" type="ColorRect" parent="."]
+offset_left = 40.0
+offset_top = 80.0
+offset_right = 60.0
+offset_bottom = 100.0
+color = Color(1, 0.8, 0.1, 1)
+
+[node name="DecoFlower2" type="ColorRect" parent="."]
+offset_left = 590.0
+offset_top = 100.0
+offset_right = 610.0
+offset_bottom = 120.0
+color = Color(1, 0.4, 0.75, 1)
+
+[node name="DecoFlower3" type="ColorRect" parent="."]
+offset_left = 50.0
+offset_top = 330.0
+offset_right = 70.0
+offset_bottom = 350.0
+color = Color(0.6, 0.4, 1, 1)
+
+[node name="DecoFlower4" type="ColorRect" parent="."]
+offset_left = 570.0
+offset_top = 340.0
+offset_right = 590.0
+offset_bottom = 360.0
+color = Color(1, 0.8, 0.1, 1)
+
+[node name="BorderTop" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 16.0
+color = Color(0.18, 0.45, 0.1, 1)
+
+[node name="BorderBottom" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 464.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.18, 0.45, 0.1, 1)
+
+[node name="BorderLeft" type="ColorRect" parent="."]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 16.0
+offset_bottom = 480.0
+color = Color(0.18, 0.45, 0.1, 1)
+
+[node name="BorderRight" type="ColorRect" parent="."]
+offset_left = 624.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.18, 0.45, 0.1, 1)
+
+[node name="WallTop" type="StaticBody2D" parent="."]
+
+[node name="WallTopShape" type="CollisionShape2D" parent="WallTop"]
+position = Vector2(320, 8)
+shape = SubResource("wall_top")
+
+[node name="WallBottom" type="StaticBody2D" parent="."]
+
+[node name="WallBottomShape" type="CollisionShape2D" parent="WallBottom"]
+position = Vector2(320, 472)
+shape = SubResource("wall_bottom")
+
+[node name="WallLeft" type="StaticBody2D" parent="."]
+
+[node name="WallLeftShape" type="CollisionShape2D" parent="WallLeft"]
+position = Vector2(8, 240)
+shape = SubResource("wall_left")
+
+[node name="WallRight" type="StaticBody2D" parent="."]
+
+[node name="WallRightShape" type="CollisionShape2D" parent="WallRight"]
+position = Vector2(632, 240)
+shape = SubResource("wall_right")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(320, 240)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("2_hud")
+
+[node name="HudBackground" type="ColorRect" parent="HUD"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 52.0
+color = Color(0, 0, 0, 0.42)
+
+[node name="MarginContainer" type="MarginContainer" parent="HUD"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 640.0
+offset_bottom = 52.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="TopBar" type="HBoxContainer" parent="HUD/MarginContainer"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/separation = 8
+
+[node name="ScoreLabel" type="Label" parent="HUD/MarginContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 22
+text = "Score: 0"
+
+[node name="LevelLabel" type="Label" parent="HUD/MarginContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 1, 0.8, 1)
+theme_override_font_sizes/font_size = 22
+text = "Level 1"
+horizontal_alignment = 1
+
+[node name="TimeLabel" type="Label" parent="HUD/MarginContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Time: 60"
+horizontal_alignment = 2
+
+[node name="HeartsContainer" type="HBoxContainer" parent="HUD/MarginContainer/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 2

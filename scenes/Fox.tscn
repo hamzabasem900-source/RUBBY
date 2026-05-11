@@ -1,0 +1,60 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_fox.gd" id="1_fox"]
+
+[sub_resource type="CapsuleShape2D" id="SubResource_1"]
+height = 24.0
+radius = 11.0
+
+[sub_resource type="RectangleShape2D" id="SubResource_2"]
+size = Vector2(36, 28)
+
+[node name="Fox" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_fox")
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -18.0
+offset_top = -14.0
+offset_right = 18.0
+offset_bottom = 14.0
+color = Color(0.85, 0.38, 0.05, 1)
+
+[node name="Head" type="ColorRect" parent="."]
+offset_left = -10.0
+offset_top = -24.0
+offset_right = 10.0
+offset_bottom = -8.0
+color = Color(0.85, 0.38, 0.05, 1)
+
+[node name="Eye" type="ColorRect" parent="."]
+offset_left = 4.0
+offset_top = -20.0
+offset_right = 9.0
+offset_bottom = -15.0
+color = Color(0.05, 0.05, 0.05, 1)
+
+[node name="Nose" type="ColorRect" parent="."]
+offset_left = 7.0
+offset_top = -14.0
+offset_right = 11.0
+offset_bottom = -11.0
+color = Color(0.9, 0.3, 0.3, 1)
+
+[node name="Tail" type="ColorRect" parent="."]
+offset_left = -26.0
+offset_top = -4.0
+offset_right = -14.0
+offset_bottom = 8.0
+color = Color(1, 0.85, 0.7, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("SubResource_1")
+
+[node name="HurtArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 1
+
+[node name="HurtCollision" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("SubResource_2")
