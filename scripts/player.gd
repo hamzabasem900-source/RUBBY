@@ -12,7 +12,7 @@ const DASH_DURATION:     float = 0.16
 const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
 const WORLD_MIN: Vector2 = Vector2(32.0, 88.0)
-const WORLD_MAX: Vector2 = Vector2(1248.0, 694.0)
+const WORLD_MAX: Vector2 = Vector2(928.0, 694.0)
 
 var invincible:      bool  = false
 var invincible_timer: float = 0.0

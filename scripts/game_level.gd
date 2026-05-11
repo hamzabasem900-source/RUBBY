@@ -14,8 +14,8 @@ const HOLE_SCENE:   String = "res://scenes/Hole.tscn"
 const THORN_SCENE:  String = "res://scenes/Thorn.tscn"
 
 # Safe play area (inside border walls)
-const AREA_MIN := Vector2(105.0,  105.0)
-const AREA_MAX := Vector2(1175.0, 640.0)
+const AREA_MIN := Vector2(90.0,  105.0)
+const AREA_MAX := Vector2(870.0, 640.0)
 
 var transitioning: bool = false
 
@@ -37,7 +37,7 @@ func _spawn_all() -> void:
 	var used: Array = []
 
 	# Keep centre clear for player start
-	used.append(Vector2(640, 380))
+	used.append(Vector2(480, 380))
 
 	for _i in range(config["carrot_count"]):
 		_spawn(CARROT_SCENE, used, false)
