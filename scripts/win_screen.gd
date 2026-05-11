@@ -24,6 +24,7 @@ func _ready() -> void:
 	replay_btn.pressed.connect(_on_replay)
 	menu_btn.pressed.connect(_on_menu)
 	_apply_language()
+	SettingsManager.apply_wooden_buttons(self)
 
 	if GameManager.current_level >= 3:
 		next_btn.text     = SettingsManager.text("all_levels_complete")

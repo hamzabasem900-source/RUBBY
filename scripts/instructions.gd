@@ -52,6 +52,7 @@ const CARD_DATA: Array[Dictionary] = [
 func _ready() -> void:
 	_apply_language()
 	_build_cards()
+	SettingsManager.apply_wooden_buttons(self)
 	back_btn.pressed.connect(_on_back)
 
 func _apply_language() -> void:

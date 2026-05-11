@@ -19,6 +19,7 @@ var _opening_settings: bool = false
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_apply_language()
+	SettingsManager.apply_wooden_buttons(self)
 	start_btn.pressed.connect(_on_start)
 	instr_btn.pressed.connect(_on_instructions)
 	map_btn.pressed.connect(_on_level_map)

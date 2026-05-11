@@ -18,6 +18,7 @@ extends Control
 
 func _ready() -> void:
 	_apply_language()
+	SettingsManager.apply_wooden_buttons(self)
 	btn1.pressed.connect(func(): _go(1))
 	btn2.pressed.connect(func(): _go(2))
 	btn3.pressed.connect(func(): _go(3))

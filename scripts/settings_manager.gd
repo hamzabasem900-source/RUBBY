@@ -117,6 +117,49 @@ func _resolution_to_vector(resolution: String) -> Vector2i:
 		_:
 			return Vector2i(1280, 720)
 
+func apply_wooden_buttons(root: Node) -> void:
+	for child in root.get_children():
+		if child is Button and not (child is CheckButton):
+			style_wooden_button(child as Button)
+		apply_wooden_buttons(child)
+
+func style_wooden_button(button: Button, font_color: Color = Color.WHITE) -> void:
+	button.add_theme_font_size_override("font_size", int(max(22, button.get_theme_font_size("font_size"))))
+	button.add_theme_color_override("font_color", font_color)
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.96, 0.78, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.86, 0.55, 1.0))
+	button.add_theme_color_override("font_disabled_color", Color(0.58, 0.44, 0.32, 1.0))
+	button.add_theme_color_override("font_outline_color", Color(0.20, 0.10, 0.05, 1.0))
+	button.add_theme_constant_override("outline_size", 4)
+	button.add_theme_stylebox_override("normal", _wood_style(Color(0.63, 0.36, 0.18, 1.0), Color(0.28, 0.13, 0.06, 1.0)))
+	button.add_theme_stylebox_override("hover", _wood_style(Color(0.74, 0.44, 0.22, 1.0), Color(0.36, 0.17, 0.07, 1.0)))
+	button.add_theme_stylebox_override("pressed", _wood_style(Color(0.47, 0.25, 0.12, 1.0), Color(0.20, 0.09, 0.04, 1.0)))
+	button.add_theme_stylebox_override("disabled", _wood_style(Color(0.36, 0.25, 0.17, 0.82), Color(0.18, 0.11, 0.07, 0.92)))
+	button.add_theme_stylebox_override("focus", _wood_focus_style())
+
+func _wood_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.border_color = border_color
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(14)
+	style.shadow_color = Color(0.10, 0.04, 0.02, 0.42)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0, 3)
+	style.content_margin_left = 18
+	style.content_margin_right = 18
+	style.content_margin_top = 10
+	style.content_margin_bottom = 10
+	return style
+
+func _wood_focus_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0, 0, 0, 0)
+	style.border_color = Color(1.0, 0.86, 0.30, 0.95)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(16)
+	return style
+
 func text(key: String) -> String:
 	var language := str(values["language"])
 	var english := {

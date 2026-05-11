@@ -21,6 +21,7 @@ var _selected: String = "white_bunny"
 
 func _ready() -> void:
 	_apply_language()
+	SettingsManager.apply_wooden_buttons(self)
 	white_btn.pressed.connect(func(): _pick("white_bunny"))
 	brown_btn.pressed.connect(func(): _pick("brown_bunny"))
 	confirm_btn.pressed.connect(_on_confirm)

@@ -17,6 +17,7 @@ var _action_buttons: Array[Button] = []
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_build_interface()
+	SettingsManager.apply_wooden_buttons(self)
 	SettingsManager.language_changed.connect(_refresh_language)
 
 func _build_interface() -> void:

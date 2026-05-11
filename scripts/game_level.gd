@@ -51,16 +51,13 @@ func _build_pause_menu() -> void:
 	_pause_button.text = "☰"
 	_pause_button.tooltip_text = SettingsManager.text("pause_button_hint")
 	_pause_button.custom_minimum_size = Vector2(58, 52)
-	_pause_button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_pause_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_pause_button.offset_left = -78
-	_pause_button.offset_top = -72
+	_pause_button.offset_top = 96
 	_pause_button.offset_right = -20
-	_pause_button.offset_bottom = -20
+	_pause_button.offset_bottom = 148
 	_pause_button.add_theme_font_size_override("font_size", 28)
-	_pause_button.add_theme_color_override("font_color", Color(1, 1, 1, 1))
-	_pause_button.add_theme_stylebox_override("normal", _button_style(Color(0.03, 0.16, 0.07, 0.58), Color(0.85, 1.0, 0.78, 0.80), 16))
-	_pause_button.add_theme_stylebox_override("hover", _button_style(Color(0.08, 0.28, 0.12, 0.86), Color(1.0, 0.92, 0.35, 1.0), 16))
-	_pause_button.add_theme_stylebox_override("pressed", _button_style(Color(0.02, 0.10, 0.04, 0.92), Color(0.9, 0.7, 0.22, 1.0), 16))
+	SettingsManager.style_wooden_button(_pause_button)
 	_pause_button.pressed.connect(_open_pause_menu)
 	_pause_layer.add_child(_pause_button)
 
@@ -116,10 +113,7 @@ func _pause_menu_button(text_key: String, font_color: Color, callback: Callable)
 	button.text = SettingsManager.text(text_key)
 	button.custom_minimum_size = Vector2(320, 56)
 	button.add_theme_font_size_override("font_size", 24)
-	button.add_theme_color_override("font_color", font_color)
-	button.add_theme_stylebox_override("normal", _button_style(Color(0.07, 0.22, 0.10, 0.96), Color(0.42, 0.82, 0.36, 0.80), 18))
-	button.add_theme_stylebox_override("hover", _button_style(Color(0.10, 0.32, 0.14, 1.0), Color(1.0, 0.92, 0.36, 1.0), 18))
-	button.add_theme_stylebox_override("pressed", _button_style(Color(0.04, 0.16, 0.07, 1.0), Color(0.9, 0.7, 0.24, 1.0), 18))
+	SettingsManager.style_wooden_button(button, font_color)
 	button.pressed.connect(callback)
 	return button
 
@@ -135,18 +129,6 @@ func _panel_style() -> StyleBoxFlat:
 	style.content_margin_right = 34
 	style.content_margin_top = 28
 	style.content_margin_bottom = 28
-	return style
-
-func _button_style(bg_color: Color, border_color: Color, radius: int) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg_color
-	style.border_color = border_color
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(radius)
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
 	return style
 
 func _open_pause_menu() -> void:

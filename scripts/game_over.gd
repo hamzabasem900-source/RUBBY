@@ -21,6 +21,7 @@ func _ready() -> void:
 	retry_btn.pressed.connect(_on_retry)
 	menu_btn.pressed.connect(_on_menu)
 	_apply_language()
+	SettingsManager.apply_wooden_buttons(self)
 
 func _apply_language() -> void:
 	banner_label.text = SettingsManager.text("game_over_banner")
