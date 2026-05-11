@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.6", "Mobile")
 
 GameManager="*res://scripts/game_manager.gd"
 AudioManager="*res://scripts/audio_manager.gd"
+SettingsManager="*res://scripts/settings_manager.gd"
 
 [display]
 
