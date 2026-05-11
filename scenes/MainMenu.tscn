@@ -1,6 +1,31 @@
-[gd_scene load_steps=2 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=5 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_mainmenu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_normal"]
+bg_color = Color(0.06, 0.07, 0.06, 0.30)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_hover"]
+bg_color = Color(0.08, 0.09, 0.08, 0.45)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.42)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_pressed"]
+bg_color = Color(0.03, 0.04, 0.03, 0.55)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -185,3 +210,19 @@ custom_minimum_size = Vector2(384.0, 62)
 theme_override_colors/font_color = Color(1, 0.6, 0.6, 1)
 theme_override_font_sizes/font_size = 26
 text = "✖  Quit"
+
+[node name="SettingsButton" type="Button" parent="."]
+z_index = 20
+layout_mode = 0
+offset_left = 942.0
+offset_top = 20.0
+offset_right = 1014.0
+offset_bottom = 92.0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.55, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBoxFlat_settings_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_settings_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_settings_pressed")
+text = "⚙"
