@@ -1,14 +1,14 @@
 extends Control
 
 # =============================================
-# Level Map — Level Selection + Lock Logic
+# Level Map — Scenic trail level selection + locks
 # =============================================
 
-@onready var btn1:   Button = $CenterContainer/VBoxContainer/Level1Button
-@onready var btn2:   Button = $CenterContainer/VBoxContainer/Level2Button
-@onready var btn3:   Button = $CenterContainer/VBoxContainer/Level3Button
-@onready var lock2:  Label  = $CenterContainer/VBoxContainer/Lock2Label
-@onready var lock3:  Label  = $CenterContainer/VBoxContainer/Lock3Label
+@onready var btn1: Button = $Level1Button
+@onready var btn2: Button = $Level2Button
+@onready var btn3: Button = $Level3Button
+@onready var lock2: Label = $Lock2Label
+@onready var lock3: Label = $Lock3Label
 @onready var back_btn: Button = $BackButton
 
 func _ready() -> void:

@@ -6,11 +6,13 @@ extends CharacterBody2D
 #           Space / Enter  to DASH (short speed burst, 1.2 s cooldown)
 # =============================================
 
-const SPEED:             float = 190.0
-const DASH_SPEED:        float = 460.0
+const SPEED:             float = 220.0
+const DASH_SPEED:        float = 540.0
 const DASH_DURATION:     float = 0.16
 const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
+const WORLD_MIN: Vector2 = Vector2(32.0, 88.0)
+const WORLD_MAX: Vector2 = Vector2(1248.0, 694.0)
 
 var invincible:      bool  = false
 var invincible_timer: float = 0.0
@@ -30,6 +32,7 @@ var character_colors: Dictionary = {
 @onready var ear_r:   ColorRect = $EarRight
 @onready var tail:    ColorRect = $Tail
 @onready var pickup:  Area2D    = $PickupArea
+@onready var bunny_icon: Label = $BunnyIcon
 
 func _ready() -> void:
 	add_to_group("player")
@@ -41,6 +44,8 @@ func _ready() -> void:
 	if ear_l:  ear_l.color  = col
 	if ear_r:  ear_r.color  = col
 	if tail:   tail.color   = Color(col.r * 0.88, col.g * 0.88, col.b * 0.88)
+	if bunny_icon:
+		bunny_icon.text = "🐰" if GameManager.selected_character == "white_bunny" else "🐇"
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
@@ -63,6 +68,7 @@ func _physics_process(delta: float) -> void:
 		_dash_timer -= delta
 		velocity = _dash_dir * DASH_SPEED
 		move_and_slide()
+		_keep_inside_world()
 		if _dash_timer <= 0.0:
 			_dashing = false
 		return
@@ -79,8 +85,10 @@ func _physics_process(delta: float) -> void:
 		dir.y -= 1.0
 
 	if dir.length() > 0.0:
-		dir      = dir.normalized()
-		scale.x  = -1.0 if dir.x < 0 else 1.0
+		dir = dir.normalized()
+		# Keep the CharacterBody scale positive so the bunny icon, collision,
+		# and pickup area do not mirror or jitter when moving left.
+		scale.x = abs(scale.x)
 		_dash_dir = dir
 
 	# ── Trigger dash (Space or Enter while moving) ───────────────────────────
@@ -93,6 +101,10 @@ func _physics_process(delta: float) -> void:
 
 	velocity = dir * SPEED
 	move_and_slide()
+	_keep_inside_world()
+
+func _keep_inside_world() -> void:
+	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
 
 func take_damage() -> void:
 	if invincible:
