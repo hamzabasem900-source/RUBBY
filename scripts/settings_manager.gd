@@ -10,6 +10,7 @@ signal language_changed(language: String)
 
 const CONFIG_PATH: String = "user://settings.cfg"
 const SECTION: String = "game"
+const DESIGN_SIZE := Vector2i(1024, 720)
 
 const DEFAULT_SETTINGS: Dictionary = {
 	"master_volume": 0.85,
@@ -17,15 +18,11 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"sfx_volume": 0.85,
 	"mute_audio": false,
 	"language": "English",
-	"fullscreen": false,
-	"resolution": "1024 x 720",
+	"fullscreen": true,
+	"resolution": "1280 x 720",
 	"show_fps": false,
 	"reduce_motion": false,
-	"show_tips": true,
-	"difficulty": "Normal",
-	"camera_shake": true,
-	"touch_controls": false,
-	"color_assist": false
+	"difficulty": "Normal"
 }
 
 var values: Dictionary = DEFAULT_SETTINGS.duplicate(true)
@@ -83,10 +80,15 @@ func apply_all() -> void:
 	apply_fps_overlay()
 
 func apply_window_settings() -> void:
+	var size := _resolution_to_vector(str(values["resolution"]))
+	var window := get_window()
+	window.content_scale_size = DESIGN_SIZE
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+
 	var fullscreen: bool = bool(values["fullscreen"])
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
 	if not fullscreen:
-		var size := _resolution_to_vector(str(values["resolution"]))
 		DisplayServer.window_set_size(size)
 		var screen_size := DisplayServer.screen_get_size()
 		DisplayServer.window_set_position((screen_size - size) / 2)
@@ -133,14 +135,14 @@ func _ensure_audio_bus(bus_name: String) -> void:
 
 func _resolution_to_vector(resolution: String) -> Vector2i:
 	match resolution:
-		"1280 x 720":
-			return Vector2i(1280, 720)
+		"1024 x 720":
+			return Vector2i(1024, 720)
 		"1600 x 900":
 			return Vector2i(1600, 900)
 		"1920 x 1080":
 			return Vector2i(1920, 1080)
 		_:
-			return Vector2i(1024, 720)
+			return Vector2i(1280, 720)
 
 func text(key: String) -> String:
 	var language := str(values["language"])
@@ -155,15 +157,11 @@ func text(key: String) -> String:
 		"language": "Language",
 		"gameplay": "Gameplay",
 		"difficulty": "Difficulty",
-		"show_tips": "Show helpful tips",
-		"touch_controls": "Touch controls",
-		"camera_shake": "Camera shake",
 		"visuals": "Visuals",
 		"fullscreen": "Fullscreen",
 		"resolution": "Resolution",
 		"show_fps": "Show FPS",
 		"reduce_motion": "Reduce motion",
-		"color_assist": "High contrast colors",
 		"reset": "Reset Defaults",
 		"back": "Back to Menu",
 		"preview": "Live Preview"
@@ -179,15 +177,11 @@ func text(key: String) -> String:
 		"language": "اللغة",
 		"gameplay": "اللعب",
 		"difficulty": "الصعوبة",
-		"show_tips": "إظهار التلميحات",
-		"touch_controls": "أزرار اللمس",
-		"camera_shake": "اهتزاز الكاميرا",
 		"visuals": "العرض",
 		"fullscreen": "ملء الشاشة",
 		"resolution": "الدقة",
 		"show_fps": "إظهار FPS",
 		"reduce_motion": "تقليل الحركة",
-		"color_assist": "ألوان عالية التباين",
 		"reset": "استعادة الافتراضي",
 		"back": "رجوع للقائمة",
 		"preview": "معاينة مباشرة"

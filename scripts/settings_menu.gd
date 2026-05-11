@@ -63,9 +63,15 @@ func _build_interface() -> void:
 	root.add_theme_constant_override("margin_bottom", 34)
 	add_child(root)
 
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	root.add_child(scroll)
+
 	var layout := VBoxContainer.new()
+	layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	layout.add_theme_constant_override("separation", 18)
-	root.add_child(layout)
+	scroll.add_child(layout)
 
 	var grid := GridContainer.new()
 	grid.columns = 2
@@ -83,17 +89,13 @@ func _build_interface() -> void:
 
 	grid.add_child(_create_card("visuals", [
 		_create_check_row("fullscreen", "fullscreen"),
-		_create_option_row("resolution", "resolution", ["1024 x 720", "1280 x 720", "1600 x 900", "1920 x 1080"]),
+		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"]),
 		_create_check_row("show_fps", "show_fps"),
-		_create_check_row("reduce_motion", "reduce_motion"),
-		_create_check_row("color_assist", "color_assist")
+		_create_check_row("reduce_motion", "reduce_motion")
 	]))
 
 	grid.add_child(_create_card("gameplay", [
-		_create_option_row("difficulty", "difficulty", ["Easy", "Normal", "Hard"]),
-		_create_check_row("show_tips", "show_tips"),
-		_create_check_row("touch_controls", "touch_controls"),
-		_create_check_row("camera_shake", "camera_shake")
+		_create_option_row("difficulty", "difficulty", ["Easy", "Normal", "Hard"])
 	]))
 
 	grid.add_child(_create_preview_card())
@@ -253,7 +255,7 @@ func _update_preview() -> void:
 	_preview_label.text = "🥕 " + SettingsManager.text("language") + ": " + str(SettingsManager.get_setting("language")) + "\n" + \
 		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
 		"🎮 " + SettingsManager.text("difficulty") + ": " + str(SettingsManager.get_setting("difficulty")) + "\n" + \
-		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution"))
+		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + ("ON" if bool(SettingsManager.get_setting("fullscreen")) else "OFF")
 
 func _refresh_language(_language: String) -> void:
 	for label in _labels:
