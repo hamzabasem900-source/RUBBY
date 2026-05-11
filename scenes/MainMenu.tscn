@@ -174,6 +174,32 @@ offset_right = 821.3
 offset_bottom = 207.0
 color = Color(0.03, 0.02, 0.02, 1)
 
+[node name="SettingsButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 942.0
+offset_top = 20.0
+offset_right = 1014.0
+offset_bottom = 92.0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(1, 0.95, 0.55, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("StyleBoxFlat_settings_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_settings_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_settings_pressed")
+text = "⚙"
+
+[node name="SettingsHint" type="Label" parent="."]
+layout_mode = 0
+offset_left = 884.0
+offset_top = 92.0
+offset_right = 1020.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(1, 1, 0.72, 1)
+theme_override_font_sizes/font_size = 16
+text = "Settings"
+horizontal_alignment = 1
+
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
