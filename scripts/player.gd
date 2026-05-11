@@ -85,8 +85,10 @@ func _physics_process(delta: float) -> void:
 		dir.y -= 1.0
 
 	if dir.length() > 0.0:
-		dir      = dir.normalized()
-		scale.x  = -1.0 if dir.x < 0 else 1.0
+		dir = dir.normalized()
+		# Keep the CharacterBody scale positive so the bunny icon, collision,
+		# and pickup area do not mirror or jitter when moving left.
+		scale.x = abs(scale.x)
 		_dash_dir = dir
 
 	# ── Trigger dash (Space or Enter while moving) ───────────────────────────

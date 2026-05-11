@@ -23,7 +23,8 @@ var _base_scale: Vector2 = Vector2.ONE
 
 func _ready() -> void:
 	start_pos = global_position
-	_base_scale = scale
+	_base_scale = Vector2(abs(scale.x), abs(scale.y))
+	scale = _base_scale
 	dir       = 1.0 if move_right_first else -1.0
 	if hurt_area:
 		hurt_area.body_entered.connect(_on_hurt_area_body_entered)
@@ -45,7 +46,7 @@ func _physics_process(delta: float) -> void:
 			var chase_dir: Vector2 = to_player / dist
 			desired_velocity = chase_dir * chase_speed
 			if abs(chase_dir.x) > 0.08:
-				scale.x = -_base_scale.x if chase_dir.x < 0.0 else _base_scale.x
+				_apply_facing()
 		velocity = velocity.move_toward(desired_velocity, acceleration * delta)
 		move_and_slide()
 		return
@@ -53,7 +54,7 @@ func _physics_process(delta: float) -> void:
 	# ── Fallback patrol only if the player is not available ──────────────────
 	velocity = velocity.move_toward(Vector2(dir * patrol_speed, 0.0), acceleration * delta)
 	if abs(velocity.x) > 1.0:
-		scale.x = -_base_scale.x if velocity.x < 0.0 else _base_scale.x
+		_apply_facing()
 	move_and_slide()
 
 	var offset: float = global_position.x - start_pos.x
@@ -61,6 +62,11 @@ func _physics_process(delta: float) -> void:
 		dir = -1.0
 	elif offset < -patrol_distance and dir < 0.0:
 		dir = 1.0
+
+func _apply_facing() -> void:
+	# Do not use negative scale for left-facing movement: mirrored physics
+	# bodies and emoji/label sprites can look distorted and move oddly.
+	scale = _base_scale
 
 func _on_hurt_area_body_entered(body: Node2D) -> void:
 	if body.is_in_group("player") and body.has_method("take_damage"):
