@@ -6,8 +6,8 @@ extends CharacterBody2D
 #           Space / Enter  to DASH (short speed burst, 1.2 s cooldown)
 # =============================================
 
-const SPEED:             float = 190.0
-const DASH_SPEED:        float = 460.0
+const SPEED:             float = 220.0
+const DASH_SPEED:        float = 540.0
 const DASH_DURATION:     float = 0.16
 const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
