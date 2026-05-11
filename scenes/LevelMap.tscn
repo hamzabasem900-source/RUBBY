@@ -41,9 +41,9 @@ default_color = Color(0.9, 0.76, 0.48, 1)
 [node name="Forest" type="Label" parent="."]
 layout_mode = 0
 offset_left = 32.0
-offset_top = 105.0
+offset_top = 145.0
 offset_right = 260.0
-offset_bottom = 205.0
+offset_bottom = 245.0
 theme_override_font_sizes/font_size = 42
 text = "🌲 🌳 🌲\n🌳 🌲 🌳"
 
@@ -154,7 +154,7 @@ offset_right = 882.0
 offset_bottom = 268.0
 theme_override_colors/font_color = Color(0.03, 0.12, 0.03, 1)
 theme_override_font_sizes/font_size = 16
-text = "⏱ 45s | ❤❤❤ | 🎯 160"
+text = "⏱ 45s | ❤❤ | 🎯 160"
 horizontal_alignment = 1
 
 [node name="Lock3Label" type="Label" parent="."]
@@ -171,17 +171,17 @@ horizontal_alignment = 1
 [node name="LegendPanel" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 28.0
-offset_top = 25.0
+offset_top = 58.0
 offset_right = 300.0
-offset_bottom = 82.0
+offset_bottom = 115.0
 color = Color(1, 1, 1, 0.32)
 
 [node name="LegendLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 42.0
-offset_top = 33.0
+offset_top = 66.0
 offset_right = 288.0
-offset_bottom = 76.0
+offset_bottom = 109.0
 theme_override_colors/font_color = Color(0.05, 0.15, 0.05, 1)
 theme_override_font_sizes/font_size = 18
 text = "Follow the trail:\nCollect carrots → unlock areas"
