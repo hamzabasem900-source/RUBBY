@@ -10,6 +10,7 @@ signal language_changed(language: String)
 
 const CONFIG_PATH: String = "user://settings.cfg"
 const SECTION: String = "game"
+const DESIGN_SIZE := Vector2i(1024, 720)
 
 const DEFAULT_SETTINGS: Dictionary = {
 	"master_volume": 0.85,
@@ -17,26 +18,16 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"sfx_volume": 0.85,
 	"mute_audio": false,
 	"language": "English",
-	"fullscreen": false,
-	"resolution": "1024 x 720",
-	"show_fps": false,
-	"reduce_motion": false,
-	"show_tips": true,
-	"difficulty": "Normal",
-	"camera_shake": true,
-	"touch_controls": false,
-	"color_assist": false
+	"fullscreen": true,
+	"resolution": "1280 x 720",
+	"difficulty": "Normal"
 }
 
 var values: Dictionary = DEFAULT_SETTINGS.duplicate(true)
-var _fps_label: Label
 
 func _ready() -> void:
 	load_settings()
 	apply_all()
-
-func _process(_delta: float) -> void:
-	_update_fps_overlay()
 
 func load_settings() -> void:
 	var config := ConfigFile.new()
@@ -80,13 +71,17 @@ func get_setting(key: String) -> Variant:
 func apply_all() -> void:
 	apply_window_settings()
 	apply_audio_settings()
-	apply_fps_overlay()
 
 func apply_window_settings() -> void:
+	var size := _resolution_to_vector(str(values["resolution"]))
+	var window := get_window()
+	window.content_scale_size = DESIGN_SIZE
+	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+
 	var fullscreen: bool = bool(values["fullscreen"])
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
 	if not fullscreen:
-		var size := _resolution_to_vector(str(values["resolution"]))
 		DisplayServer.window_set_size(size)
 		var screen_size := DisplayServer.screen_get_size()
 		DisplayServer.window_set_position((screen_size - size) / 2)
@@ -95,26 +90,6 @@ func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
 	_set_bus_volume("Music", float(values["music_volume"]), bool(values["mute_audio"]))
 	_set_bus_volume("SFX", float(values["sfx_volume"]), bool(values["mute_audio"]))
-
-func apply_fps_overlay() -> void:
-	if not bool(values["show_fps"]):
-		if _fps_label != null:
-			_fps_label.queue_free()
-			_fps_label = null
-		return
-	if _fps_label != null:
-		return
-	_fps_label = Label.new()
-	_fps_label.name = "FpsOverlay"
-	_fps_label.top_level = true
-	_fps_label.position = Vector2(14, 12)
-	_fps_label.add_theme_font_size_override("font_size", 18)
-	_fps_label.add_theme_color_override("font_color", Color(1, 1, 0.55, 1))
-	add_child(_fps_label)
-
-func _update_fps_overlay() -> void:
-	if _fps_label != null:
-		_fps_label.text = "FPS: " + str(Engine.get_frames_per_second())
 
 func _set_bus_volume(bus_name: String, linear_value: float, muted: bool) -> void:
 	_ensure_audio_bus(bus_name)
@@ -133,14 +108,14 @@ func _ensure_audio_bus(bus_name: String) -> void:
 
 func _resolution_to_vector(resolution: String) -> Vector2i:
 	match resolution:
-		"1280 x 720":
-			return Vector2i(1280, 720)
+		"1024 x 720":
+			return Vector2i(1024, 720)
 		"1600 x 900":
 			return Vector2i(1600, 900)
 		"1920 x 1080":
 			return Vector2i(1920, 1080)
 		_:
-			return Vector2i(1024, 720)
+			return Vector2i(1280, 720)
 
 func text(key: String) -> String:
 	var language := str(values["language"])
@@ -155,22 +130,81 @@ func text(key: String) -> String:
 		"language": "Language",
 		"gameplay": "Gameplay",
 		"difficulty": "Difficulty",
-		"show_tips": "Show helpful tips",
-		"touch_controls": "Touch controls",
-		"camera_shake": "Camera shake",
-		"visuals": "Visuals",
+		"visuals": "Display",
 		"fullscreen": "Fullscreen",
 		"resolution": "Resolution",
-		"show_fps": "Show FPS",
-		"reduce_motion": "Reduce motion",
-		"color_assist": "High contrast colors",
 		"reset": "Reset Defaults",
-		"back": "Back to Menu",
-		"preview": "Live Preview"
+		"back": "Back",
+		"back_to_menu": "Back to Menu",
+		"preview": "Live Preview",
+		"on": "ON",
+		"off": "OFF",
+		"app_title": "🥕 Bunny Carrot Adventure 🐰",
+		"main_subtitle": "Collect carrots, avoid foxes, dash past danger!",
+		"start_game": "▶  Start Game",
+		"instructions": "📖  Instructions",
+		"level_map": "🗺  Level Map",
+		"quit": "✖  Quit",
+		"how_to_play": "📖 How To Play",
+		"instructions_subtitle": "Quick guide cards for a safer carrot adventure.",
+		"instructions_controls_title": "Move like a pro",
+		"instructions_controls_body": "Use Arrow Keys or WASD to move. Press Space or Enter for a quick dash when danger gets close.",
+		"instructions_collect_title": "Collect carrots",
+		"instructions_collect_body": "Orange carrots give 10 points. Golden carrots give 25 points, so grab them first when it is safe.",
+		"instructions_hazards_title": "Know the hazards",
+		"instructions_hazards_body": "Foxes chase you. Burrow holes are dark dirt pits. Thorn bushes are green shrubs with pale spikes. Any hit costs 1 life.",
+		"instructions_goal_title": "Win the level",
+		"instructions_goal_body": "Reach the required score before time runs out. Collect enough carrots to unlock the next garden area.",
+		"instructions_lives_title": "Protect your lives",
+		"instructions_lives_body": "You start with the lives shown at the top of the screen. If they reach zero, the run ends.",
+		"instructions_tip_title": "Smart bunny tip",
+		"instructions_tip_body": "Plan your route around hazards, dash only when needed, and go for golden carrots when the path is clear.",
+		"instructions_body": "[b]🎮 Controls:[/b]\n  Arrow Keys or WASD — Move your bunny\n  Space or Enter — Quick dash burst\n\n[b]🥕 Collect:[/b]\n  Orange Carrot = 10 points\n  Golden Carrot = 25 points\n\n[b]⚠ Hazards:[/b]\n  🦊 Foxes — they chase the bunny and cost 1 life.\n  🕳 Burrow Holes — dark oval pits with a dirt rim; avoid stepping into them.\n  🌿 Thorn Bushes — green bushes with pale spikes; touching them costs 1 life.\n\n[b]🎯 Goal:[/b]\n  Collect enough points before the timer ends!\n  Reach the required score to win the level.\n\n[b]❤ Lives:[/b]\n  You start with 3 lives. Each hit = -1 life.\n  If lives reach 0, it's Game Over!",
+		"choose_bunny": "Choose Your Bunny! 🐰",
+		"white_bunny": "White Bunny 🐰",
+		"brown_bunny": "Brown Bunny 🐰",
+		"white_bunny_button": "⬜ White Bunny",
+		"brown_bunny_button": "🟫 Brown Bunny",
+		"confirm_play": "✔ Let's Go! Play!",
+		"map_title": "🗺 Real Garden Adventure Map",
+		"level1_name": "🌱 1\nEasy Garden",
+		"level2_name": "🌻 2\nFox Crossing",
+		"level3_name": "🌿 3\nThorny Hill",
+		"level1_lock": "🔒 Win Level 1",
+		"level2_lock": "🔒 Win Level 2",
+		"map_legend": "Follow the trail:\nCollect carrots → unlock areas",
+		"level": "Level",
+		"seconds_suffix": "s",
+		"dash_tip": "Dash: Space / Enter",
+		"win_banner": "🎉 YOU WIN! 🎉",
+		"final_score": "Final Score: {score} 🥕",
+		"next_level": "➡ Next Level",
+		"play_again": "🔄 Play Again",
+		"main_menu": "🏠 Main Menu",
+		"all_levels_complete": "🎉 All Levels Complete!",
+		"win_message_1": "Amazing job! 🌟",
+		"win_message_2": "You're a carrot champion! 🥕",
+		"win_message_3": "Brilliant bunny! 🐰",
+		"win_message_4": "Wow, you're unstoppable! ⭐",
+		"win_message_5": "Super hop! Keep going! 🎉",
+		"game_over_banner": "😢 Oh No!",
+		"game_over_score": "You got: {score} points",
+		"try_again": "🔄 Try Again!",
+		"game_over_message_1": "Oops! Don't give up, little bunny! 🐰",
+		"game_over_message_2": "So close! Try again! 💪",
+		"game_over_message_3": "The carrots are waiting for you! 🥕",
+		"game_over_message_4": "You can do it! One more hop! 🌟",
+		"result_title": "Level Results! 🥕",
+		"your_score": "Your Score: {score}",
+		"time_used": "Time Used: {time}s",
+		"retry": "🔄 Retry",
+		"easy": "Easy",
+		"normal": "Normal",
+		"hard": "Hard"
 	}
 	var arabic := {
 		"settings": "الإعدادات",
-		"settings_subtitle": "اضبط مغامرتك بالطريقة التي تناسبك.",
+		"settings_subtitle": "اضبط اللعبة بالطريقة التي تناسبك.",
 		"audio": "الصوت",
 		"master_volume": "الصوت الرئيسي",
 		"music_volume": "الموسيقى",
@@ -179,19 +213,95 @@ func text(key: String) -> String:
 		"language": "اللغة",
 		"gameplay": "اللعب",
 		"difficulty": "الصعوبة",
-		"show_tips": "إظهار التلميحات",
-		"touch_controls": "أزرار اللمس",
-		"camera_shake": "اهتزاز الكاميرا",
 		"visuals": "العرض",
 		"fullscreen": "ملء الشاشة",
 		"resolution": "الدقة",
-		"show_fps": "إظهار FPS",
-		"reduce_motion": "تقليل الحركة",
-		"color_assist": "ألوان عالية التباين",
 		"reset": "استعادة الافتراضي",
-		"back": "رجوع للقائمة",
-		"preview": "معاينة مباشرة"
+		"back": "رجوع",
+		"back_to_menu": "رجوع للقائمة",
+		"preview": "معاينة مباشرة",
+		"on": "مفعّل",
+		"off": "متوقف",
+		"app_title": "🥕 مغامرة الأرنب والجزر 🐰",
+		"main_subtitle": "اجمع الجزر، تجنب الثعالب، واندفع بعيدًا عن الخطر!",
+		"start_game": "▶  ابدأ اللعب",
+		"instructions": "📖  التعليمات",
+		"level_map": "🗺  خريطة المراحل",
+		"quit": "✖  خروج",
+		"how_to_play": "📖 طريقة اللعب",
+		"instructions_subtitle": "بطاقات سريعة تساعدك على مغامرة آمنة وممتعة.",
+		"instructions_controls_title": "تحرّك باحتراف",
+		"instructions_controls_body": "استخدم الأسهم أو WASD للتحرك. اضغط Space أو Enter للاندفاع بسرعة عند اقتراب الخطر.",
+		"instructions_collect_title": "اجمع الجزر",
+		"instructions_collect_body": "الجزرة البرتقالية تعطي 10 نقاط. الجزرة الذهبية تعطي 25 نقطة، فاجمعها أولًا عندما يكون الطريق آمنًا.",
+		"instructions_hazards_title": "اعرف المخاطر",
+		"instructions_hazards_body": "الثعالب تطاردك. الجحور حفر ترابية داكنة. شجيرات الشوك خضراء وبها أشواك فاتحة. كل إصابة تنقص حياة واحدة.",
+		"instructions_goal_title": "افز بالمرحلة",
+		"instructions_goal_body": "وصل للنقاط المطلوبة قبل انتهاء الوقت. اجمع جزرًا كافيًا لتفتح منطقة الحديقة التالية.",
+		"instructions_lives_title": "احمِ حيواتك",
+		"instructions_lives_body": "تبدأ بعدد الحيوات الظاهر أعلى الشاشة. إذا وصلت الحيوات إلى صفر تنتهي المحاولة.",
+		"instructions_tip_title": "نصيحة الأرنب الذكي",
+		"instructions_tip_body": "خطط طريقك بعيدًا عن المخاطر، استخدم الاندفاع عند الحاجة فقط، واجمع الجزر الذهبي عندما يكون المسار واضحًا.",
+		"instructions_body": "[b]🎮 التحكم:[/b]\n  الأسهم أو WASD — حرّك الأرنب\n  Space أو Enter — اندفاع سريع\n\n[b]🥕 التجميع:[/b]\n  الجزرة البرتقالية = 10 نقاط\n  الجزرة الذهبية = 25 نقطة\n\n[b]⚠ المخاطر:[/b]\n  🦊 الثعالب — تطارد الأرنب وتنقص حياة واحدة.\n  🕳 جحور/حفر الأرض — حفرة بيضاوية داكنة حولها تراب؛ لا تدخل فيها.\n  🌿 شجيرات الشوك — شجيرات خضراء عليها أشواك فاتحة؛ لمسها ينقص حياة واحدة.\n\n[b]🎯 الهدف:[/b]\n  اجمع نقاطًا كافية قبل انتهاء الوقت!\n  وصل للنقاط المطلوبة كي تفوز بالمرحلة.\n\n[b]❤ الحيوات:[/b]\n  تبدأ بثلاث حيوات. كل إصابة تنقص حياة.\n  إذا وصلت الحيوات إلى صفر تنتهي اللعبة!",
+		"choose_bunny": "اختر أرنبك! 🐰",
+		"white_bunny": "الأرنب الأبيض 🐰",
+		"brown_bunny": "الأرنب البني 🐰",
+		"white_bunny_button": "⬜ الأرنب الأبيض",
+		"brown_bunny_button": "🟫 الأرنب البني",
+		"confirm_play": "✔ هيا نلعب!",
+		"map_title": "🗺 خريطة مغامرة الحديقة",
+		"level1_name": "🌱 1\nالحديقة السهلة",
+		"level2_name": "🌻 2\nممر الثعلب",
+		"level3_name": "🌿 3\nتلة الشوك",
+		"level1_lock": "🔒 افز بالمرحلة 1",
+		"level2_lock": "🔒 افز بالمرحلة 2",
+		"map_legend": "اتبع الطريق:\nاجمع الجزر ← افتح مناطق جديدة",
+		"level": "المرحلة",
+		"seconds_suffix": "ث",
+		"dash_tip": "اندفاع: Space / Enter",
+		"win_banner": "🎉 فزت! 🎉",
+		"final_score": "النقاط النهائية: {score} 🥕",
+		"next_level": "➡ المرحلة التالية",
+		"play_again": "🔄 العب مجددًا",
+		"main_menu": "🏠 القائمة الرئيسية",
+		"all_levels_complete": "🎉 أنهيت كل المراحل!",
+		"win_message_1": "عمل رائع! 🌟",
+		"win_message_2": "أنت بطل الجزر! 🥕",
+		"win_message_3": "أرنب ذكي! 🐰",
+		"win_message_4": "مذهل، لا يمكن إيقافك! ⭐",
+		"win_message_5": "قفزة ممتازة! استمر! 🎉",
+		"game_over_banner": "😢 انتهت اللعبة!",
+		"game_over_score": "حصلت على: {score} نقطة",
+		"try_again": "🔄 حاول مرة أخرى!",
+		"game_over_message_1": "لا تستسلم أيها الأرنب الصغير! 🐰",
+		"game_over_message_2": "كنت قريبًا! حاول مرة أخرى! 💪",
+		"game_over_message_3": "الجزر ينتظرك! 🥕",
+		"game_over_message_4": "تستطيع فعلها! قفزة أخرى! 🌟",
+		"result_title": "نتائج المرحلة! 🥕",
+		"your_score": "نقاطك: {score}",
+		"time_used": "الوقت المستخدم: {time}ث",
+		"retry": "🔄 إعادة المحاولة",
+		"easy": "سهل",
+		"normal": "عادي",
+		"hard": "صعب"
 	}
 	if language == "العربية":
 		return str(arabic.get(key, english.get(key, key)))
 	return str(english.get(key, key))
+
+func format_text(key: String, replacements: Dictionary) -> String:
+	var formatted := text(key)
+	for token in replacements.keys():
+		formatted = formatted.replace("{" + str(token) + "}", str(replacements[token]))
+	return formatted
+
+func option_text(setting_key: String, value: String) -> String:
+	if setting_key != "difficulty":
+		return value
+	match value:
+		"Easy":
+			return text("easy")
+		"Hard":
+			return text("hard")
+		_:
+			return text("normal")
