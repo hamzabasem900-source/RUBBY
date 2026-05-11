@@ -33,7 +33,7 @@ func _ready() -> void:
 func _apply_language() -> void:
 	banner_label.text = SettingsManager.text("win_banner")
 	msg_label.text = SettingsManager.text(MESSAGE_KEYS[randi() % MESSAGE_KEYS.size()])
-	score_label.text = SettingsManager.format_text("final_score", {"score": GameManager.score})
+	score_label.text = SettingsManager.format_text("final_score", {"score": GameManager.score}) + "\n" + SettingsManager.format_text("carrots_banked", {"count": GameManager.last_banked_carrots})
 	next_btn.text = SettingsManager.text("next_level")
 	replay_btn.text = SettingsManager.text("play_again")
 	menu_btn.text = SettingsManager.text("main_menu")

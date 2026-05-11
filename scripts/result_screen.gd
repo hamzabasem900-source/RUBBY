@@ -26,12 +26,6 @@ func _apply_language() -> void:
 	map_btn.text = SettingsManager.text("level_map")
 	menu_btn.text = SettingsManager.text("main_menu")
 
-func _apply_language() -> void:
-	title_label.text = SettingsManager.text("result_title")
-	retry_btn.text = SettingsManager.text("retry")
-	map_btn.text = SettingsManager.text("level_map")
-	menu_btn.text = SettingsManager.text("main_menu")
-
 func _show_results() -> void:
 	score_label.text = SettingsManager.format_text("your_score", {"score": GameManager.score})
 

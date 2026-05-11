@@ -51,6 +51,7 @@ func _update_preview() -> void:
 func _on_confirm() -> void:
 	AudioManager.play_button_click()
 	GameManager.selected_character = _selected
+	GameManager.save_progress()
 	GameManager.start_level(1)
 	get_tree().change_scene_to_file("res://scenes/GameLevel.tscn")
 

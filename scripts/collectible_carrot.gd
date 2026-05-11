@@ -56,6 +56,9 @@ func _process(delta: float) -> void:
 func get_points() -> int:
 	return 25 if is_golden else 10
 
+func get_currency_value() -> int:
+	return 1
+
 func collect() -> void:
 	if collected:
 		return

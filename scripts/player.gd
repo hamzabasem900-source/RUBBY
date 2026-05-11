@@ -159,7 +159,8 @@ func take_damage() -> void:
 func _on_pickup_area_entered(area: Area2D) -> void:
 	if area.is_in_group("carrot"):
 		var points: int = area.get_points()
-		GameManager.add_score(points)
+		var currency_value: int = area.get_currency_value() if area.has_method("get_currency_value") else 1
+		GameManager.add_score(points, currency_value)
 		if points >= 25:
 			AudioManager.play_golden_collect()
 		else:
