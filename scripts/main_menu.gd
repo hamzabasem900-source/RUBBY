@@ -22,7 +22,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_bounce_t += delta
 	if title_label:
-		title_label.position.y = 18.0 + sin(_bounce_t * 1.6) * 5.0
+		title_label.position.y = 28.0 + sin(_bounce_t * 1.6) * 6.0
 
 func _on_start() -> void:
 	AudioManager.play_button_click()
