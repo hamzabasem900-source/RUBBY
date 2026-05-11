@@ -10,6 +10,7 @@ var _value_labels: Dictionary = {}
 var _language_options: OptionButton
 var _difficulty_options: OptionButton
 var _resolution_options: OptionButton
+var _option_buttons: Dictionary = {}
 var _preview_label: Label
 var _action_buttons: Array[Button] = []
 
@@ -89,9 +90,7 @@ func _build_interface() -> void:
 
 	grid.add_child(_create_card("visuals", [
 		_create_check_row("fullscreen", "fullscreen"),
-		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"]),
-		_create_check_row("show_fps", "show_fps"),
-		_create_check_row("reduce_motion", "reduce_motion")
+		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"])
 	]))
 
 	grid.add_child(_create_card("gameplay", [
@@ -195,8 +194,8 @@ func _create_option_row(label_key: String, setting_key: String, options: Array[S
 	var option := OptionButton.new()
 	option.custom_minimum_size = Vector2(170, 34)
 	for item in options:
-		option.add_item(item)
-	var current := str(SettingsManager.get_setting(setting_key))
+		option.add_item(SettingsManager.option_text(setting_key, item))
+	_option_buttons[option] = {"setting_key": setting_key, "options": options}
 	var current_value = SettingsManager.get_setting(setting_key)
 	var selected_index: int = int(max(0, options.find(current_value)))
 	option.select(selected_index)
@@ -252,10 +251,11 @@ func _update_value_label(key: String, text: String) -> void:
 func _update_preview() -> void:
 	if _preview_label == null:
 		return
+	var fullscreen_state := SettingsManager.text("on") if bool(SettingsManager.get_setting("fullscreen")) else SettingsManager.text("off")
 	_preview_label.text = "🥕 " + SettingsManager.text("language") + ": " + str(SettingsManager.get_setting("language")) + "\n" + \
 		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
-		"🎮 " + SettingsManager.text("difficulty") + ": " + str(SettingsManager.get_setting("difficulty")) + "\n" + \
-		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + ("ON" if bool(SettingsManager.get_setting("fullscreen")) else "OFF")
+		"🎮 " + SettingsManager.text("difficulty") + ": " + SettingsManager.option_text("difficulty", str(SettingsManager.get_setting("difficulty"))) + "\n" + \
+		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + fullscreen_state
 
 func _refresh_language(_language: String) -> void:
 	for label in _labels:
@@ -268,6 +268,12 @@ func _refresh_language(_language: String) -> void:
 			label.text = SettingsManager.text(key)
 	for button in _action_buttons:
 		button.text = SettingsManager.text(button.name.replace("Button", ""))
+	for option in _option_buttons.keys():
+		var data: Dictionary = _option_buttons[option]
+		var option_button := option as OptionButton
+		var options: Array = data["options"]
+		for index in range(options.size()):
+			option_button.set_item_text(index, SettingsManager.option_text(str(data["setting_key"]), str(options[index])))
 	_update_preview()
 
 func _on_reset_pressed() -> void:
