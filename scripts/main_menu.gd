@@ -379,8 +379,7 @@ func _refresh_shop_cards() -> void:
 
 func _on_start() -> void:
 	AudioManager.play_button_click()
-	GameManager.start_level(1)
-	get_tree().change_scene_to_file("res://scenes/GameLevel.tscn")
+	get_tree().change_scene_to_file("res://scenes/LevelMap.tscn")
 
 func _on_instructions() -> void:
 	AudioManager.play_button_click()
