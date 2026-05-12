@@ -1,62 +1,82 @@
-[gd_scene load_steps=2 format=3 uid="uid://levelmap"]
+[gd_scene format=3 uid="uid://levelmap"]
 
-[ext_resource type="Script" path="res://scripts/level_map.gd" id="1_lmap"]
+[ext_resource type="Script" uid="uid://2of2uy0i3jqd" path="res://scripts/level_map.gd" id="1_lmap"]
+[ext_resource type="Texture2D" uid="uid://di6rm0shfvxcn" path="res://assets/Gemini_Generated_Image_ldlzhcldlzhcldlz.png" id="2_y2l36"]
 
-[node name="LevelMap" type="Control"]
+[node name="LevelMap" type="Control" unique_id=2006392819]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_lmap")
 
-[node name="Sky" type="ColorRect" parent="."]
+[node name="background" type="Sprite2D" parent="." unique_id=1000358744]
+position = Vector2(485, 379.00003)
+scale = Vector2(1.0032895, 0.93394077)
+texture = ExtResource("2_y2l36")
+
+[node name="Sky" type="ColorRect" parent="." unique_id=1405864493]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 color = Color(0.5, 0.78, 1, 1)
 
-[node name="Meadow" type="ColorRect" parent="."]
+[node name="Meadow" type="ColorRect" parent="." unique_id=702651523]
+visible = false
 layout_mode = 0
 offset_top = 92.0
 offset_right = 1024.0
 offset_bottom = 720.0
 color = Color(0.31, 0.68, 0.25, 1)
 
-[node name="River" type="Line2D" parent="."]
+[node name="River" type="Line2D" parent="." unique_id=1119568869]
+visible = false
 points = PackedVector2Array(42.7, 640, 202.7, 560, 352, 575, 517.3, 485, 650.7, 455, 810.7, 340, 992, 310)
 width = 46.0
 default_color = Color(0.18, 0.52, 0.92, 1)
 
-[node name="Trail" type="Line2D" parent="."]
+[node name="Trail" type="Line2D" parent="." unique_id=1601338986]
+visible = false
 points = PackedVector2Array(144, 582, 261.3, 495, 389.3, 412, 533.3, 340, 661.3, 250, 797.9, 180)
 width = 58.0
 default_color = Color(0.73, 0.55, 0.32, 1)
 
-[node name="TrailCenter" type="Line2D" parent="."]
+[node name="TrailCenter" type="Line2D" parent="." unique_id=720879221]
+visible = false
 points = PackedVector2Array(144, 582, 261.3, 495, 389.3, 412, 533.3, 340, 661.3, 250, 797.9, 180)
 width = 8.0
 default_color = Color(0.9, 0.76, 0.48, 1)
 
-[node name="Forest" type="Label" parent="."]
+[node name="Forest" type="Label" parent="." unique_id=615645985]
+visible = false
 layout_mode = 0
 offset_left = 34.1
 offset_top = 145.0
 offset_right = 277.3
 offset_bottom = 245.0
 theme_override_font_sizes/font_size = 42
-text = "🌲 🌳 🌲\n🌳 🌲 🌳"
+text = "🌲 🌳 🌲
+🌳 🌲 🌳"
 
-[node name="Farm" type="Label" parent="."]
+[node name="Farm" type="Label" parent="." unique_id=692380750]
+visible = false
 layout_mode = 0
 offset_left = 693.3
 offset_top = 420.0
 offset_right = 970.7
 offset_bottom = 530.0
 theme_override_font_sizes/font_size = 38
-text = "🏡  🥕🥕\n🌻🌻🌻"
+text = "🏡  🥕🥕
+🌻🌻🌻"
 
-[node name="Mountain" type="Label" parent="."]
+[node name="Mountain" type="Label" parent="." unique_id=577694327]
+visible = false
 layout_mode = 0
 offset_left = 746.7
 offset_top = 86.0
@@ -124,7 +144,7 @@ theme_override_font_sizes/font_size = 38
 text = "Garden Adventure Map"
 horizontal_alignment = 1
 
-[node name="TitleLabel" type="Label" parent="."]
+[node name="TitleLabel" type="Label" parent="." unique_id=1022601210]
 layout_mode = 0
 offset_left = 346.0
 offset_top = 20.0
@@ -151,16 +171,17 @@ text = "🌍"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Level1Button" type="Button" parent="."]
+[node name="Level1Button" type="Button" parent="." unique_id=1197607952]
 layout_mode = 0
 offset_left = 87.5
 offset_top = 515.0
 offset_right = 296.5
 offset_bottom = 600.0
 theme_override_font_sizes/font_size = 24
-text = "🌱 1\nEasy Garden"
+text = "🌱 1
+Easy Garden"
 
-[node name="Level1Info" type="Label" parent="."]
+[node name="Level1Info" type="Label" parent="." unique_id=1157543959]
 layout_mode = 0
 offset_left = 78.9
 offset_top = 603.0
@@ -171,17 +192,18 @@ theme_override_font_sizes/font_size = 16
 text = "⏱ 70s | ❤❤❤ | 🎯 80"
 horizontal_alignment = 1
 
-[node name="Level2Button" type="Button" parent="."]
+[node name="Level2Button" type="Button" parent="." unique_id=396025968]
 layout_mode = 0
 offset_left = 428.8
 offset_top = 295.0
 offset_right = 659.2
 offset_bottom = 383.0
 theme_override_font_sizes/font_size = 24
-text = "🌻 2\nFox Crossing"
 disabled = true
+text = "🌻 2
+Fox Crossing"
 
-[node name="Level2Info" type="Label" parent="."]
+[node name="Level2Info" type="Label" parent="." unique_id=1780792217]
 layout_mode = 0
 offset_left = 424.5
 offset_top = 386.0
@@ -192,7 +214,8 @@ theme_override_font_sizes/font_size = 16
 text = "⏱ 55s | ❤❤❤ | 🎯 120"
 horizontal_alignment = 1
 
-[node name="Lock2Label" type="Label" parent="."]
+[node name="Lock2Label" type="Label" parent="." unique_id=1065485902]
+visible = false
 layout_mode = 0
 offset_left = 430.9
 offset_top = 424.0
@@ -203,17 +226,18 @@ theme_override_font_sizes/font_size = 18
 text = "🔒 Win Level 1"
 horizontal_alignment = 1
 
-[node name="Level3Button" type="Button" parent="."]
+[node name="Level3Button" type="Button" parent="." unique_id=1333168420]
 layout_mode = 0
 offset_left = 693.3
 offset_top = 137.0
 offset_right = 938.7
 offset_bottom = 230.0
 theme_override_font_sizes/font_size = 24
-text = "🌿 3\nThorny Hill"
 disabled = true
+text = "🌿 3
+Thorny Hill"
 
-[node name="Level3Info" type="Label" parent="."]
+[node name="Level3Info" type="Label" parent="." unique_id=340120266]
 layout_mode = 0
 offset_left = 691.2
 offset_top = 234.0
@@ -224,7 +248,7 @@ theme_override_font_sizes/font_size = 16
 text = "⏱ 45s | ❤❤ | 🎯 160"
 horizontal_alignment = 1
 
-[node name="Lock3Label" type="Label" parent="."]
+[node name="Lock3Label" type="Label" parent="." unique_id=1651999164]
 layout_mode = 0
 offset_left = 695.5
 offset_top = 270.0
@@ -259,7 +283,7 @@ offset_right = 332.0
 offset_bottom = 69.0
 color = Color(1, 0.92, 0.70, 0.75)
 
-[node name="LegendLabel" type="Label" parent="."]
+[node name="LegendLabel" type="Label" parent="." unique_id=1057597027]
 layout_mode = 0
 offset_left = 78.0
 offset_top = 88.0
@@ -271,7 +295,7 @@ theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 24
 text = "Follow the trail:\nCollect carrots → unlock areas"
 
-[node name="BackButton" type="Button" parent="."]
+[node name="BackButton" type="Button" parent="." unique_id=440462341]
 layout_mode = 0
 offset_left = 29.9
 offset_top = 660.0
