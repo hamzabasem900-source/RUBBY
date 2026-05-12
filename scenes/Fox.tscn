@@ -1,0 +1,116 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_fox.gd" id="1_fox"]
+
+[sub_resource type="CapsuleShape2D" id="SubResource_1"]
+height = 34.0
+radius = 16.0
+
+[sub_resource type="RectangleShape2D" id="SubResource_2"]
+size = Vector2(58, 42)
+
+[node name="Fox" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 16
+script = ExtResource("1_fox")
+
+[node name="Shadow" type="ColorRect" parent="."]
+offset_left = -36.0
+offset_top = 21.0
+offset_right = 36.0
+offset_bottom = 30.0
+color = Color(0.08, 0.06, 0.03, 0.3)
+
+[node name="Tail" type="ColorRect" parent="."]
+offset_left = -50.0
+offset_top = -8.0
+offset_right = -18.0
+offset_bottom = 13.0
+color = Color(0.95, 0.45, 0.08, 1)
+
+[node name="TailTip" type="ColorRect" parent="."]
+offset_left = -60.0
+offset_top = -7.0
+offset_right = -45.0
+offset_bottom = 12.0
+color = Color(1, 0.88, 0.68, 1)
+
+[node name="Sprite" type="ColorRect" parent="."]
+offset_left = -27.0
+offset_top = -17.0
+offset_right = 27.0
+offset_bottom = 18.0
+color = Color(0.93, 0.42, 0.06, 1)
+
+[node name="Chest" type="ColorRect" parent="."]
+offset_left = 4.0
+offset_top = -5.0
+offset_right = 25.0
+offset_bottom = 18.0
+color = Color(1, 0.86, 0.62, 1)
+
+[node name="Head" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = -33.0
+offset_right = 42.0
+offset_bottom = -7.0
+color = Color(0.93, 0.42, 0.06, 1)
+
+[node name="EarLeft" type="ColorRect" parent="."]
+offset_left = 13.0
+offset_top = -46.0
+offset_right = 25.0
+offset_bottom = -29.0
+color = Color(0.83, 0.27, 0.04, 1)
+
+[node name="EarRight" type="ColorRect" parent="."]
+offset_left = 30.0
+offset_top = -44.0
+offset_right = 41.0
+offset_bottom = -28.0
+color = Color(0.83, 0.27, 0.04, 1)
+
+[node name="Snout" type="ColorRect" parent="."]
+offset_left = 34.0
+offset_top = -22.0
+offset_right = 54.0
+offset_bottom = -10.0
+color = Color(1, 0.86, 0.62, 1)
+
+[node name="Eye" type="ColorRect" parent="."]
+offset_left = 30.0
+offset_top = -27.0
+offset_right = 37.0
+offset_bottom = -20.0
+color = Color(0.03, 0.03, 0.025, 1)
+
+[node name="Nose" type="ColorRect" parent="."]
+offset_left = 50.0
+offset_top = -20.0
+offset_right = 57.0
+offset_bottom = -14.0
+color = Color(0.04, 0.025, 0.02, 1)
+
+[node name="LegFront" type="ColorRect" parent="."]
+offset_left = 14.0
+offset_top = 13.0
+offset_right = 24.0
+offset_bottom = 31.0
+color = Color(0.42, 0.19, 0.06, 1)
+
+[node name="LegBack" type="ColorRect" parent="."]
+offset_left = -19.0
+offset_top = 13.0
+offset_right = -9.0
+offset_bottom = 31.0
+color = Color(0.42, 0.19, 0.06, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("SubResource_1")
+
+[node name="HurtArea" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 1
+
+[node name="HurtCollision" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("SubResource_2")
