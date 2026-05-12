@@ -73,18 +73,50 @@ func apply_all() -> void:
 	apply_audio_settings()
 
 func apply_window_settings() -> void:
-	var size := _resolution_to_vector(str(values["resolution"]))
 	var window := get_window()
 	window.content_scale_size = DESIGN_SIZE
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
 
-	var fullscreen: bool = bool(values["fullscreen"])
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
-	if not fullscreen:
-		DisplayServer.window_set_size(size)
-		var screen_size := DisplayServer.screen_get_size()
-		DisplayServer.window_set_position((screen_size - size) / 2)
+	if bool(values["fullscreen"]):
+		_apply_fullscreen_window()
+	else:
+		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
+
+func get_display_status_text() -> String:
+	var mode := DisplayServer.window_get_mode()
+	var mode_text := text("fullscreen") if _is_fullscreen_mode(mode) else text("windowed")
+	var size := DisplayServer.window_get_size()
+	return "%s • %d x %d" % [mode_text, size.x, size.y]
+
+func _is_fullscreen_mode(mode: int) -> bool:
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		return true
+	return mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+
+func _apply_fullscreen_window() -> void:
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+
+func _apply_windowed_size(size: Vector2i) -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+	DisplayServer.window_set_size(size)
+	get_window().size = size
+	_center_window(size)
+	call_deferred("_finish_windowed_size_apply", size)
+
+func _finish_windowed_size_apply(size: Vector2i) -> void:
+	if bool(values["fullscreen"]):
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(size)
+	get_window().size = size
+	_center_window(size)
+
+func _center_window(size: Vector2i) -> void:
+	var screen_size := DisplayServer.screen_get_size()
+	DisplayServer.window_set_position((screen_size - size) / 2)
 
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
@@ -176,6 +208,8 @@ func text(key: String) -> String:
 		"visuals": "Display",
 		"fullscreen": "Fullscreen",
 		"resolution": "Resolution",
+		"windowed": "Windowed",
+		"applied_display": "Applied display",
 		"reset": "Reset Defaults",
 		"back": "Back",
 		"back_to_menu": "Back to Menu",
@@ -286,6 +320,8 @@ func text(key: String) -> String:
 		"visuals": "العرض",
 		"fullscreen": "ملء الشاشة",
 		"resolution": "الدقة",
+		"windowed": "نافذة",
+		"applied_display": "العرض المطبق",
 		"reset": "استعادة الافتراضي",
 		"back": "رجوع",
 		"back_to_menu": "رجوع للقائمة",

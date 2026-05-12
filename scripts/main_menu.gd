@@ -12,6 +12,7 @@ extends Control
 @onready var settings_hint: Label = $SettingsHint
 @onready var title_label: Label  = $TitleLabel
 @onready var subtitle_label: Label = $SubTitle
+@onready var background: Sprite2D = $background
 
 var _bounce_t: float = 0.0
 var _opening_settings: bool = false
@@ -26,6 +27,7 @@ var _skin_cards: Dictionary = {}
 
 func _ready() -> void:
 	AudioManager.play_menu_music()
+	_prepare_responsive_layout()
 	_build_reward_panel()
 	_build_shop_overlay()
 	_apply_language()
@@ -40,6 +42,60 @@ func _ready() -> void:
 	map_btn.pressed.connect(_on_level_map)
 	quit_btn.pressed.connect(_on_quit)
 	settings_btn.pressed.connect(_on_settings)
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
+
+func _prepare_responsive_layout() -> void:
+	_fit_background_to_viewport()
+	_configure_top_labels()
+	_configure_settings_shortcut(settings_btn)
+	_configure_settings_shortcut(get_node_or_null("SettingsButton2") as Button)
+	_configure_settings_hint()
+
+func _on_viewport_size_changed() -> void:
+	_fit_background_to_viewport()
+
+func _fit_background_to_viewport() -> void:
+	if background == null or background.texture == null:
+		return
+	var viewport_size := get_viewport_rect().size
+	var texture_size := background.texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return
+	var cover_scale: float = max(viewport_size.x / texture_size.x, viewport_size.y / texture_size.y)
+	background.position = viewport_size * 0.5
+	background.scale = Vector2(cover_scale, cover_scale)
+
+func _configure_top_labels() -> void:
+	if title_label != null:
+		title_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		title_label.offset_left = 36.0
+		title_label.offset_top = 34.0
+		title_label.offset_right = -132.0
+		title_label.offset_bottom = 120.0
+	if subtitle_label != null:
+		subtitle_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+		subtitle_label.offset_left = 120.0
+		subtitle_label.offset_top = 126.0
+		subtitle_label.offset_right = -120.0
+		subtitle_label.offset_bottom = 168.0
+
+func _configure_settings_shortcut(button: Button) -> void:
+	if button == null:
+		return
+	button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	button.offset_left = -102.0
+	button.offset_top = 20.0
+	button.offset_right = -30.0
+	button.offset_bottom = 92.0
+
+func _configure_settings_hint() -> void:
+	if settings_hint == null:
+		return
+	settings_hint.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	settings_hint.offset_left = -166.0
+	settings_hint.offset_top = 92.0
+	settings_hint.offset_right = -30.0
+	settings_hint.offset_bottom = 120.0
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
