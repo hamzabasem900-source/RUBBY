@@ -34,7 +34,6 @@ func _ready() -> void:
 	SettingsManager.apply_wooden_buttons(self)
 	GameManager.carrot_wallet_changed.connect(_on_wallet_changed)
 	GameManager.skin_collection_changed.connect(_refresh_shop_cards)
-	GameManager.skin_colors_changed.connect(_refresh_shop_cards)
 	GameManager.selected_skin_changed.connect(_on_selected_skin_changed)
 	start_btn.pressed.connect(_on_start)
 	instr_btn.pressed.connect(_on_instructions)
@@ -237,20 +236,6 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	price_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.40, 1.0))
 	info.add_child(price_label)
 
-	var color_row := HBoxContainer.new()
-	color_row.add_theme_constant_override("separation", 7)
-	info.add_child(color_row)
-
-	var color_buttons: Dictionary = {}
-	for color in GameManager.get_color_variants(skin_id):
-		var color_id := str(color["id"])
-		var swatch := Button.new()
-		swatch.custom_minimum_size = Vector2(30, 30)
-		swatch.focus_mode = Control.FOCUS_NONE
-		swatch.pressed.connect(Callable(self, "_on_skin_color_pressed").bind(skin_id, color_id))
-		color_row.add_child(swatch)
-		color_buttons[color_id] = swatch
-
 	var action_btn := Button.new()
 	action_btn.custom_minimum_size = Vector2(132, 50)
 	action_btn.pressed.connect(func() -> void:
@@ -264,7 +249,6 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 		"name": name_label,
 		"description": description_label,
 		"price": price_label,
-		"colors": color_buttons,
 		"button": action_btn
 	}
 	return card
@@ -366,54 +350,6 @@ func _on_skin_action_pressed(skin_id: String) -> void:
 		_shop_status_label.text = SettingsManager.text("skin_not_enough")
 	_refresh_shop_cards()
 
-func _on_skin_color_pressed(skin_id: String, color_id: String) -> void:
-	AudioManager.play_button_click()
-	if not GameManager.is_skin_owned(skin_id):
-		_shop_status_label.text = SettingsManager.text("color_unlock_skin_first")
-		return
-	var color := GameManager.get_color_variant(color_id)
-	var color_name := SettingsManager.text(str(color["name_key"]))
-	if GameManager.purchase_or_equip_skin_color(skin_id, color_id):
-		if GameManager.is_skin_color_owned(skin_id, color_id):
-			_shop_status_label.text = SettingsManager.format_text("color_selected_status", {"color": color_name})
-	else:
-		_shop_status_label.text = SettingsManager.text("color_not_enough")
-	_refresh_shop_cards()
-
-func _refresh_color_buttons(skin_id: String, color_buttons: Dictionary, skin_owned: bool) -> void:
-	var selected_color := GameManager.get_selected_color_id(skin_id)
-	for color in GameManager.get_color_variants(skin_id):
-		var color_id := str(color["id"])
-		if not color_buttons.has(color_id):
-			continue
-		var button := color_buttons[color_id] as Button
-		var owned := skin_owned and GameManager.is_skin_color_owned(skin_id, color_id)
-		var is_selected := skin_owned and selected_color == color_id
-		button.disabled = not skin_owned
-		button.text = "✓" if is_selected else ("" if owned else "🔒")
-		button.tooltip_text = _color_tooltip(color, owned, is_selected)
-		var body_color: Color = color["body_color"]
-		button.add_theme_stylebox_override("normal", _color_swatch_style(body_color, is_selected, owned))
-		button.add_theme_stylebox_override("hover", _color_swatch_style(body_color.lightened(0.10), true, owned))
-		button.add_theme_stylebox_override("pressed", _color_swatch_style(body_color.darkened(0.08), true, owned))
-		button.add_theme_color_override("font_color", Color(0.07, 0.12, 0.07, 1.0) if body_color.get_luminance() > 0.55 else Color.WHITE)
-
-func _color_tooltip(color: Dictionary, owned: bool, is_selected: bool) -> String:
-	var color_name := SettingsManager.text(str(color["name_key"]))
-	if is_selected:
-		return SettingsManager.format_text("color_selected_tooltip", {"color": color_name})
-	if owned:
-		return SettingsManager.format_text("color_owned_tooltip", {"color": color_name})
-	return SettingsManager.format_text("color_price", {"color": color_name, "price": int(color["price"])})
-
-func _color_swatch_style(color: Color, selected: bool, owned: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color if owned else color.darkened(0.45)
-	style.border_color = Color(1.0, 0.94, 0.36, 1.0) if selected else Color(0.84, 0.94, 0.74, 0.75)
-	style.set_border_width_all(3 if selected else 1)
-	style.set_corner_radius_all(9)
-	return style
-
 func _refresh_shop_cards() -> void:
 	_update_reward_panel(GameManager.carrot_wallet)
 	for skin in GameManager.get_skin_catalog():
@@ -424,21 +360,18 @@ func _refresh_shop_cards() -> void:
 		var price := int(skin["price"])
 		var owned := GameManager.is_skin_owned(skin_id)
 		var selected := GameManager.selected_character == skin_id
-		var selected_color := GameManager.get_selected_color_id(skin_id)
-		var preview_skin := GameManager.get_skin_preview_data(skin_id, selected_color)
+		var preview_skin := GameManager.get_skin_data(skin_id)
 		var icon_label := card["icon"] as Label
 		var name_label := card["name"] as Label
 		var description_label := card["description"] as Label
 		var price_label := card["price"] as Label
 		var icon_box := card["icon_box"] as PanelContainer
-		var color_buttons: Dictionary = card["colors"]
 		icon_label.text = _skin_icon_text(preview_skin)
 		icon_label.add_theme_font_size_override("font_size", _skin_preview_font_size(preview_skin))
 		icon_box.add_theme_stylebox_override("panel", _skin_icon_style(preview_skin["body_color"]))
 		name_label.text = SettingsManager.text(str(skin["name_key"]))
 		description_label.text = SettingsManager.text(str(skin["description_key"]))
 		price_label.text = SettingsManager.text("skin_owned") if owned else SettingsManager.format_text("skin_price", {"price": price})
-		_refresh_color_buttons(skin_id, color_buttons, owned)
 		var button := card["button"] as Button
 		button.disabled = selected
 		if selected:

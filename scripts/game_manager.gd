@@ -12,7 +12,6 @@ signal level_won
 signal game_over
 signal carrot_wallet_changed(new_total: int)
 signal skin_collection_changed
-signal skin_colors_changed
 signal selected_skin_changed(skin_id: String)
 
 var score:              int    = 0
@@ -24,8 +23,6 @@ var carrot_wallet:      int    = 0
 var level_carrots_earned: int  = 0
 var last_banked_carrots: int    = 0
 var owned_skins: Array[String] = ["white_bunny", "brown_bunny"]
-var owned_skin_colors: Dictionary = {"white_bunny": ["white"], "brown_bunny": ["white"]}
-var selected_skin_colors: Dictionary = {"white_bunny": "white", "brown_bunny": "white"}
 
 var level_configs: Array = [
 	{
@@ -56,26 +53,6 @@ var _gameover_emitted:   bool  = false
 const SAVE_PATH: String = "user://progress.cfg"
 const SAVE_SECTION: String = "progress"
 const DEFAULT_SKIN_ID: String = "white_bunny"
-
-const DEFAULT_COLOR_ID: String = "white"
-const COLOR_VARIANTS: Array[Dictionary] = [
-	{
-		"id": "white", "name_key": "color_white", "price": 0,
-		"body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
-	},
-	{
-		"id": "honey", "name_key": "color_honey", "price": 16,
-		"body_color": Color(1.00, 0.70, 0.28), "tail_color": Color(0.88, 0.52, 0.16)
-	},
-	{
-		"id": "rose", "name_key": "color_rose", "price": 24,
-		"body_color": Color(1.00, 0.58, 0.72), "tail_color": Color(0.88, 0.38, 0.56)
-	},
-	{
-		"id": "mint", "name_key": "color_mint", "price": 32,
-		"body_color": Color(0.54, 0.82, 0.42), "tail_color": Color(0.38, 0.64, 0.30)
-	}
-]
 
 
 const SKIN_CATALOG: Array[Dictionary] = [
@@ -123,16 +100,8 @@ func _ready() -> void:
 func get_skin_catalog() -> Array[Dictionary]:
 	return SKIN_CATALOG.duplicate(true)
 
-func get_color_variants(_skin_id: String = "") -> Array[Dictionary]:
-	return COLOR_VARIANTS.duplicate(true)
-
 func get_skin_data(skin_id: String) -> Dictionary:
-	return get_skin_preview_data(skin_id, get_selected_color_id(skin_id))
-
-func get_skin_preview_data(skin_id: String, color_id: String) -> Dictionary:
-	var skin := _get_base_skin_data(skin_id).duplicate(true)
-	_apply_color_to_skin(skin, color_id)
-	return skin
+	return _get_base_skin_data(skin_id).duplicate(true)
 
 func get_selected_skin_data() -> Dictionary:
 	return get_skin_data(selected_character)
@@ -142,19 +111,6 @@ func _get_base_skin_data(skin_id: String) -> Dictionary:
 		if str(skin["id"]) == skin_id:
 			return skin
 	return SKIN_CATALOG[0]
-
-func _apply_color_to_skin(skin: Dictionary, color_id: String) -> void:
-	var color := get_color_variant(color_id)
-	skin["body_color"] = color["body_color"]
-	skin["tail_color"] = color["tail_color"]
-	skin["color_id"] = str(color["id"])
-	skin["color_name_key"] = str(color["name_key"])
-
-func get_color_variant(color_id: String) -> Dictionary:
-	for color in COLOR_VARIANTS:
-		if str(color["id"]) == color_id:
-			return color
-	return COLOR_VARIANTS[0]
 
 func is_skin_owned(skin_id: String) -> bool:
 	return owned_skins.has(skin_id)
@@ -172,63 +128,19 @@ func purchase_skin(skin_id: String) -> bool:
 		return false
 	carrot_wallet -= price
 	owned_skins.append(skin_id)
-	_ensure_skin_color_state(skin_id)
 	selected_character = skin_id
 	save_progress()
 	carrot_wallet_changed.emit(carrot_wallet)
 	skin_collection_changed.emit()
-	skin_colors_changed.emit()
 	selected_skin_changed.emit(selected_character)
 	return true
 
 func equip_skin(skin_id: String) -> bool:
 	if not is_skin_owned(skin_id):
 		return false
-	_ensure_skin_color_state(skin_id)
 	selected_character = skin_id
 	save_progress()
 	skin_collection_changed.emit()
-	skin_colors_changed.emit()
-	selected_skin_changed.emit(selected_character)
-	return true
-
-func get_selected_color_id(skin_id: String) -> String:
-	_ensure_skin_color_state(skin_id)
-	return str(selected_skin_colors.get(skin_id, DEFAULT_COLOR_ID))
-
-func is_skin_color_owned(skin_id: String, color_id: String) -> bool:
-	_ensure_skin_color_state(skin_id)
-	var owned_colors: Array = owned_skin_colors.get(skin_id, [DEFAULT_COLOR_ID])
-	return owned_colors.has(color_id)
-
-func can_afford_skin_color(color_id: String) -> bool:
-	var color := get_color_variant(color_id)
-	return carrot_wallet >= int(color.get("price", 0))
-
-func purchase_or_equip_skin_color(skin_id: String, color_id: String) -> bool:
-	if not is_skin_owned(skin_id):
-		return false
-	_ensure_skin_color_state(skin_id)
-	if is_skin_color_owned(skin_id, color_id):
-		return equip_skin_color(skin_id, color_id)
-	var color := get_color_variant(color_id)
-	var price := int(color.get("price", 0))
-	if carrot_wallet < price:
-		return false
-	carrot_wallet -= price
-	var owned_colors: Array = owned_skin_colors.get(skin_id, [DEFAULT_COLOR_ID])
-	owned_colors.append(color_id)
-	owned_skin_colors[skin_id] = owned_colors
-	return equip_skin_color(skin_id, color_id)
-
-func equip_skin_color(skin_id: String, color_id: String) -> bool:
-	if not is_skin_owned(skin_id) or not is_skin_color_owned(skin_id, color_id):
-		return false
-	selected_skin_colors[skin_id] = color_id
-	selected_character = skin_id
-	save_progress()
-	carrot_wallet_changed.emit(carrot_wallet)
-	skin_colors_changed.emit()
 	selected_skin_changed.emit(selected_character)
 	return true
 
@@ -250,53 +162,7 @@ func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
 		sanitized.append("brown_bunny")
 	return sanitized
 
-func _ensure_skin_color_state(skin_id: String) -> void:
-	if not owned_skin_colors.has(skin_id):
-		owned_skin_colors[skin_id] = [DEFAULT_COLOR_ID]
-	var owned_colors: Array = owned_skin_colors.get(skin_id, [DEFAULT_COLOR_ID])
-	if not owned_colors.has(DEFAULT_COLOR_ID):
-		owned_colors.append(DEFAULT_COLOR_ID)
-	owned_skin_colors[skin_id] = owned_colors
-	if not selected_skin_colors.has(skin_id):
-		selected_skin_colors[skin_id] = DEFAULT_COLOR_ID
-	if not owned_colors.has(str(selected_skin_colors[skin_id])):
-		selected_skin_colors[skin_id] = DEFAULT_COLOR_ID
 
-func _sanitize_owned_skin_colors(raw_value: Variant) -> Dictionary:
-	var sanitized: Dictionary = {}
-	if raw_value is Dictionary:
-		for skin_id in raw_value.keys():
-			var colors: Array = []
-			var raw_colors = raw_value[skin_id]
-			if raw_colors is Array or raw_colors is PackedStringArray:
-				for color_id in raw_colors:
-					var clean_id := str(color_id)
-					if _color_variant_exists(clean_id) and not colors.has(clean_id):
-						colors.append(clean_id)
-			if not colors.has(DEFAULT_COLOR_ID):
-				colors.append(DEFAULT_COLOR_ID)
-			sanitized[str(skin_id)] = colors
-	for skin_id in owned_skins:
-		if not sanitized.has(skin_id):
-			sanitized[skin_id] = [DEFAULT_COLOR_ID]
-	return sanitized
-
-func _sanitize_selected_skin_colors(raw_value: Variant) -> Dictionary:
-	var sanitized: Dictionary = {}
-	if raw_value is Dictionary:
-		for skin_id in raw_value.keys():
-			var color_id := str(raw_value[skin_id])
-			sanitized[str(skin_id)] = color_id if _color_variant_exists(color_id) else DEFAULT_COLOR_ID
-	for skin_id in owned_skins:
-		if not sanitized.has(skin_id):
-			sanitized[skin_id] = DEFAULT_COLOR_ID
-	return sanitized
-
-func _color_variant_exists(color_id: String) -> bool:
-	for color in COLOR_VARIANTS:
-		if str(color["id"]) == color_id:
-			return true
-	return false
 
 # ── Level Setup ──────────────────────────────────────────────────────────────
 
@@ -410,14 +276,11 @@ func load_progress() -> void:
 	carrot_wallet = int(config.get_value(SAVE_SECTION, "carrot_wallet", 0))
 	levels_unlocked = int(config.get_value(SAVE_SECTION, "levels_unlocked", levels_unlocked))
 	owned_skins = _sanitize_owned_skins(config.get_value(SAVE_SECTION, "owned_skins", owned_skins))
-	owned_skin_colors = _sanitize_owned_skin_colors(config.get_value(SAVE_SECTION, "owned_skin_colors", owned_skin_colors))
-	selected_skin_colors = _sanitize_selected_skin_colors(config.get_value(SAVE_SECTION, "selected_skin_colors", selected_skin_colors))
 	selected_character = str(config.get_value(SAVE_SECTION, "selected_character", selected_character))
 	if not is_skin_owned(selected_character):
 		selected_character = DEFAULT_SKIN_ID
 	carrot_wallet_changed.emit(carrot_wallet)
 	skin_collection_changed.emit()
-	skin_colors_changed.emit()
 	selected_skin_changed.emit(selected_character)
 
 func save_progress() -> void:
@@ -426,8 +289,6 @@ func save_progress() -> void:
 	config.set_value(SAVE_SECTION, "levels_unlocked", levels_unlocked)
 	config.set_value(SAVE_SECTION, "selected_character", selected_character)
 	config.set_value(SAVE_SECTION, "owned_skins", owned_skins)
-	config.set_value(SAVE_SECTION, "owned_skin_colors", owned_skin_colors)
-	config.set_value(SAVE_SECTION, "selected_skin_colors", selected_skin_colors)
 	var err := config.save(SAVE_PATH)
 	if err != OK:
 		push_warning("GameManager: could not save progress file.")
@@ -450,8 +311,6 @@ func reset_game() -> void:
 	current_level      = 1
 	selected_character = DEFAULT_SKIN_ID
 	owned_skins = [DEFAULT_SKIN_ID, "brown_bunny"]
-	owned_skin_colors = {DEFAULT_SKIN_ID: [DEFAULT_COLOR_ID], "brown_bunny": [DEFAULT_COLOR_ID]}
-	selected_skin_colors = {DEFAULT_SKIN_ID: DEFAULT_COLOR_ID, "brown_bunny": DEFAULT_COLOR_ID}
 	levels_unlocked    = 1
 	carrot_wallet      = 0
 	level_carrots_earned = 0
@@ -463,5 +322,4 @@ func reset_game() -> void:
 	save_progress()
 	carrot_wallet_changed.emit(carrot_wallet)
 	skin_collection_changed.emit()
-	skin_colors_changed.emit()
 	selected_skin_changed.emit(selected_character)
