@@ -20,6 +20,7 @@ const BROWN := Color(0.60, 0.35, 0.10)
 var _selected: String = "white_bunny"
 
 func _ready() -> void:
+	_selected = GameManager.selected_character
 	_apply_language()
 	SettingsManager.apply_wooden_buttons(self)
 	white_btn.pressed.connect(func(): _pick("white_bunny"))
@@ -41,12 +42,13 @@ func _pick(char_name: String) -> void:
 	_update_preview()
 
 func _update_preview() -> void:
-	var col: Color = WHITE if _selected == "white_bunny" else BROWN
+	var skin := GameManager.get_skin_data(_selected)
+	var col: Color = skin["body_color"]
 	if preview:   preview.color = col
 	if ear_l:     ear_l.color   = col
 	if ear_r:     ear_r.color   = col
 	if name_label:
-		name_label.text = SettingsManager.text("white_bunny") if _selected == "white_bunny" else SettingsManager.text("brown_bunny")
+		name_label.text = SettingsManager.text(str(skin["name_key"]))
 
 func _on_confirm() -> void:
 	AudioManager.play_button_click()

@@ -10,6 +10,8 @@ signal time_changed(new_time: float)
 signal level_won
 signal game_over
 signal carrot_wallet_changed(new_total: int)
+signal skin_collection_changed
+signal selected_skin_changed(skin_id: String)
 
 var score:              int    = 0
 var lives:              int    = 3
@@ -19,6 +21,7 @@ var levels_unlocked:    int    = 1
 var carrot_wallet:      int    = 0
 var level_carrots_earned: int  = 0
 var last_banked_carrots: int    = 0
+var owned_skins: Array[String] = ["white_bunny", "brown_bunny"]
 
 var level_configs: Array = [
 	{
@@ -48,9 +51,101 @@ var _gameover_emitted:   bool  = false
 
 const SAVE_PATH: String = "user://progress.cfg"
 const SAVE_SECTION: String = "progress"
+const DEFAULT_SKIN_ID: String = "white_bunny"
+
+const SKIN_CATALOG: Array[Dictionary] = [
+	{
+		"id": "white_bunny", "name_key": "skin_white_name", "description_key": "skin_white_desc",
+		"price": 0, "icon": "🐰", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+	},
+	{
+		"id": "brown_bunny", "name_key": "skin_brown_name", "description_key": "skin_brown_desc",
+		"price": 0, "icon": "🐇", "body_color": Color(0.60, 0.35, 0.10), "tail_color": Color(0.46, 0.25, 0.08)
+	},
+	{
+		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
+		"price": 12, "icon": "🌿", "body_color": Color(0.54, 0.82, 0.42), "tail_color": Color(0.38, 0.64, 0.30)
+	},
+	{
+		"id": "rose_bunny", "name_key": "skin_rose_name", "description_key": "skin_rose_desc",
+		"price": 28, "icon": "🌸", "body_color": Color(1.00, 0.58, 0.72), "tail_color": Color(0.88, 0.38, 0.56)
+	},
+	{
+		"id": "golden_bunny", "name_key": "skin_golden_name", "description_key": "skin_golden_desc",
+		"price": 55, "icon": "⭐", "body_color": Color(1.00, 0.76, 0.18), "tail_color": Color(0.88, 0.56, 0.10)
+	},
+	{
+		"id": "night_bunny", "name_key": "skin_night_name", "description_key": "skin_night_desc",
+		"price": 90, "icon": "🌙", "body_color": Color(0.20, 0.22, 0.36), "tail_color": Color(0.12, 0.14, 0.26)
+	}
+]
 
 func _ready() -> void:
 	load_progress()
+
+# ── Skins / Shop ─────────────────────────────────────────────────────────────
+
+func get_skin_catalog() -> Array[Dictionary]:
+	return SKIN_CATALOG.duplicate(true)
+
+func get_skin_data(skin_id: String) -> Dictionary:
+	for skin in SKIN_CATALOG:
+		if str(skin["id"]) == skin_id:
+			return skin
+	return SKIN_CATALOG[0]
+
+func get_selected_skin_data() -> Dictionary:
+	return get_skin_data(selected_character)
+
+func is_skin_owned(skin_id: String) -> bool:
+	return owned_skins.has(skin_id)
+
+func can_afford_skin(skin_id: String) -> bool:
+	var skin := get_skin_data(skin_id)
+	return carrot_wallet >= int(skin.get("price", 0))
+
+func purchase_skin(skin_id: String) -> bool:
+	if is_skin_owned(skin_id):
+		return equip_skin(skin_id)
+	var skin := get_skin_data(skin_id)
+	var price := int(skin.get("price", 0))
+	if carrot_wallet < price:
+		return false
+	carrot_wallet -= price
+	owned_skins.append(skin_id)
+	selected_character = skin_id
+	save_progress()
+	carrot_wallet_changed.emit(carrot_wallet)
+	skin_collection_changed.emit()
+	selected_skin_changed.emit(selected_character)
+	return true
+
+func equip_skin(skin_id: String) -> bool:
+	if not is_skin_owned(skin_id):
+		return false
+	selected_character = skin_id
+	save_progress()
+	skin_collection_changed.emit()
+	selected_skin_changed.emit(selected_character)
+	return true
+
+func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
+	var sanitized: Array[String] = []
+	if raw_value is Array:
+		for skin_id in raw_value:
+			var array_id := str(skin_id)
+			if not sanitized.has(array_id):
+				sanitized.append(array_id)
+	elif raw_value is PackedStringArray:
+		for skin_id in raw_value:
+			var packed_id := str(skin_id)
+			if not sanitized.has(packed_id):
+				sanitized.append(packed_id)
+	if not sanitized.has(DEFAULT_SKIN_ID):
+		sanitized.append(DEFAULT_SKIN_ID)
+	if not sanitized.has("brown_bunny"):
+		sanitized.append("brown_bunny")
+	return sanitized
 
 # ── Level Setup ──────────────────────────────────────────────────────────────
 
@@ -162,14 +257,20 @@ func load_progress() -> void:
 		return
 	carrot_wallet = int(config.get_value(SAVE_SECTION, "carrot_wallet", 0))
 	levels_unlocked = int(config.get_value(SAVE_SECTION, "levels_unlocked", levels_unlocked))
+	owned_skins = _sanitize_owned_skins(config.get_value(SAVE_SECTION, "owned_skins", owned_skins))
 	selected_character = str(config.get_value(SAVE_SECTION, "selected_character", selected_character))
+	if not is_skin_owned(selected_character):
+		selected_character = DEFAULT_SKIN_ID
 	carrot_wallet_changed.emit(carrot_wallet)
+	skin_collection_changed.emit()
+	selected_skin_changed.emit(selected_character)
 
 func save_progress() -> void:
 	var config := ConfigFile.new()
 	config.set_value(SAVE_SECTION, "carrot_wallet", carrot_wallet)
 	config.set_value(SAVE_SECTION, "levels_unlocked", levels_unlocked)
 	config.set_value(SAVE_SECTION, "selected_character", selected_character)
+	config.set_value(SAVE_SECTION, "owned_skins", owned_skins)
 	var err := config.save(SAVE_PATH)
 	if err != OK:
 		push_warning("GameManager: could not save progress file.")
@@ -190,7 +291,8 @@ func reset_game() -> void:
 	score              = 0
 	lives              = 3
 	current_level      = 1
-	selected_character = "white_bunny"
+	selected_character = DEFAULT_SKIN_ID
+	owned_skins = [DEFAULT_SKIN_ID, "brown_bunny"]
 	levels_unlocked    = 1
 	carrot_wallet      = 0
 	level_carrots_earned = 0
@@ -201,3 +303,5 @@ func reset_game() -> void:
 	_gameover_emitted  = false
 	save_progress()
 	carrot_wallet_changed.emit(carrot_wallet)
+	skin_collection_changed.emit()
+	selected_skin_changed.emit(selected_character)
