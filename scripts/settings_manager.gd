@@ -83,17 +83,6 @@ func apply_window_settings() -> void:
 	else:
 		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
 
-func get_display_status_text() -> String:
-	var mode := DisplayServer.window_get_mode()
-	var mode_text := text("fullscreen") if _is_fullscreen_mode(mode) else text("windowed")
-	var size := DisplayServer.window_get_size()
-	return "%s • %d x %d" % [mode_text, size.x, size.y]
-
-func _is_fullscreen_mode(mode: int) -> bool:
-	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN:
-		return true
-	return mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
-
 func _apply_fullscreen_window() -> void:
 	var screen_size := DisplayServer.screen_get_size()
 	var screen_position := DisplayServer.screen_get_position()
