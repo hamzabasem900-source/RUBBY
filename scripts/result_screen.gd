@@ -18,6 +18,7 @@ func _ready() -> void:
 	menu_btn.pressed.connect(_on_menu)
 	_apply_language()
 	_show_results()
+	SettingsManager.apply_wooden_buttons(self)
 
 func _apply_language() -> void:
 	title_label.text = SettingsManager.text("result_title")

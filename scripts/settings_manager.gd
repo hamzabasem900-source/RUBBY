@@ -117,6 +117,49 @@ func _resolution_to_vector(resolution: String) -> Vector2i:
 		_:
 			return Vector2i(1280, 720)
 
+func apply_wooden_buttons(root: Node) -> void:
+	for child in root.get_children():
+		if child is Button and not (child is CheckButton):
+			style_wooden_button(child as Button)
+		apply_wooden_buttons(child)
+
+func style_wooden_button(button: Button, font_color: Color = Color.WHITE) -> void:
+	button.add_theme_font_size_override("font_size", int(max(22, button.get_theme_font_size("font_size"))))
+	button.add_theme_color_override("font_color", font_color)
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.96, 0.78, 1.0))
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.86, 0.55, 1.0))
+	button.add_theme_color_override("font_disabled_color", Color(0.58, 0.44, 0.32, 1.0))
+	button.add_theme_color_override("font_outline_color", Color(0.20, 0.10, 0.05, 1.0))
+	button.add_theme_constant_override("outline_size", 4)
+	button.add_theme_stylebox_override("normal", _wood_style(Color(0.63, 0.36, 0.18, 1.0), Color(0.28, 0.13, 0.06, 1.0)))
+	button.add_theme_stylebox_override("hover", _wood_style(Color(0.74, 0.44, 0.22, 1.0), Color(0.36, 0.17, 0.07, 1.0)))
+	button.add_theme_stylebox_override("pressed", _wood_style(Color(0.47, 0.25, 0.12, 1.0), Color(0.20, 0.09, 0.04, 1.0)))
+	button.add_theme_stylebox_override("disabled", _wood_style(Color(0.36, 0.25, 0.17, 0.82), Color(0.18, 0.11, 0.07, 0.92)))
+	button.add_theme_stylebox_override("focus", _wood_focus_style())
+
+func _wood_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.border_color = border_color
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(14)
+	style.shadow_color = Color(0.10, 0.04, 0.02, 0.42)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0, 3)
+	style.content_margin_left = 18
+	style.content_margin_right = 18
+	style.content_margin_top = 10
+	style.content_margin_bottom = 10
+	return style
+
+func _wood_focus_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0, 0, 0, 0)
+	style.border_color = Color(1.0, 0.86, 0.30, 0.95)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(16)
+	return style
+
 func text(key: String) -> String:
 	var language := str(values["language"])
 	var english := {
@@ -141,6 +184,35 @@ func text(key: String) -> String:
 		"off": "OFF",
 		"app_title": "🥕 Bunny Carrot Adventure 🐰",
 		"main_subtitle": "Collect carrots, avoid foxes, dash past danger!",
+		"carrot_wallet": "🥕 {count}",
+		"open_skin_shop": "Skins",
+		"skin_shop_title": "🥕 Bunny Skin Shop",
+		"skin_shop_subtitle": "Buy bunny outfits and accessories with saved carrots, then equip your favorite.",
+		"skin_shop_hint": "Collect carrots in levels, win, then come back for new skins.",
+		"skin_price": "Price: {price} 🥕",
+		"skin_owned": "Owned",
+		"skin_buy": "Buy",
+		"skin_equip": "Equip",
+		"skin_selected": "Selected",
+		"skin_not_enough": "Not enough carrots yet.",
+		"skin_bought_status": "Purchased and equipped {name}!",
+		"skin_equipped_status": "Equipped {name}.",
+		"skin_white_name": "Classic White",
+		"skin_white_desc": "The original brave bunny look. Always ready for carrots.",
+		"skin_brown_name": "Cocoa Bunny",
+		"skin_brown_desc": "Warm brown fur for a cozy garden adventure.",
+		"skin_meadow_name": "Meadow Scarf",
+		"skin_meadow_desc": "A bunny outfit with a leafy scarf for garden camouflage.",
+		"skin_rose_name": "Rose Bow",
+		"skin_rose_desc": "A bunny look with a soft rose bow for spring adventures.",
+		"skin_golden_name": "Golden Vest",
+		"skin_golden_desc": "A bright golden bunny vest made for true carrot collectors.",
+		"skin_night_name": "Moon Cape",
+		"skin_night_desc": "A dark bunny cape with a moon badge for quiet night runs.",
+		"skin_tiny_name": "Tiny Mushroom Bunny",
+		"skin_tiny_desc": "A small round bunny shape with a smaller physics body for tight garden paths.",
+		"skin_lop_name": "Long-Eared Lop",
+		"skin_lop_desc": "A taller lop bunny shape with longer reach and matching collision physics.",
 		"start_game": "▶  Start Game",
 		"instructions": "📖  Instructions",
 		"level_map": "🗺  Level Map",
@@ -176,8 +248,16 @@ func text(key: String) -> String:
 		"level": "Level",
 		"seconds_suffix": "s",
 		"dash_tip": "Dash: Space / Enter",
+		"pause_button_hint": "Pause",
+		"pause_title": "⏸ Paused",
+		"pause_subtitle": "Take a breath — your bunny is safe until you resume.",
+		"pause_resume": "▶ Resume",
+		"pause_restart": "🔄 Restart Level",
+		"pause_lobby": "🏠 Back to Lobby",
+		"pause_quit": "✖ Exit Game",
 		"win_banner": "🎉 YOU WIN! 🎉",
 		"final_score": "Final Score: {score} 🥕",
+		"carrots_banked": "Saved carrots: +{count} 🥕",
 		"next_level": "➡ Next Level",
 		"play_again": "🔄 Play Again",
 		"main_menu": "🏠 Main Menu",
@@ -224,6 +304,35 @@ func text(key: String) -> String:
 		"off": "متوقف",
 		"app_title": "🥕 مغامرة الأرنب والجزر 🐰",
 		"main_subtitle": "اجمع الجزر، تجنب الثعالب، واندفع بعيدًا عن الخطر!",
+		"carrot_wallet": "🥕 {count}",
+		"open_skin_shop": "السكنات",
+		"skin_shop_title": "🥕 متجر سكنات الأرنب",
+		"skin_shop_subtitle": "اشترِ أزياء وإكسسوارات للأرنب بالجزر المحفوظ ثم اختر المفضل لديك.",
+		"skin_shop_hint": "اجمع الجزر داخل المراحل، افُز، ثم عد لشراء سكنات جديدة.",
+		"skin_price": "السعر: {price} 🥕",
+		"skin_owned": "مملوك",
+		"skin_buy": "شراء",
+		"skin_equip": "اختيار",
+		"skin_selected": "مختار",
+		"skin_not_enough": "لا يوجد جزر كافٍ بعد.",
+		"skin_bought_status": "تم شراء واختيار {name}!",
+		"skin_equipped_status": "تم اختيار {name}.",
+		"skin_white_name": "الأبيض الكلاسيكي",
+		"skin_white_desc": "شكل الأرنب الأصلي الشجاع، جاهز دائمًا للجزر.",
+		"skin_brown_name": "أرنب الكاكاو",
+		"skin_brown_desc": "فراء بني دافئ لمغامرة حديقة لطيفة.",
+		"skin_meadow_name": "وشاح المرج",
+		"skin_meadow_desc": "زي أرنب مع وشاح ورقي يساعده على الاندماج في الحديقة.",
+		"skin_rose_name": "ربطة الورد",
+		"skin_rose_desc": "شكل أرنب مع ربطة وردية لطيفة لمغامرات الربيع.",
+		"skin_golden_name": "السترة الذهبية",
+		"skin_golden_desc": "سترة أرنب ذهبية لامعة لهواة جمع الجزر الحقيقيين.",
+		"skin_night_name": "عباءة القمر",
+		"skin_night_desc": "عباءة أرنب داكنة مع شارة قمر لجولات الليل الهادئة.",
+		"skin_tiny_name": "الأرنب الفطري الصغير",
+		"skin_tiny_desc": "شكل أرنب صغير ومستدير مع جسم فيزيائي أصغر للممرات الضيقة في الحديقة.",
+		"skin_lop_name": "الأرنب طويل الأذنين",
+		"skin_lop_desc": "شكل أرنب أطول بأذنين متدليتين وتصادم فيزيائي مناسب لحجمه.",
 		"start_game": "▶  ابدأ اللعب",
 		"instructions": "📖  التعليمات",
 		"level_map": "🗺  خريطة المراحل",
@@ -259,8 +368,16 @@ func text(key: String) -> String:
 		"level": "المرحلة",
 		"seconds_suffix": "ث",
 		"dash_tip": "اندفاع: Space / Enter",
+		"pause_button_hint": "إيقاف مؤقت",
+		"pause_title": "⏸ إيقاف مؤقت",
+		"pause_subtitle": "خذ نفسًا — أرنبك بأمان حتى تستأنف اللعب.",
+		"pause_resume": "▶ استئناف",
+		"pause_restart": "🔄 إعادة المرحلة",
+		"pause_lobby": "🏠 العودة للوبي",
+		"pause_quit": "✖ الخروج من اللعبة",
 		"win_banner": "🎉 فزت! 🎉",
 		"final_score": "النقاط النهائية: {score} 🥕",
+		"carrots_banked": "الجزر المحفوظ: +{count} 🥕",
 		"next_level": "➡ المرحلة التالية",
 		"play_again": "🔄 العب مجددًا",
 		"main_menu": "🏠 القائمة الرئيسية",

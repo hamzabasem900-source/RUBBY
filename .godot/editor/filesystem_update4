@@ -16,3 +16,4 @@ res://scripts/settings_manager.gd
 res://scripts/settings_menu.gd
 res://scripts/win_screen.gd
 res://scenes/MainMenu.tscn
+res://scenes/LevelMap.tscn
