@@ -1,7 +1,7 @@
 extends Control
 
 # =============================================
-# Character Select — White Bunny Variants
+# Character Select — Bunny Variants
 # =============================================
 
 @onready var white_btn:   Button    = $CenterContainer/VBoxContainer/WhiteButton
@@ -13,9 +13,6 @@ extends Control
 @onready var ear_l:       ColorRect = $PreviewEarL
 @onready var ear_r:       ColorRect = $PreviewEarR
 @onready var name_label:  Label     = $CharNameLabel
-
-const WHITE := Color(0.95, 0.95, 0.95)
-const ALT_WHITE := Color(0.95, 0.95, 0.95)
 
 var _selected: String = "white_bunny"
 

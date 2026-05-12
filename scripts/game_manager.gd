@@ -60,8 +60,8 @@ const SKIN_CATALOG: Array[Dictionary] = [
 		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
-		"id": "brown_bunny", "name_key": "skin_snow_name", "description_key": "skin_snow_desc",
-		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
 		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
