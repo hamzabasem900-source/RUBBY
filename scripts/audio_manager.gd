@@ -85,7 +85,7 @@ func play(sound_name: String, loop: bool = false) -> void:
 		return
 	var should_loop := loop or MUSIC_KEYS.has(sound_name)
 	_set_stream_loop(p.stream, should_loop)
-	if MUSIC_KEYS.has(sound_name) and p.playing:
+	if should_loop and p.playing:
 		return
 	p.play()
 

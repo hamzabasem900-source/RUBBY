@@ -267,8 +267,7 @@ func _update_preview() -> void:
 	_preview_label.text = "🥕 " + SettingsManager.text("language") + ": " + str(SettingsManager.get_setting("language")) + "\n" + \
 		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
 		"🎮 " + SettingsManager.text("difficulty") + ": " + SettingsManager.option_text("difficulty", str(SettingsManager.get_setting("difficulty"))) + "\n" + \
-		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + fullscreen_state + "\n" + \
-		"✅ " + SettingsManager.text("applied_display") + ": " + SettingsManager.get_display_status_text()
+		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + fullscreen_state
 
 func _refresh_language(_language: String) -> void:
 	for label in _labels:
