@@ -24,10 +24,23 @@ var _shop_overlay: Control
 var _shop_wallet_label: Label
 var _shop_status_label: Label
 var _skin_cards: Dictionary = {}
+var _menu_atmosphere: Control
+var _menu_sparkles: Array[Dictionary] = []
+
+const SETTINGS_BUTTON_LEFT: float = -112.0
+const SETTINGS_BUTTON_TOP: float = 16.0
+const SETTINGS_BUTTON_RIGHT: float = -28.0
+const SETTINGS_BUTTON_BOTTOM: float = 92.0
+const SETTINGS_HINT_LEFT: float = -140.0
+const SETTINGS_HINT_TOP: float = 92.0
+const SETTINGS_HINT_RIGHT: float = 0.0
+const SETTINGS_HINT_BOTTOM: float = 122.0
+const MENU_SPARKLE_ICONS: Array[String] = ["✦", "✧", "❀", "🍃", "✨"]
 
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_prepare_responsive_layout()
+	_build_menu_atmosphere()
 	_build_reward_panel()
 	_build_shop_overlay()
 	_apply_language()
@@ -48,15 +61,16 @@ func _prepare_responsive_layout() -> void:
 	_fit_background_to_viewport()
 	_configure_top_labels()
 	_configure_settings_shortcut(settings_btn)
-	_configure_settings_shortcut(get_node_or_null("SettingsButton2") as Button)
 	_configure_settings_hint()
 
 func _on_viewport_size_changed() -> void:
 	_fit_background_to_viewport()
+	_layout_menu_atmosphere()
 
 func _fit_background_to_viewport() -> void:
 	if background == null or background.texture == null:
 		return
+	background.z_index = -100
 	var viewport_size := get_viewport_rect().size
 	var texture_size := background.texture.get_size()
 	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
@@ -83,19 +97,106 @@ func _configure_settings_shortcut(button: Button) -> void:
 	if button == null:
 		return
 	button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	button.offset_left = -102.0
-	button.offset_top = 20.0
-	button.offset_right = -30.0
-	button.offset_bottom = 92.0
+	button.offset_left = SETTINGS_BUTTON_LEFT
+	button.offset_top = SETTINGS_BUTTON_TOP
+	button.offset_right = SETTINGS_BUTTON_RIGHT
+	button.offset_bottom = SETTINGS_BUTTON_BOTTOM
+	button.z_index = 100
+	button.text = "⚙"
+	button.tooltip_text = SettingsManager.text("settings")
 
 func _configure_settings_hint() -> void:
 	if settings_hint == null:
 		return
 	settings_hint.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	settings_hint.offset_left = -166.0
-	settings_hint.offset_top = 92.0
-	settings_hint.offset_right = -30.0
-	settings_hint.offset_bottom = 120.0
+	settings_hint.offset_left = SETTINGS_HINT_LEFT
+	settings_hint.offset_top = SETTINGS_HINT_TOP
+	settings_hint.offset_right = SETTINGS_HINT_RIGHT
+	settings_hint.offset_bottom = SETTINGS_HINT_BOTTOM
+	settings_hint.z_index = 101
+	settings_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	settings_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	settings_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	settings_hint.add_theme_font_size_override("font_size", 17)
+	settings_hint.add_theme_color_override("font_color", Color(1.0, 0.96, 0.66, 1.0))
+	settings_hint.add_theme_color_override("font_outline_color", Color(0.17, 0.09, 0.03, 1.0))
+	settings_hint.add_theme_constant_override("outline_size", 4)
+
+func _build_menu_atmosphere() -> void:
+	_menu_atmosphere = Control.new()
+	_menu_atmosphere.name = "MenuAtmosphere"
+	_menu_atmosphere.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_menu_atmosphere.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_menu_atmosphere.z_index = -5
+	add_child(_menu_atmosphere)
+	move_child(_menu_atmosphere, 1)
+
+	var warm_glow := ColorRect.new()
+	warm_glow.name = "WarmTopGlow"
+	warm_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	warm_glow.color = Color(1.0, 0.75, 0.24, 0.10)
+	_menu_atmosphere.add_child(warm_glow)
+
+	var soft_shadow := ColorRect.new()
+	soft_shadow.name = "SoftBottomShade"
+	soft_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	soft_shadow.color = Color(0.02, 0.10, 0.04, 0.18)
+	_menu_atmosphere.add_child(soft_shadow)
+
+	_menu_sparkles.clear()
+	for i in range(22):
+		var sparkle := Label.new()
+		sparkle.text = MENU_SPARKLE_ICONS[i % MENU_SPARKLE_ICONS.size()]
+		sparkle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		sparkle.add_theme_font_size_override("font_size", 14 + (i % 5) * 3)
+		sparkle.add_theme_color_override("font_color", Color(1.0, 0.96, 0.58, 0.42))
+		sparkle.add_theme_color_override("font_outline_color", Color(0.05, 0.16, 0.04, 0.36))
+		sparkle.add_theme_constant_override("outline_size", 2)
+		_menu_atmosphere.add_child(sparkle)
+		_menu_sparkles.append({"node": sparkle, "phase": randf() * TAU, "speed": randf_range(0.45, 0.95), "drift": randf_range(5.0, 18.0)})
+
+	if title_label != null:
+		title_label.add_theme_color_override("font_color", Color(1.0, 0.96, 0.60, 1.0))
+		title_label.add_theme_color_override("font_outline_color", Color(0.16, 0.08, 0.02, 0.94))
+		title_label.add_theme_constant_override("outline_size", 7)
+	if subtitle_label != null:
+		subtitle_label.add_theme_color_override("font_outline_color", Color(0.06, 0.18, 0.05, 0.88))
+		subtitle_label.add_theme_constant_override("outline_size", 4)
+	_layout_menu_atmosphere()
+
+func _layout_menu_atmosphere() -> void:
+	if _menu_atmosphere == null:
+		return
+	var viewport_size := get_viewport_rect().size
+	var warm_glow := _menu_atmosphere.get_node_or_null("WarmTopGlow") as ColorRect
+	if warm_glow != null:
+		warm_glow.position = Vector2.ZERO
+		warm_glow.size = Vector2(viewport_size.x, max(190.0, viewport_size.y * 0.34))
+	var soft_shadow := _menu_atmosphere.get_node_or_null("SoftBottomShade") as ColorRect
+	if soft_shadow != null:
+		soft_shadow.position = Vector2(0.0, viewport_size.y * 0.62)
+		soft_shadow.size = Vector2(viewport_size.x, viewport_size.y * 0.38)
+	for i in range(_menu_sparkles.size()):
+		var sparkle := _menu_sparkles[i]["node"] as Label
+		if sparkle == null:
+			continue
+		var column := float(i % 6) / 5.0
+		var row := float(i / 6) / 4.0
+		var base := Vector2(60.0 + column * (viewport_size.x - 120.0), 92.0 + row * (viewport_size.y - 180.0))
+		_menu_sparkles[i]["base"] = base
+		sparkle.position = base
+
+func _update_menu_atmosphere(delta: float) -> void:
+	for data in _menu_sparkles:
+		var sparkle := data["node"] as Label
+		if sparkle == null:
+			continue
+		data["phase"] = float(data["phase"]) + delta * float(data["speed"])
+		var phase := float(data["phase"])
+		var base := data.get("base", sparkle.position) as Vector2
+		var drift := float(data["drift"])
+		sparkle.position = base + Vector2(cos(phase * 0.8) * drift, sin(phase) * drift * 0.55)
+		sparkle.modulate.a = 0.32 + (sin(phase * 1.7) + 1.0) * 0.18
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -106,6 +207,7 @@ func _input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	_bounce_t += delta
+	_update_menu_atmosphere(delta)
 	if title_label:
 		title_label.position.y = 28.0 + sin(_bounce_t * 1.6) * 6.0
 
@@ -113,6 +215,7 @@ func _apply_language() -> void:
 	title_label.text = SettingsManager.text("app_title")
 	subtitle_label.text = SettingsManager.text("main_subtitle")
 	settings_hint.text = SettingsManager.text("settings")
+	settings_btn.tooltip_text = SettingsManager.text("settings")
 	start_btn.text = SettingsManager.text("start_game")
 	instr_btn.text = SettingsManager.text("instructions")
 	map_btn.text = SettingsManager.text("level_map")

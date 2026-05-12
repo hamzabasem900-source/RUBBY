@@ -15,6 +15,9 @@ var collected:     bool  = false
 var bob_offset:    float = 0.0
 var bob_time:      float = 0.0
 var _bob_ready:    bool  = false
+var _glow_base_scale: Vector2 = Vector2.ONE
+var _visual_base_scale: Vector2 = Vector2.ONE
+var _main_color: Color = Color(1.0, 0.50, 0.00)
 
 @onready var body:       Polygon2D      = $Body
 @onready var glow:       Polygon2D      = $Glow
@@ -38,6 +41,9 @@ func _apply_style() -> void:
 	var dark_color := GOLDEN_DARK if is_golden else NORMAL_DARK
 	var light_color := GOLDEN_LIGHT if is_golden else NORMAL_LIGHT
 	var visual_scale := Vector2(1.16, 1.16) if is_golden else Vector2.ONE
+	_main_color = main_color
+	_visual_base_scale = visual_scale
+	_glow_base_scale = visual_scale * (Vector2(1.12, 1.12) if is_golden else Vector2.ONE)
 
 	for node in _visual_nodes():
 		if node != null:
@@ -47,7 +53,7 @@ func _apply_style() -> void:
 		body.color = main_color
 	if glow != null:
 		glow.color = Color(main_color.r, main_color.g, main_color.b, 0.34 if is_golden else 0.24)
-		glow.scale = visual_scale * (Vector2(1.12, 1.12) if is_golden else Vector2.ONE)
+		glow.scale = _glow_base_scale
 	if outline != null:
 		outline.default_color = dark_color
 	if highlight != null:
@@ -75,8 +81,17 @@ func _process(delta: float) -> void:
 		bob_offset = position.y
 		_bob_ready = true
 	bob_time += delta
-	position.y = bob_offset + sin(bob_time * 2.8) * 5.0
+	var bob := sin(bob_time * 2.8)
+	var sparkle := (sin(bob_time * 5.4) + 1.0) * 0.5
+	position.y = bob_offset + bob * 5.0
 	rotation = sin(bob_time * 2.0) * 0.045
+	if glow != null:
+		glow.scale = _glow_base_scale * (1.0 + sparkle * (0.12 if is_golden else 0.07))
+		glow.color = Color(_main_color.r, _main_color.g, _main_color.b, (0.30 if is_golden else 0.20) + sparkle * 0.14)
+	if highlight != null:
+		highlight.width = 2.0 + sparkle * (1.7 if is_golden else 1.0)
+	if outline != null:
+		outline.width = 3.0 + sparkle * 0.55
 
 func get_points() -> int:
 	return 25 if is_golden else 10
