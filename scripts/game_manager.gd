@@ -73,6 +73,19 @@ const SKIN_CATALOG: Array[Dictionary] = [
 		"price": 28, "icon": "🐰", "badge": "🌸", "body_color": Color(1.00, 0.58, 0.72), "tail_color": Color(0.88, 0.38, 0.56)
 	},
 	{
+		"id": "sky_bunny", "name_key": "skin_sky_name", "description_key": "skin_sky_desc",
+		"price": 38, "icon": "🐰", "badge": "☁", "body_color": Color(0.48, 0.78, 1.00), "tail_color": Color(0.34, 0.62, 0.90)
+	},
+	{
+		"id": "berry_bunny", "name_key": "skin_berry_name", "description_key": "skin_berry_desc",
+		"price": 45, "icon": "🐰", "badge": "🍓", "body_color": Color(0.86, 0.30, 0.46), "tail_color": Color(0.68, 0.18, 0.34)
+	},
+	{
+		"id": "cocoa_bunny", "name_key": "skin_cocoa_name", "description_key": "skin_cocoa_desc",
+		"price": 68, "icon": "🐇", "badge": "☕", "body_color": Color(0.55, 0.32, 0.18), "tail_color": Color(0.82, 0.62, 0.42),
+		"visual_scale": 1.04, "icon_font_size": 58, "collision_height": 44.0, "collision_radius": 18.0, "pickup_radius": 35.0, "badge_offset": Vector2(18.0, -60.0)
+	},
+	{
 		"id": "golden_bunny", "name_key": "skin_golden_name", "description_key": "skin_golden_desc",
 		"price": 55, "icon": "🐰", "badge": "⭐", "body_color": Color(1.00, 0.76, 0.18), "tail_color": Color(0.88, 0.56, 0.10)
 	},

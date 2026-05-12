@@ -26,7 +26,10 @@ var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
 var _skin_badge_base_position: Vector2 = Vector2.ZERO
 var _bunny_facing_right: bool = true
+var _visual_direction: String = "right"
 var _skin_badge: Label
+var _shadow_base_scale: Vector2 = Vector2.ONE
+var _shadow_base_position: Vector2 = Vector2.ZERO
 
 @onready var sprite:  ColorRect = $Sprite
 @onready var ear_l:   ColorRect = $EarLeft
@@ -36,9 +39,13 @@ var _skin_badge: Label
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var pickup_collision: CollisionShape2D = $PickupArea/PickupCollision
 @onready var bunny_icon: Label = $BunnyIcon
+@onready var shadow: ColorRect = $Shadow
 
 func _ready() -> void:
 	add_to_group("player")
+	if shadow != null:
+		_shadow_base_scale = shadow.scale
+		_shadow_base_position = shadow.position
 	# Apply selected skin visuals and matching physics shape.
 	var skin: Dictionary = GameManager.get_selected_skin_data()
 	var col: Color = skin["body_color"]
@@ -144,10 +151,8 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	if not bunny_icon:
 		return
 	var t: float = min(delta * 10.0, 1.0)
-	if abs(dir.x) > 0.05:
-		# The bunny emoji artwork renders facing left in-game, so mirror only
-		# the visual Label when moving right. The physics root stays positive.
-		_bunny_facing_right = dir.x > 0.0
+	if dir.length() > 0.05:
+		_update_visual_direction(dir)
 
 	if dir.length() <= 0.0:
 		_hop_time = 0.0
@@ -157,14 +162,14 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	_hop_time += delta * (18.0 if dash_active else 11.0)
 	var hop: float = abs(sin(_hop_time)) * (12.0 if dash_active else 8.0)
 	var squash: float = abs(sin(_hop_time * 1.15))
-	var tilt_sign: float = 1.0 if _bunny_facing_right else -1.0
-	var tilt: float = tilt_sign * (0.16 if dash_active else 0.09)
+	var tilt: float = _get_direction_tilt(0.16 if dash_active else 0.09)
 	_set_bunny_visual_transform(hop, squash, tilt)
 
 func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float) -> void:
 	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
 	bunny_icon.scale = _get_bunny_facing_scale(squash)
 	bunny_icon.rotation = rotation_value
+	_update_shadow(hop, squash)
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge_base_position + Vector2(0.0, -hop)
 		_skin_badge.rotation = rotation_value
@@ -173,16 +178,57 @@ func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: flo
 	bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position + Vector2(0.0, -hop), weight)
 	bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(squash), weight)
 	bunny_icon.rotation = lerp(bunny_icon.rotation, rotation_value, weight)
+	_update_shadow(hop, squash)
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + Vector2(0.0, -hop), weight)
 		_skin_badge.rotation = lerp(_skin_badge.rotation, rotation_value, weight)
 
+func _update_visual_direction(dir: Vector2) -> void:
+	if abs(dir.x) >= abs(dir.y):
+		_bunny_facing_right = dir.x >= 0.0
+		_visual_direction = "right" if _bunny_facing_right else "left"
+	elif dir.y < 0.0:
+		_bunny_facing_right = true
+		_visual_direction = "up"
+	else:
+		_bunny_facing_right = true
+		_visual_direction = "down"
+
+func _get_direction_tilt(base_tilt: float) -> float:
+	match _visual_direction:
+		"right":
+			return base_tilt
+		"left":
+			return -base_tilt
+		"up":
+			return -base_tilt * 0.35
+		"down":
+			return base_tilt * 0.25
+		_:
+			return 0.0
+
 func _get_bunny_facing_scale(squash: float) -> Vector2:
-	var facing_sign := -1.0 if _bunny_facing_right else 1.0
+	# Fixes the inverted right/left look: moving right keeps the icon's normal
+	# direction, while moving left mirrors only the visual label. Vertical travel
+	# uses a front/back squash so the bunny visibly changes for all 4 directions.
+	var facing_sign := 1.0 if _bunny_facing_right else -1.0
+	var direction_scale := Vector2(1.0, 1.0)
+	if _visual_direction == "up":
+		direction_scale = Vector2(0.90, 1.08)
+	elif _visual_direction == "down":
+		direction_scale = Vector2(1.08, 0.96)
 	return _bunny_icon_base_scale * Vector2(
-		facing_sign * (1.0 + squash * 0.05),
-		1.0 - squash * 0.04
+		facing_sign * direction_scale.x * (1.0 + squash * 0.05),
+		direction_scale.y * (1.0 - squash * 0.04)
 	)
+
+func _update_shadow(hop: float, squash: float) -> void:
+	if shadow == null:
+		return
+	var height_ratio: float = clamp(hop / 12.0, 0.0, 1.0)
+	shadow.position = _shadow_base_position + Vector2(0.0, height_ratio * 3.0)
+	shadow.scale = _shadow_base_scale * Vector2(1.0 + height_ratio * 0.28 + squash * 0.08, 1.0 - height_ratio * 0.18)
+	shadow.color = Color(0.06, 0.10, 0.04, 0.30 - height_ratio * 0.13)
 
 func _keep_inside_world() -> void:
 	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)

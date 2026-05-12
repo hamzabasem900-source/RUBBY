@@ -24,6 +24,7 @@ var dir:       float   = 1.0
 var _player:   Node2D  = null
 var _base_scale: Vector2 = Vector2.ONE
 var _facing_left: bool = false
+var _direction_key: String = "right"
 var _visual_rects: Array = []
 var _visual_offsets: Dictionary = {}
 var _attack_pause_timer: float = 0.0
@@ -38,7 +39,7 @@ func _ready() -> void:
 	scale = _base_scale
 	dir = 1.0 if move_right_first else -1.0
 	_cache_visual_offsets()
-	_apply_facing(move_right_first == false)
+	_apply_direction(Vector2(dir, 0.0))
 	if hurt_area:
 		hurt_area.body_entered.connect(_on_hurt_area_body_entered)
 
@@ -60,15 +61,15 @@ func _physics_process(delta: float) -> void:
 		if desired_velocity.length() > chase_speed:
 			desired_velocity = desired_velocity.normalized() * chase_speed
 		velocity = velocity.move_toward(desired_velocity, acceleration * delta)
-		if abs(velocity.x) > 1.0:
-			_apply_facing(velocity.x < 0.0)
+		if velocity.length() > 1.0:
+			_apply_direction(velocity)
 		move_and_slide()
 		return
 
 	# ── Fallback patrol only if the player is not available ──────────────────
 	velocity = velocity.move_toward(Vector2(dir * patrol_speed, 0.0), acceleration * delta)
-	if abs(velocity.x) > 1.0:
-		_apply_facing(velocity.x < 0.0)
+	if velocity.length() > 1.0:
+		_apply_direction(velocity)
 	move_and_slide()
 
 	var offset: float = global_position.x - start_pos.x
@@ -117,23 +118,51 @@ func _cache_visual_offsets() -> void:
 				rect.offset_top, rect.offset_bottom
 			]
 
-func _apply_facing(face_left: bool) -> void:
-	# Keep the physics root scale positive, and mirror only the decorative
-	# ColorRects. Negative CharacterBody2D scale causes odd movement/collisions.
+func _apply_direction(move_dir: Vector2) -> void:
+	# Keep the physics root scale positive, and adjust only decorative ColorRects.
+	# Foxes now visibly react to all 4 movement directions, not only left/right.
 	scale = _base_scale
-	if _facing_left == face_left:
+	var new_key := _get_direction_key(move_dir)
+	if _direction_key == new_key:
 		return
-	_facing_left = face_left
+	_direction_key = new_key
+	_facing_left = new_key == "left"
 	for rect in _visual_rects:
-		var offsets: Array = _visual_offsets[rect]
-		if face_left:
-			rect.offset_left = -float(offsets[1])
-			rect.offset_right = -float(offsets[0])
-		else:
-			rect.offset_left = float(offsets[0])
-			rect.offset_right = float(offsets[1])
-		rect.offset_top = float(offsets[2])
-		rect.offset_bottom = float(offsets[3])
+		_apply_rect_direction(rect, _facing_left, new_key)
+
+func _get_direction_key(move_dir: Vector2) -> String:
+	if abs(move_dir.x) >= abs(move_dir.y):
+		return "left" if move_dir.x < 0.0 else "right"
+	return "up" if move_dir.y < 0.0 else "down"
+
+func _apply_rect_direction(rect: ColorRect, face_left: bool, direction_key: String) -> void:
+	var offsets: Array = _visual_offsets[rect]
+	var left := float(offsets[0])
+	var right := float(offsets[1])
+	var top := float(offsets[2])
+	var bottom := float(offsets[3])
+	if face_left:
+		left = -float(offsets[1])
+		right = -float(offsets[0])
+	var vertical_shift := _get_vertical_direction_shift(rect.name, direction_key)
+	rect.offset_left = left
+	rect.offset_right = right
+	rect.offset_top = top + vertical_shift
+	rect.offset_bottom = bottom + vertical_shift
+
+func _get_vertical_direction_shift(rect_name: StringName, direction_key: String) -> float:
+	var name := str(rect_name)
+	if direction_key == "up":
+		if name in ["Head", "EarLeft", "EarRight", "Snout", "Eye", "Nose"]:
+			return -7.0
+		if name in ["Sprite", "Chest", "Tail", "TailTip"]:
+			return 3.0
+	elif direction_key == "down":
+		if name in ["Head", "EarLeft", "EarRight", "Snout", "Eye", "Nose"]:
+			return 6.0
+		if name in ["LegFront", "LegBack"]:
+			return -2.0
+	return 0.0
 
 func _on_hurt_area_body_entered(body: Node2D) -> void:
 	if _damage_cooldown_timer > 0.0:

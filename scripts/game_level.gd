@@ -25,16 +25,22 @@ var _damage_layer: CanvasLayer
 var _damage_overlay: ColorRect
 var _damage_timer: float = 0.0
 var _base_position: Vector2 = Vector2.ZERO
+var _atmosphere_layer: CanvasLayer
+var _ambient_layer: Node2D
+var _ambient_items: Array[Dictionary] = []
+var _sun_rays: Array[Line2D] = []
 
 @onready var background: Sprite2D = $Background
 
 const DAMAGE_EFFECT_DURATION: float = 1.2
 const DAMAGE_SHAKE_STRENGTH: float = 15.0
+const AMBIENT_ICONS: Array[String] = ["🍃", "✦", "✧", "🌿", "❀"]
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_base_position = position
 	_fit_background_to_viewport()
+	_build_level_atmosphere()
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	GameManager.level_won.connect(_on_level_won)
 	GameManager.game_over.connect(_on_game_over)
@@ -47,6 +53,7 @@ func _ready() -> void:
 
 func _on_viewport_size_changed() -> void:
 	_fit_background_to_viewport()
+	_layout_level_atmosphere()
 
 func _fit_background_to_viewport() -> void:
 	if background == null or background.texture == null:
@@ -59,11 +66,107 @@ func _fit_background_to_viewport() -> void:
 	background.position = viewport_size * 0.5
 	background.scale = Vector2(cover_scale, cover_scale)
 
+# ── Visual Atmosphere ────────────────────────────────────────────────────────
+
+func _build_level_atmosphere() -> void:
+	_ambient_layer = Node2D.new()
+	_ambient_layer.name = "AmbientGardenDetails"
+	_ambient_layer.z_index = 80
+	add_child(_ambient_layer)
+	move_child(_ambient_layer, 2)
+
+	for i in range(4):
+		var ray := Line2D.new()
+		ray.name = "SunRay%d" % i
+		ray.z_index = -70
+		ray.width = 26.0 + i * 7.0
+		ray.default_color = Color(1.0, 0.92, 0.48, 0.08 - i * 0.01)
+		_ambient_layer.add_child(ray)
+		_sun_rays.append(ray)
+
+	_ambient_items.clear()
+	for i in range(28):
+		var item := Label.new()
+		item.name = "AmbientIcon%d" % i
+		item.text = AMBIENT_ICONS[i % AMBIENT_ICONS.size()]
+		item.z_index = 90
+		item.add_theme_font_size_override("font_size", 13 + (i % 4) * 3)
+		item.add_theme_color_override("font_color", Color(1.0, 0.95, 0.54, 0.44))
+		item.add_theme_color_override("font_outline_color", Color(0.04, 0.14, 0.03, 0.38))
+		item.add_theme_constant_override("outline_size", 2)
+		_ambient_layer.add_child(item)
+		_ambient_items.append({"node": item, "phase": randf() * TAU, "speed": randf_range(0.35, 0.85), "drift": randf_range(8.0, 22.0)})
+
+	_atmosphere_layer = CanvasLayer.new()
+	_atmosphere_layer.name = "AtmosphereOverlay"
+	_atmosphere_layer.layer = 8
+	add_child(_atmosphere_layer)
+
+	var sunlight := ColorRect.new()
+	sunlight.name = "SunlightWash"
+	sunlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sunlight.color = Color(1.0, 0.82, 0.34, 0.07)
+	_atmosphere_layer.add_child(sunlight)
+
+	var vignette := ColorRect.new()
+	vignette.name = "SoftVignette"
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vignette.color = Color(0.0, 0.08, 0.02, 0.10)
+	_atmosphere_layer.add_child(vignette)
+
+	_layout_level_atmosphere()
+
+func _layout_level_atmosphere() -> void:
+	var viewport_size := get_viewport_rect().size
+	for i in range(_sun_rays.size()):
+		var ray := _sun_rays[i]
+		if ray == null:
+			continue
+		var start := Vector2(-80.0 + i * 90.0, -40.0)
+		var end := Vector2(viewport_size.x * (0.42 + i * 0.12), viewport_size.y + 90.0)
+		ray.points = PackedVector2Array([start, end])
+	for i in range(_ambient_items.size()):
+		var item := _ambient_items[i]["node"] as Label
+		if item == null:
+			continue
+		var column := float(i % 7) / 6.0
+		var row := float(i / 7) / 4.0
+		var base := Vector2(70.0 + column * (viewport_size.x - 140.0), 118.0 + row * (viewport_size.y - 180.0))
+		_ambient_items[i]["base"] = base
+		item.position = base
+	if _atmosphere_layer != null:
+		var sunlight := _atmosphere_layer.get_node_or_null("SunlightWash") as ColorRect
+		if sunlight != null:
+			sunlight.position = Vector2.ZERO
+			sunlight.size = Vector2(viewport_size.x, viewport_size.y * 0.48)
+		var vignette := _atmosphere_layer.get_node_or_null("SoftVignette") as ColorRect
+		if vignette != null:
+			vignette.position = Vector2(0.0, viewport_size.y * 0.70)
+			vignette.size = Vector2(viewport_size.x, viewport_size.y * 0.30)
+
+func _update_level_atmosphere(delta: float) -> void:
+	for i in range(_sun_rays.size()):
+		var ray := _sun_rays[i]
+		if ray != null:
+			ray.default_color.a = 0.045 + (sin(Time.get_ticks_msec() * 0.0007 + i) + 1.0) * 0.018
+	for data in _ambient_items:
+		var item := data["node"] as Label
+		if item == null:
+			continue
+		data["phase"] = float(data["phase"]) + delta * float(data["speed"])
+		var phase := float(data["phase"])
+		var base := data.get("base", item.position) as Vector2
+		var drift := float(data["drift"])
+		item.position = base + Vector2(cos(phase * 0.65) * drift, sin(phase) * drift * 0.45)
+		item.rotation = sin(phase * 0.8) * 0.16
+		item.modulate.a = 0.26 + (sin(phase * 1.4) + 1.0) * 0.15
+
 func _process(delta: float) -> void:
 	if get_tree().paused:
 		return
 	if not transitioning:
 		GameManager.tick_timer(delta)
+	_update_level_atmosphere(delta)
 	_update_damage_effect(delta)
 
 func _unhandled_input(event: InputEvent) -> void:
