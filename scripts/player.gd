@@ -24,39 +24,66 @@ var _dash_dir:      Vector2 = Vector2.RIGHT
 var _hop_time:      float = 0.0
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
+var _skin_badge_base_position: Vector2 = Vector2.ZERO
 var _bunny_facing_right: bool = true
-
-var character_colors: Dictionary = {
-	"white_bunny": Color(0.95, 0.95, 0.95),
-	"brown_bunny": Color(0.60, 0.35, 0.10)
-}
+var _skin_badge: Label
 
 @onready var sprite:  ColorRect = $Sprite
 @onready var ear_l:   ColorRect = $EarLeft
 @onready var ear_r:   ColorRect = $EarRight
 @onready var tail:    ColorRect = $Tail
 @onready var pickup:  Area2D    = $PickupArea
+@onready var collision_shape: CollisionShape2D = $CollisionShape2D
+@onready var pickup_collision: CollisionShape2D = $PickupArea/PickupCollision
 @onready var bunny_icon: Label = $BunnyIcon
 
 func _ready() -> void:
 	add_to_group("player")
-	# Apply selected character colour
-	var col: Color = character_colors.get(
-		GameManager.selected_character, Color(0.95, 0.95, 0.95)
-	)
+	# Apply selected skin visuals and matching physics shape.
+	var skin: Dictionary = GameManager.get_selected_skin_data()
+	var col: Color = skin["body_color"]
+	var tail_col: Color = skin["tail_color"]
 	if sprite: sprite.color = col
 	if ear_l:  ear_l.color  = col
 	if ear_r:  ear_r.color  = col
-	if tail:   tail.color   = Color(col.r * 0.88, col.g * 0.88, col.b * 0.88)
+	if tail:   tail.color   = tail_col
+	_apply_skin_physics(skin)
 	if bunny_icon:
-		bunny_icon.text = "🐇"
+		bunny_icon.text = str(skin["icon"])
+		bunny_icon.add_theme_font_size_override("font_size", int(skin.get("icon_font_size", 58)))
 		_bunny_icon_base_position = bunny_icon.position
-		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y))
-		bunny_icon.scale = _get_bunny_facing_scale(0.0)
+		var visual_scale := float(skin.get("visual_scale", 1.0))
+		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y)) * visual_scale
 		bunny_icon.pivot_offset = bunny_icon.size * 0.5
+		_apply_skin_badge(str(skin.get("badge", "")), skin.get("badge_offset", Vector2(17.0, -58.0)))
+		_set_bunny_visual_transform(0.0, 0.0, 0.0)
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
+
+func _apply_skin_physics(skin: Dictionary) -> void:
+	if collision_shape != null and collision_shape.shape is CapsuleShape2D:
+		var body_shape := collision_shape.shape.duplicate() as CapsuleShape2D
+		body_shape.height = float(skin.get("collision_height", 42.0))
+		body_shape.radius = float(skin.get("collision_radius", 18.0))
+		collision_shape.shape = body_shape
+	if pickup_collision != null and pickup_collision.shape is CircleShape2D:
+		var pickup_shape := pickup_collision.shape.duplicate() as CircleShape2D
+		pickup_shape.radius = float(skin.get("pickup_radius", 34.0))
+		pickup_collision.shape = pickup_shape
+
+func _apply_skin_badge(badge: String, badge_offset: Variant) -> void:
+	if _skin_badge == null:
+		_skin_badge = Label.new()
+		_skin_badge.name = "SkinBadge"
+		_skin_badge.size = Vector2(34, 34)
+		_skin_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_skin_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_skin_badge.add_theme_font_size_override("font_size", 24)
+		add_child(_skin_badge)
+	_skin_badge_base_position = badge_offset if badge_offset is Vector2 else Vector2(17.0, -58.0)
+	_skin_badge.text = badge
+	_skin_badge.visible = badge != ""
 
 func _physics_process(delta: float) -> void:
 	# ── Invincibility countdown + flash ──────────────────────────────────────
@@ -124,9 +151,7 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 
 	if dir.length() <= 0.0:
 		_hop_time = 0.0
-		bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position, t)
-		bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(0.0), t)
-		bunny_icon.rotation = lerp(bunny_icon.rotation, 0.0, t)
+		_lerp_bunny_visual_transform(0.0, 0.0, 0.0, t)
 		return
 
 	_hop_time += delta * (18.0 if dash_active else 11.0)
@@ -134,9 +159,23 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	var squash: float = abs(sin(_hop_time * 1.15))
 	var tilt_sign: float = 1.0 if _bunny_facing_right else -1.0
 	var tilt: float = tilt_sign * (0.16 if dash_active else 0.09)
+	_set_bunny_visual_transform(hop, squash, tilt)
+
+func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float) -> void:
 	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
 	bunny_icon.scale = _get_bunny_facing_scale(squash)
-	bunny_icon.rotation = tilt
+	bunny_icon.rotation = rotation_value
+	if _skin_badge != null:
+		_skin_badge.position = _skin_badge_base_position + Vector2(0.0, -hop)
+		_skin_badge.rotation = rotation_value
+
+func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float) -> void:
+	bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position + Vector2(0.0, -hop), weight)
+	bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(squash), weight)
+	bunny_icon.rotation = lerp(bunny_icon.rotation, rotation_value, weight)
+	if _skin_badge != null:
+		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + Vector2(0.0, -hop), weight)
+		_skin_badge.rotation = lerp(_skin_badge.rotation, rotation_value, weight)
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
 	var facing_sign := -1.0 if _bunny_facing_right else 1.0
@@ -159,7 +198,8 @@ func take_damage() -> void:
 func _on_pickup_area_entered(area: Area2D) -> void:
 	if area.is_in_group("carrot"):
 		var points: int = area.get_points()
-		GameManager.add_score(points)
+		var currency_value: int = area.get_currency_value() if area.has_method("get_currency_value") else 1
+		GameManager.add_score(points, currency_value)
 		if points >= 25:
 			AudioManager.play_golden_collect()
 		else:
