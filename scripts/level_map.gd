@@ -5,7 +5,6 @@ extends Control
 # =============================================
 
 @onready var title_label: Label = $TitleLabel
-@onready var title_shadow: Label = $TitleTextShadow
 @onready var btn1: Button = $Level1Button
 @onready var btn2: Button = $Level2Button
 @onready var btn3: Button = $Level3Button
@@ -28,8 +27,6 @@ func _ready() -> void:
 
 func _apply_language() -> void:
 	title_label.text = SettingsManager.text("map_title")
-	if title_shadow != null:
-		title_shadow.text = title_label.text
 	btn1.text = SettingsManager.text("level1_name")
 	btn2.text = SettingsManager.text("level2_name")
 	btn3.text = SettingsManager.text("level3_name")
