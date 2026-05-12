@@ -108,11 +108,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "⬜ White Bunny"
 
-[node name="BrownButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1423097904]
+[node name="WhiteAltButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
 custom_minimum_size = Vector2(426.7, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "🟫 Brown Bunny"
+text = "⬜ White Bunny"
 
 [node name="ConfirmButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=2103981187]
 custom_minimum_size = Vector2(426.7, 70)

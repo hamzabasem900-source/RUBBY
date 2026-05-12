@@ -1,11 +1,11 @@
 extends Control
 
 # =============================================
-# Character Select — White or Brown Bunny
+# Character Select — White Bunny Variants
 # =============================================
 
 @onready var white_btn:   Button    = $CenterContainer/VBoxContainer/WhiteButton
-@onready var brown_btn:   Button    = $CenterContainer/VBoxContainer/BrownButton
+@onready var alt_white_btn: Button   = $CenterContainer/VBoxContainer/WhiteAltButton
 @onready var confirm_btn: Button    = $CenterContainer/VBoxContainer/ConfirmButton
 @onready var back_btn:    Button    = $BackButton
 @onready var title_label: Label     = $TitleLabel
@@ -15,7 +15,7 @@ extends Control
 @onready var name_label:  Label     = $CharNameLabel
 
 const WHITE := Color(0.95, 0.95, 0.95)
-const BROWN := Color(0.60, 0.35, 0.10)
+const ALT_WHITE := Color(0.95, 0.95, 0.95)
 
 var _selected: String = "white_bunny"
 
@@ -24,7 +24,7 @@ func _ready() -> void:
 	_apply_language()
 	SettingsManager.apply_wooden_buttons(self)
 	white_btn.pressed.connect(func(): _pick("white_bunny"))
-	brown_btn.pressed.connect(func(): _pick("brown_bunny"))
+	alt_white_btn.pressed.connect(func(): _pick("brown_bunny"))
 	confirm_btn.pressed.connect(_on_confirm)
 	back_btn.pressed.connect(_on_back)
 	_update_preview()
@@ -32,7 +32,7 @@ func _ready() -> void:
 func _apply_language() -> void:
 	title_label.text = SettingsManager.text("choose_bunny")
 	white_btn.text = SettingsManager.text("white_bunny_button")
-	brown_btn.text = SettingsManager.text("brown_bunny_button")
+	alt_white_btn.text = SettingsManager.text("brown_bunny_button")
 	confirm_btn.text = SettingsManager.text("confirm_play")
 	back_btn.text = "← " + SettingsManager.text("back")
 

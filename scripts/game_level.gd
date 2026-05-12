@@ -21,19 +21,42 @@ var transitioning: bool = false
 var _pause_layer: CanvasLayer
 var _pause_overlay: Control
 var _pause_button: Button
+var _damage_layer: CanvasLayer
+var _damage_overlay: ColorRect
+var _damage_timer: float = 0.0
+var _base_position: Vector2 = Vector2.ZERO
+
+const DAMAGE_EFFECT_DURATION: float = 1.2
+const DAMAGE_SHAKE_STRENGTH: float = 15.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_base_position = position
 	GameManager.level_won.connect(_on_level_won)
 	GameManager.game_over.connect(_on_game_over)
+	GameManager.damage_taken.connect(_on_damage_taken)
 	GameManager.timer_running = true
 	AudioManager.play_gameplay_music()
 	_spawn_all()
+	_build_damage_effect()
 	_build_pause_menu()
 
 func _process(delta: float) -> void:
-	if not transitioning and not get_tree().paused:
+	if get_tree().paused:
+		return
+	if not transitioning:
 		GameManager.tick_timer(delta)
+	_update_damage_effect(delta)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
+		if get_tree().paused and _pause_overlay != null and _pause_overlay.visible:
+			_resume_game()
+		else:
+			_open_pause_menu()
+
+func _is_escape_key(event: InputEvent) -> bool:
+	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
@@ -46,7 +69,48 @@ func _is_escape_key(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
 func _exit_tree() -> void:
+	position = _base_position
 	get_tree().paused = false
+
+
+# ── Damage Feedback ──────────────────────────────────────────────────────────
+
+func _build_damage_effect() -> void:
+	_damage_layer = CanvasLayer.new()
+	_damage_layer.name = "DamageLayer"
+	_damage_layer.layer = 45
+	_damage_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_damage_layer)
+
+	_damage_overlay = ColorRect.new()
+	_damage_overlay.name = "RedDamageFlash"
+	_damage_overlay.visible = false
+	_damage_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_damage_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_damage_overlay.color = Color(1.0, 0.0, 0.0, 0.0)
+	_damage_layer.add_child(_damage_overlay)
+
+func _on_damage_taken(_new_lives: int) -> void:
+	_damage_timer = DAMAGE_EFFECT_DURATION
+	if _damage_overlay != null:
+		_damage_overlay.visible = true
+		_damage_overlay.color = Color(1.0, 0.02, 0.0, 0.42)
+
+func _update_damage_effect(delta: float) -> void:
+	if _damage_timer <= 0.0:
+		return
+	_damage_timer = max(0.0, _damage_timer - delta)
+	var fade := _damage_timer / DAMAGE_EFFECT_DURATION
+	var pulse := 0.75 + sin(Time.get_ticks_msec() * 0.045) * 0.25
+	if _damage_overlay != null:
+		_damage_overlay.color = Color(1.0, 0.0, 0.0, 0.46 * fade * pulse)
+		_damage_overlay.visible = _damage_timer > 0.0
+
+	if _damage_timer > 0.0:
+		var strength := DAMAGE_SHAKE_STRENGTH * fade
+		position = _base_position + Vector2(randf_range(-strength, strength), randf_range(-strength, strength))
+	else:
+		position = _base_position
 
 # ── Pause Menu ────────────────────────────────────────────────────────────────
 

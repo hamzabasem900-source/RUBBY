@@ -6,6 +6,7 @@ extends Node
 
 signal score_changed(new_score: int)
 signal lives_changed(new_lives: int)
+signal damage_taken(new_lives: int)
 signal time_changed(new_time: float)
 signal level_won
 signal game_over
@@ -27,19 +28,19 @@ var level_configs: Array = [
 	{
 		"level": 1, "time_limit": 70.0, "lives": 3,
 		"required_score": 80,  "fox_count": 1,
-		"hole_count": 3, "thorn_count": 2,
+		"hole_count": 3, "thorn_count": 3,
 		"carrot_count": 12, "golden_carrot_count": 2
 	},
 	{
 		"level": 2, "time_limit": 55.0, "lives": 3,
 		"required_score": 120, "fox_count": 2,
-		"hole_count": 5, "thorn_count": 4,
+		"hole_count": 5, "thorn_count": 5,
 		"carrot_count": 16, "golden_carrot_count": 3
 	},
 	{
 		"level": 3, "time_limit": 45.0, "lives": 2,
 		"required_score": 160, "fox_count": 3,
-		"hole_count": 7, "thorn_count": 6,
+		"hole_count": 7, "thorn_count": 8,
 		"carrot_count": 20, "golden_carrot_count": 4
 	}
 ]
@@ -59,8 +60,8 @@ const SKIN_CATALOG: Array[Dictionary] = [
 		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
-		"id": "brown_bunny", "name_key": "skin_brown_name", "description_key": "skin_brown_desc",
-		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.60, 0.35, 0.10), "tail_color": Color(0.46, 0.25, 0.08)
+		"id": "brown_bunny", "name_key": "skin_snow_name", "description_key": "skin_snow_desc",
+		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
 		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
@@ -216,6 +217,7 @@ func lose_life() -> void:
 		return
 	lives -= 1
 	lives_changed.emit(lives)
+	damage_taken.emit(lives)
 	if lives <= 0:
 		_gameover_emitted = true
 		game_over.emit()
