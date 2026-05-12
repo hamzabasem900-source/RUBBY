@@ -114,6 +114,19 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "🐇 Runner Bunny"
 
+
+[node name="DuneButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(426.7, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "🐇 Dune Hare"
+
+[node name="SnowButton" type="Button" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(426.7, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "🐰 Snow Scout"
+
 [node name="ConfirmButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=2103981187]
 custom_minimum_size = Vector2(426.7, 70)
 layout_mode = 2

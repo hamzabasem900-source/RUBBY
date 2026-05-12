@@ -22,7 +22,7 @@ var levels_unlocked:    int    = 1
 var carrot_wallet:      int    = 0
 var level_carrots_earned: int  = 0
 var last_banked_carrots: int    = 0
-var owned_skins: Array[String] = ["white_bunny", "brown_bunny"]
+var owned_skins: Array[String] = ["white_bunny", "brown_bunny", "dune_hare", "snow_scout"]
 
 var level_configs: Array = [
 	{
@@ -63,6 +63,16 @@ const SKIN_CATALOG: Array[Dictionary] = [
 	{
 		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
 		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+	},
+	{
+		"id": "dune_hare", "name_key": "skin_dune_name", "description_key": "skin_dune_desc",
+		"price": 0, "icon": "🐇", "badge": "⚡", "body_color": Color(0.70, 0.46, 0.24), "tail_color": Color(0.93, 0.78, 0.55),
+		"visual_scale": 1.18, "icon_font_size": 62, "collision_height": 48.0, "collision_radius": 19.0, "pickup_radius": 37.0, "badge_offset": Vector2(21.0, -67.0)
+	},
+	{
+		"id": "snow_scout", "name_key": "skin_snow_name", "description_key": "skin_snow_desc",
+		"price": 0, "icon": "🐰", "badge": "❄", "body_color": Color(0.90, 0.96, 1.00), "tail_color": Color(0.75, 0.87, 0.96),
+		"visual_scale": 0.92, "icon_font_size": 64, "collision_height": 37.0, "collision_radius": 16.0, "pickup_radius": 30.0, "badge_offset": Vector2(15.0, -54.0)
 	},
 	{
 		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
@@ -158,8 +168,9 @@ func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
 				sanitized.append(packed_id)
 	if not sanitized.has(DEFAULT_SKIN_ID):
 		sanitized.append(DEFAULT_SKIN_ID)
-	if not sanitized.has("brown_bunny"):
-		sanitized.append("brown_bunny")
+	for starter_skin in ["brown_bunny", "dune_hare", "snow_scout"]:
+		if not sanitized.has(starter_skin):
+			sanitized.append(starter_skin)
 	return sanitized
 
 
@@ -310,7 +321,7 @@ func reset_game() -> void:
 	lives              = 3
 	current_level      = 1
 	selected_character = DEFAULT_SKIN_ID
-	owned_skins = [DEFAULT_SKIN_ID, "brown_bunny"]
+	owned_skins = [DEFAULT_SKIN_ID, "brown_bunny", "dune_hare", "snow_scout"]
 	levels_unlocked    = 1
 	carrot_wallet      = 0
 	level_carrots_earned = 0
