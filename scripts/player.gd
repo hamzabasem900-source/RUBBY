@@ -193,9 +193,9 @@ func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	shadow.modulate.a = 1.0 - lift_ratio * 0.25
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
-	# Positive X scale means the selected bunny looks to the right. This fixes
-	# the small white bunny appearing backwards when the player moves sideways.
-	var facing_sign := 1.0 if _bunny_facing_right else -1.0
+	# The side-view rabbit emoji artwork faces left by default in Godot.
+	# Mirror only the Label when moving right so every rabbit points correctly.
+	var facing_sign := -1.0 if _bunny_facing_right else 1.0
 	return _bunny_icon_base_scale * Vector2(
 		facing_sign * (1.0 + squash * 0.05),
 		1.0 - squash * 0.04

@@ -112,6 +112,23 @@ const SKIN_CATALOG: Array[Dictionary] = [
 	}
 ]
 
+const PLAYABLE_CHARACTER_OVERRIDES: Array[Dictionary] = [
+	{
+		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.58, 0.36, 0.18), "tail_color": Color(0.86, 0.70, 0.48), "icon_tint": Color(0.78, 0.50, 0.26)
+	},
+	{
+		"id": "dune_hare", "name_key": "skin_dune_name", "description_key": "skin_dune_desc",
+		"price": 0, "icon": "🐇", "badge": "⚡", "body_color": Color(0.76, 0.42, 0.12), "tail_color": Color(1.00, 0.76, 0.35), "icon_tint": Color(0.96, 0.52, 0.13),
+		"visual_scale": 1.18, "icon_font_size": 62, "collision_height": 48.0, "collision_radius": 19.0, "pickup_radius": 37.0, "badge_offset": Vector2(21.0, -67.0)
+	},
+	{
+		"id": "snow_scout", "name_key": "skin_snow_name", "description_key": "skin_snow_desc",
+		"price": 0, "icon": "🐇", "badge": "❄", "body_color": Color(0.52, 0.82, 1.00), "tail_color": Color(0.86, 0.96, 1.00), "icon_tint": Color(0.58, 0.86, 1.00),
+		"visual_scale": 0.92, "icon_font_size": 64, "collision_height": 37.0, "collision_radius": 16.0, "pickup_radius": 30.0, "badge_offset": Vector2(15.0, -54.0)
+	}
+]
+
 func _ready() -> void:
 	load_progress()
 
@@ -121,10 +138,16 @@ func get_skin_catalog() -> Array[Dictionary]:
 	return SKIN_CATALOG.duplicate(true)
 
 func get_skin_data(skin_id: String) -> Dictionary:
-	return _get_base_skin_data(skin_id).duplicate(true)
+	return _get_playable_skin_data(skin_id).duplicate(true)
 
 func get_selected_skin_data() -> Dictionary:
 	return get_skin_data(selected_character)
+
+func _get_playable_skin_data(skin_id: String) -> Dictionary:
+	for skin in PLAYABLE_CHARACTER_OVERRIDES:
+		if str(skin["id"]) == skin_id:
+			return skin
+	return _get_base_skin_data(skin_id)
 
 func _get_base_skin_data(skin_id: String) -> Dictionary:
 	for skin in SKIN_CATALOG:
