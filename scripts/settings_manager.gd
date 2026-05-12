@@ -76,7 +76,7 @@ func apply_window_settings() -> void:
 	var window := get_window()
 	window.content_scale_size = DESIGN_SIZE
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
 	if bool(values["fullscreen"]):
 		_apply_fullscreen_window()
