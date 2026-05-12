@@ -9,7 +9,6 @@ BunnyGame/
 │   ├── MainMenu.tscn          ← الشاشة الرئيسية
 │   ├── Instructions.tscn      ← شاشة التعليمات
 │   ├── LevelMap.tscn          ← خريطة المستويات
-│   ├── CharacterSelect.tscn   ← اختيار الشخصية
 │   ├── GameLevel.tscn         ← مشهد اللعب الرئيسي
 │   ├── Player.tscn            ← الأرنب (اللاعب)
 │   ├── Fox.tscn               ← الثعلب (عدو)
@@ -18,7 +17,7 @@ BunnyGame/
 │   ├── Thorn.tscn             ← الشوك (خطر)
 │   ├── WinScreen.tscn         ← شاشة الفوز
 │   ├── GameOver.tscn          ← شاشة نهاية اللعبة
-│   └── ResultScreen.tscn      ← شاشة النتائج
+│   └── Settings.tscn          ← شاشة الاعدادات
 └── scripts/
     ├── game_manager.gd
     ├── audio_manager.gd
@@ -31,10 +30,10 @@ BunnyGame/
     ├── main_menu.gd
     ├── instructions.gd
     ├── level_map.gd
-    ├── character_select.gd
+    ├── settings_menu.gd
+    ├── settings_manager.gd
     ├── win_screen.gd
-    ├── game_over.gd
-    └── result_screen.gd
+    └── game_over.gd
 ```
 
 ---
@@ -54,8 +53,9 @@ BunnyGame/
 |--------------|---------------------------------|
 | GameManager  | res://scripts/game_manager.gd   |
 | AudioManager | res://scripts/audio_manager.gd  |
+| SettingsManager | res://scripts/settings_manager.gd |
 
-إذا لم تكن موجودة، أضفهما يدوياً.
+إذا لم تكن موجودة، أضفهما يدويا.
 
 ### الخطوة 3 — تحقق من Input Map
 افتح: **Project → Project Settings → Input Map**
@@ -66,14 +66,14 @@ BunnyGame/
 - `move_up`    → مفتاح W
 - `move_down`  → مفتاح S
 
-إذا لم تكن موجودة، أضفها يدوياً.
+إذا لم تكن موجودة، أضفها يدويا.
 
 ### الخطوة 4 — تأكد من المشهد الرئيسي
 افتح: **Project → Project Settings → Application → Run**
 
 تأكد أن **Main Scene** = `res://scenes/MainMenu.tscn`
 
-### الخطوة 5 — شغّل اللعبة!
+### الخطوة 5 — شغل اللعبة!
 اضغط **F5** أو زر ▶ في أعلى الشاشة
 
 ---
