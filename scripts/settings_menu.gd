@@ -190,6 +190,8 @@ func _create_check_row(label_key: String, setting_key: String) -> HBoxContainer:
 	toggle.toggled.connect(func(pressed: bool) -> void:
 		SettingsManager.set_setting(setting_key, pressed)
 		_update_preview()
+		if setting_key == "fullscreen":
+			call_deferred("_update_preview")
 	)
 	row.add_child(toggle)
 	return row
@@ -210,6 +212,8 @@ func _create_option_row(label_key: String, setting_key: String, options: Array[S
 	option.item_selected.connect(func(index: int) -> void:
 		SettingsManager.set_setting(setting_key, options[index])
 		_update_preview()
+		if setting_key == "resolution":
+			call_deferred("_update_preview")
 	)
 	row.add_child(option)
 	if setting_key == "language":
@@ -263,7 +267,8 @@ func _update_preview() -> void:
 	_preview_label.text = "🥕 " + SettingsManager.text("language") + ": " + str(SettingsManager.get_setting("language")) + "\n" + \
 		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
 		"🎮 " + SettingsManager.text("difficulty") + ": " + SettingsManager.option_text("difficulty", str(SettingsManager.get_setting("difficulty"))) + "\n" + \
-		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + fullscreen_state
+		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + " • " + SettingsManager.text("fullscreen") + ": " + fullscreen_state + "\n" + \
+		"✅ " + SettingsManager.text("applied_display") + ": " + SettingsManager.get_display_status_text()
 
 func _refresh_language(_language: String) -> void:
 	for label in _labels:

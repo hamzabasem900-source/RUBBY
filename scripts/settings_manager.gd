@@ -73,18 +73,64 @@ func apply_all() -> void:
 	apply_audio_settings()
 
 func apply_window_settings() -> void:
-	var size := _resolution_to_vector(str(values["resolution"]))
 	var window := get_window()
 	window.content_scale_size = DESIGN_SIZE
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND
+	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
-	var fullscreen: bool = bool(values["fullscreen"])
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
-	if not fullscreen:
-		DisplayServer.window_set_size(size)
-		var screen_size := DisplayServer.screen_get_size()
-		DisplayServer.window_set_position((screen_size - size) / 2)
+	if bool(values["fullscreen"]):
+		_apply_fullscreen_window()
+	else:
+		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
+
+func get_display_status_text() -> String:
+	var mode := DisplayServer.window_get_mode()
+	var mode_text := text("fullscreen") if _is_fullscreen_mode(mode) else text("windowed")
+	var size := DisplayServer.window_get_size()
+	return "%s • %d x %d" % [mode_text, size.x, size.y]
+
+func _is_fullscreen_mode(mode: int) -> bool:
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		return true
+	return mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+
+func _apply_fullscreen_window() -> void:
+	var screen_size := DisplayServer.screen_get_size()
+	var screen_position := DisplayServer.screen_get_position()
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	DisplayServer.window_set_position(screen_position)
+	DisplayServer.window_set_size(screen_size)
+	get_window().size = screen_size
+	call_deferred("_finish_fullscreen_apply", screen_size, screen_position)
+
+func _finish_fullscreen_apply(screen_size: Vector2i, screen_position: Vector2i) -> void:
+	if not bool(values["fullscreen"]):
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	DisplayServer.window_set_position(screen_position)
+	DisplayServer.window_set_size(screen_size)
+	get_window().size = screen_size
+
+func _apply_windowed_size(size: Vector2i) -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+	DisplayServer.window_set_size(size)
+	get_window().size = size
+	_center_window(size)
+	call_deferred("_finish_windowed_size_apply", size)
+
+func _finish_windowed_size_apply(size: Vector2i) -> void:
+	if bool(values["fullscreen"]):
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(size)
+	get_window().size = size
+	_center_window(size)
+
+func _center_window(size: Vector2i) -> void:
+	var screen_size := DisplayServer.screen_get_size()
+	DisplayServer.window_set_position((screen_size - size) / 2)
 
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
@@ -176,6 +222,8 @@ func text(key: String) -> String:
 		"visuals": "Display",
 		"fullscreen": "Fullscreen",
 		"resolution": "Resolution",
+		"windowed": "Windowed",
+		"applied_display": "Applied display",
 		"reset": "Reset Defaults",
 		"back": "Back",
 		"back_to_menu": "Back to Menu",
@@ -187,8 +235,8 @@ func text(key: String) -> String:
 		"carrot_wallet": "🥕 {count}",
 		"open_skin_shop": "Skins",
 		"skin_shop_title": "🥕 Bunny Skin Shop",
-		"skin_shop_subtitle": "Buy bunny shapes, then use the color dots to change each bunny color.",
-		"skin_shop_hint": "White is free. Extra colors cost carrots for each bunny.",
+		"skin_shop_subtitle": "Buy bunny shapes, then equip your favorite look.",
+		"skin_shop_hint": "Collect carrots in levels, then come back to buy new bunny shapes.",
 		"skin_price": "Price: {price} 🥕",
 		"skin_owned": "Owned",
 		"skin_buy": "Buy",
@@ -232,12 +280,6 @@ func text(key: String) -> String:
 		"instructions_tip_title": "Smart bunny tip",
 		"instructions_tip_body": "Plan your route around hazards, dash only when needed, and go for golden carrots when the path is clear.",
 		"instructions_body": "[b]🎮 Controls:[/b]\n  Arrow Keys or WASD — Move your bunny\n  Space or Enter — Quick dash burst\n\n[b]🥕 Collect:[/b]\n  Orange Carrot = 10 points\n  Golden Carrot = 25 points\n\n[b]⚠ Hazards:[/b]\n  🦊 Foxes — they chase the bunny and cost 1 life.\n  🕳 Burrow Holes — dark oval pits with a dirt rim; avoid stepping into them.\n  🌿 Thorn Bushes — green bushes with pale spikes; touching them costs 1 life.\n\n[b]🎯 Goal:[/b]\n  Collect enough points before the timer ends!\n  Reach the required score to win the level.\n\n[b]❤ Lives:[/b]\n  You start with 3 lives. Each hit = -1 life.\n  If lives reach 0, it's Game Over!",
-		"choose_bunny": "Choose Your Bunny! 🐰",
-		"white_bunny": "Classic Bunny 🐰",
-		"brown_bunny": "Runner Bunny 🐇",
-		"white_bunny_button": "🐰 Classic Bunny",
-		"brown_bunny_button": "🐇 Runner Bunny",
-		"confirm_play": "✔ Let's Go! Play!",
 		"map_title": "Garden Adventure Map",
 		"level1_name": "🌱 1\nEasy Garden",
 		"level2_name": "🌻 2\nFox Crossing",
@@ -274,10 +316,6 @@ func text(key: String) -> String:
 		"game_over_message_2": "So close! Try again! 💪",
 		"game_over_message_3": "The carrots are waiting for you! 🥕",
 		"game_over_message_4": "You can do it! One more hop! 🌟",
-		"result_title": "Level Results! 🥕",
-		"your_score": "Your Score: {score}",
-		"time_used": "Time Used: {time}s",
-		"retry": "🔄 Retry",
 		"easy": "Easy",
 		"normal": "Normal",
 		"hard": "Hard"
@@ -296,6 +334,8 @@ func text(key: String) -> String:
 		"visuals": "العرض",
 		"fullscreen": "ملء الشاشة",
 		"resolution": "الدقة",
+		"windowed": "نافذة",
+		"applied_display": "العرض المطبق",
 		"reset": "استعادة الافتراضي",
 		"back": "رجوع",
 		"back_to_menu": "رجوع للقائمة",
@@ -352,12 +392,6 @@ func text(key: String) -> String:
 		"instructions_tip_title": "نصيحة",
 		"instructions_tip_body": "ابتعد عن الخطر واستخدم الاندفاع عند الحاجة.",
 		"instructions_body": "[b]🎮 التحكم:[/b]\n  الأسهم أو WASD — حرك الأرنب\n  Space أو Enter — اندفاع سريع\n\n[b]🥕 التجميع:[/b]\n  الجزرة البرتقالية = 10 نقاط\n  الجزرة الذهبية = 25 نقطة\n\n[b]⚠ المخاطر:[/b]\n  🦊 الثعالب — تطارد الأرنب وتنقص حياة واحدة.\n  🕳 جحور/حفر الأرض — حفرة بيضاوية داكنة حولها تراب؛ لا تدخل فيها.\n  🌿 شجيرات الشوك — شجيرات خضراء عليها أشواك فاتحة؛ لمسها ينقص حياة واحدة.\n\n[b]🎯 الهدف:[/b]\n  اجمع نقاطا كافية قبل انتهاء الوقت!\n  وصل للنقاط المطلوبة كي تفوز بالمرحلة.\n\n[b]❤ الحيوات:[/b]\n  تبدأ بثلاث حيوات. كل إصابة تنقص حياة.\n  إذا وصلت الحيوات إلى صفر تنتهي اللعبة!",
-		"choose_bunny": "اختر أرنبك! 🐰",
-		"white_bunny": "الأرنب الكلاسيكي 🐰",
-		"brown_bunny": "الأرنب القافز 🐇",
-		"white_bunny_button": "🐰 الأرنب الكلاسيكي",
-		"brown_bunny_button": "🐇 الأرنب القافز",
-		"confirm_play": "✔ هيا نلعب!",
 		"map_title": "خريطة مغامرة الحديقة",
 		"level1_name": "🌱 1\nالحديقة السهلة",
 		"level2_name": "🌻 2\nممر الثعلب",
@@ -394,10 +428,6 @@ func text(key: String) -> String:
 		"game_over_message_2": "كنت قريبا! حاول مرة أخرى! 💪",
 		"game_over_message_3": "الجزر ينتظرك! 🥕",
 		"game_over_message_4": "تستطيع الفوز! حاول مرة اخرى! 🌟",
-		"result_title": "نتائج المرحلة! 🥕",
-		"your_score": "نقاطك: {score}",
-		"time_used": "الوقت المستخدم: {time}ث",
-		"retry": "🔄 إعادة المحاولة",
 		"easy": "سهل",
 		"normal": "عادي",
 		"hard": "صعب"
