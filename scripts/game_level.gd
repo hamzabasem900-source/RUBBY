@@ -26,12 +26,16 @@ var _damage_overlay: ColorRect
 var _damage_timer: float = 0.0
 var _base_position: Vector2 = Vector2.ZERO
 
+@onready var background: Sprite2D = $Background
+
 const DAMAGE_EFFECT_DURATION: float = 1.2
 const DAMAGE_SHAKE_STRENGTH: float = 15.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_base_position = position
+	_fit_background_to_viewport()
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	GameManager.level_won.connect(_on_level_won)
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.damage_taken.connect(_on_damage_taken)
@@ -40,6 +44,20 @@ func _ready() -> void:
 	_spawn_all()
 	_build_damage_effect()
 	_build_pause_menu()
+
+func _on_viewport_size_changed() -> void:
+	_fit_background_to_viewport()
+
+func _fit_background_to_viewport() -> void:
+	if background == null or background.texture == null:
+		return
+	var viewport_size := get_viewport_rect().size
+	var texture_size := background.texture.get_size()
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0 or texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return
+	var cover_scale: float = max(viewport_size.x / texture_size.x, viewport_size.y / texture_size.y)
+	background.position = viewport_size * 0.5
+	background.scale = Vector2(cover_scale, cover_scale)
 
 func _process(delta: float) -> void:
 	if get_tree().paused:
