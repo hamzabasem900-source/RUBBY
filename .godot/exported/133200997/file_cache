@@ -1,0 +1,14 @@
+res://scenes/Carrot.tscn::47d5aa8a93f908b4aea1a8e918e19841::1778596674::res://.godot/exported/133200997/export-77ad7df5932964fb82717d992f0d80b9-Carrot.scn
+res://scenes/Fox.tscn::42f7ff7b8fafb1e442efc95d4a9cd28b::1778596674::res://.godot/exported/133200997/export-40479cca7daddc034c05d0c298ee2b57-Fox.scn
+res://scenes/GameLevel.tscn::a3cee1608e09639cdd3d0d4ab16daa89::1778596674::res://.godot/exported/133200997/export-857655c1b7388e849663a5704bb42248-GameLevel.scn
+res://scenes/GameOver.tscn::39bfa65ec7078fa38a0492838846fc91::1778596674::res://.godot/exported/133200997/export-5e2441304cbe3362f929858a53beba09-GameOver.scn
+res://scenes/Hole.tscn::c700c5f31ab3af030099e422ccb68aa3::1778596674::res://.godot/exported/133200997/export-d0aaa8a3d64e89e9c6581f6c38d61d61-Hole.scn
+res://scenes/Instructions.tscn::b5cb678b61ab82fa9678e682b5261b27::1778596674::res://.godot/exported/133200997/export-8f1b61696a9a47543d3d11ef35998648-Instructions.scn
+res://scenes/LevelMap.tscn::2ebd9c5c15f3d3f9be53b67906ee9232::1778596674::res://.godot/exported/133200997/export-3809f9966ceb8fb717e6ce1c103bf290-LevelMap.scn
+res://scenes/MainMenu.tscn::f2873cbfb125817dc0dd3abd128db8c0::1778596674::res://.godot/exported/133200997/export-23c8b2a48d59a0cd018bd8ad5ce7794c-MainMenu.scn
+res://scenes/Player.tscn::1ba2facbc31ad43e75c73903549f8f13::1778596674::res://.godot/exported/133200997/export-e8220e74d1354b9e6b168b513689419c-Player.scn
+res://scenes/CharacterSelect.tscn::9d77251110c8786beb933d7d5826c99e::1778581056::res://.godot/exported/133200997/export-3925af4e30f501cd1cabc6e961f22f4b-CharacterSelect.scn
+res://scenes/ResultScreen.tscn::c529e85b0b00bd94649b221754cf912c::1778581056::res://.godot/exported/133200997/export-d968ff7368e4d01ab8f964dfd3dd7c2b-ResultScreen.scn
+res://scenes/Settings.tscn::8b1ee2a416d3f37c0169aaa29e3d57e8::1778596674::res://.godot/exported/133200997/export-aa0bebfe53779e3753807371083ff1c1-Settings.scn
+res://scenes/Thorn.tscn::5225a6e6045f8fa0bc8b4da5a09aef30::1778596674::res://.godot/exported/133200997/export-421cb3d3b9d8318fa254cf1b57de6579-Thorn.scn
+res://scenes/WinScreen.tscn::3378d461f563fd1453d34b4f0b1233d6::1778596674::res://.godot/exported/133200997/export-e0b1c42f693a0f5f31acbbd7c07c1c93-WinScreen.scn

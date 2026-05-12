@@ -190,6 +190,8 @@ func _create_check_row(label_key: String, setting_key: String) -> HBoxContainer:
 	toggle.toggled.connect(func(pressed: bool) -> void:
 		SettingsManager.set_setting(setting_key, pressed)
 		_update_preview()
+		if setting_key == "fullscreen":
+			call_deferred("_update_preview")
 	)
 	row.add_child(toggle)
 	return row
@@ -210,6 +212,8 @@ func _create_option_row(label_key: String, setting_key: String, options: Array[S
 	option.item_selected.connect(func(index: int) -> void:
 		SettingsManager.set_setting(setting_key, options[index])
 		_update_preview()
+		if setting_key == "resolution":
+			call_deferred("_update_preview")
 	)
 	row.add_child(option)
 	if setting_key == "language":

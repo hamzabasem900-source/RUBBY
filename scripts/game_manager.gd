@@ -6,6 +6,7 @@ extends Node
 
 signal score_changed(new_score: int)
 signal lives_changed(new_lives: int)
+signal damage_taken(new_lives: int)
 signal time_changed(new_time: float)
 signal level_won
 signal game_over
@@ -27,19 +28,19 @@ var level_configs: Array = [
 	{
 		"level": 1, "time_limit": 70.0, "lives": 3,
 		"required_score": 80,  "fox_count": 1,
-		"hole_count": 3, "thorn_count": 2,
+		"hole_count": 3, "thorn_count": 3,
 		"carrot_count": 12, "golden_carrot_count": 2
 	},
 	{
 		"level": 2, "time_limit": 55.0, "lives": 3,
 		"required_score": 120, "fox_count": 2,
-		"hole_count": 5, "thorn_count": 4,
+		"hole_count": 5, "thorn_count": 5,
 		"carrot_count": 16, "golden_carrot_count": 3
 	},
 	{
 		"level": 3, "time_limit": 45.0, "lives": 2,
 		"required_score": 160, "fox_count": 3,
-		"hole_count": 7, "thorn_count": 6,
+		"hole_count": 7, "thorn_count": 8,
 		"carrot_count": 20, "golden_carrot_count": 4
 	}
 ]
@@ -53,14 +54,15 @@ const SAVE_PATH: String = "user://progress.cfg"
 const SAVE_SECTION: String = "progress"
 const DEFAULT_SKIN_ID: String = "white_bunny"
 
+
 const SKIN_CATALOG: Array[Dictionary] = [
 	{
 		"id": "white_bunny", "name_key": "skin_white_name", "description_key": "skin_white_desc",
 		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
-		"id": "brown_bunny", "name_key": "skin_brown_name", "description_key": "skin_brown_desc",
-		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.60, 0.35, 0.10), "tail_color": Color(0.46, 0.25, 0.08)
+		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
 		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
@@ -99,25 +101,28 @@ func get_skin_catalog() -> Array[Dictionary]:
 	return SKIN_CATALOG.duplicate(true)
 
 func get_skin_data(skin_id: String) -> Dictionary:
+	return _get_base_skin_data(skin_id).duplicate(true)
+
+func get_selected_skin_data() -> Dictionary:
+	return get_skin_data(selected_character)
+
+func _get_base_skin_data(skin_id: String) -> Dictionary:
 	for skin in SKIN_CATALOG:
 		if str(skin["id"]) == skin_id:
 			return skin
 	return SKIN_CATALOG[0]
 
-func get_selected_skin_data() -> Dictionary:
-	return get_skin_data(selected_character)
-
 func is_skin_owned(skin_id: String) -> bool:
 	return owned_skins.has(skin_id)
 
 func can_afford_skin(skin_id: String) -> bool:
-	var skin := get_skin_data(skin_id)
+	var skin := _get_base_skin_data(skin_id)
 	return carrot_wallet >= int(skin.get("price", 0))
 
 func purchase_skin(skin_id: String) -> bool:
 	if is_skin_owned(skin_id):
 		return equip_skin(skin_id)
-	var skin := get_skin_data(skin_id)
+	var skin := _get_base_skin_data(skin_id)
 	var price := int(skin.get("price", 0))
 	if carrot_wallet < price:
 		return false
@@ -156,6 +161,8 @@ func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
 	if not sanitized.has("brown_bunny"):
 		sanitized.append("brown_bunny")
 	return sanitized
+
+
 
 # ── Level Setup ──────────────────────────────────────────────────────────────
 
@@ -216,6 +223,7 @@ func lose_life() -> void:
 		return
 	lives -= 1
 	lives_changed.emit(lives)
+	damage_taken.emit(lives)
 	if lives <= 0:
 		_gameover_emitted = true
 		game_over.emit()

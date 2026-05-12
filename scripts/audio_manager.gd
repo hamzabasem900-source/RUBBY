@@ -83,7 +83,10 @@ func play(sound_name: String, loop: bool = false) -> void:
 	var p: AudioStreamPlayer = _players[sound_name]
 	if p.stream == null:
 		return
-	_set_stream_loop(p.stream, loop or MUSIC_KEYS.has(sound_name))
+	var should_loop := loop or MUSIC_KEYS.has(sound_name)
+	_set_stream_loop(p.stream, should_loop)
+	if should_loop and p.playing:
+		return
 	p.play()
 
 func stop(sound_name: String) -> void:
@@ -99,12 +102,26 @@ func stop_music() -> void:
 		stop(key)
 
 func play_menu_music() -> void:
-	stop_music()
-	play("menu_music", true)
+	play_music("menu_music")
 
 func play_gameplay_music() -> void:
-	stop_music()
-	play("gameplay_music", true)
+	play_music("gameplay_music")
+
+func play_music(sound_name: String) -> void:
+	if not MUSIC_KEYS.has(sound_name):
+		return
+	if _is_music_already_playing(sound_name):
+		return
+	for key in MUSIC_KEYS:
+		if key != sound_name:
+			stop(key)
+	play(sound_name, true)
+
+func _is_music_already_playing(sound_name: String) -> bool:
+	if not _players.has(sound_name):
+		return false
+	var player: AudioStreamPlayer = _players[sound_name]
+	return player.playing
 
 func play_collect() -> void:
 	play("collect_carrot")

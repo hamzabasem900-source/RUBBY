@@ -87,7 +87,7 @@ offset_right = 672.0
 offset_bottom = 372.0
 theme_override_colors/font_color = Color(0.1, 0.3, 0.1, 1)
 theme_override_font_sizes/font_size = 30
-text = "White Bunny"
+text = "Classic Bunny"
 horizontal_alignment = 1
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=583136751]
@@ -106,13 +106,13 @@ theme_override_constants/separation = 18
 custom_minimum_size = Vector2(426.7, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "⬜ White Bunny"
+text = "🐰 Classic Bunny"
 
-[node name="BrownButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1423097904]
+[node name="WhiteAltButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=927890340]
 custom_minimum_size = Vector2(426.7, 64)
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "🟫 Brown Bunny"
+text = "🐇 Runner Bunny"
 
 [node name="ConfirmButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=2103981187]
 custom_minimum_size = Vector2(426.7, 70)
