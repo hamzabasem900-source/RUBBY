@@ -51,6 +51,11 @@ func _ready() -> void:
 	_apply_skin_physics(skin)
 	if bunny_icon:
 		bunny_icon.text = str(skin["icon"])
+		var icon_tint: Color = col
+		if skin.has("icon_tint") and skin["icon_tint"] is Color:
+			icon_tint = skin["icon_tint"]
+		bunny_icon.modulate = icon_tint
+		bunny_icon.add_theme_color_override("font_color", icon_tint)
 		bunny_icon.add_theme_font_size_override("font_size", int(skin.get("icon_font_size", 58)))
 		_bunny_icon_base_position = bunny_icon.position
 		var visual_scale := float(skin.get("visual_scale", 1.0))
