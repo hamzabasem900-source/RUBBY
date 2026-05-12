@@ -58,6 +58,16 @@ func _input(event: InputEvent) -> void:
 func _is_escape_key(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
+		if get_tree().paused and _pause_overlay != null and _pause_overlay.visible:
+			_resume_game()
+		else:
+			_open_pause_menu()
+
+func _is_escape_key(event: InputEvent) -> bool:
+	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
+
 func _exit_tree() -> void:
 	position = _base_position
 	get_tree().paused = false
