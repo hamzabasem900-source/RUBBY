@@ -6,6 +6,7 @@ extends Node
 
 signal score_changed(new_score: int)
 signal lives_changed(new_lives: int)
+signal damage_taken(new_lives: int)
 signal time_changed(new_time: float)
 signal level_won
 signal game_over
@@ -216,6 +217,7 @@ func lose_life() -> void:
 		return
 	lives -= 1
 	lives_changed.emit(lives)
+	damage_taken.emit(lives)
 	if lives <= 0:
 		_gameover_emitted = true
 		game_over.emit()
