@@ -25,6 +25,15 @@ var _shop_wallet_label: Label
 var _shop_status_label: Label
 var _skin_cards: Dictionary = {}
 
+const SETTINGS_BUTTON_LEFT: float = -112.0
+const SETTINGS_BUTTON_TOP: float = 16.0
+const SETTINGS_BUTTON_RIGHT: float = -28.0
+const SETTINGS_BUTTON_BOTTOM: float = 92.0
+const SETTINGS_HINT_LEFT: float = -140.0
+const SETTINGS_HINT_TOP: float = 92.0
+const SETTINGS_HINT_RIGHT: float = 0.0
+const SETTINGS_HINT_BOTTOM: float = 122.0
+
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_prepare_responsive_layout()
@@ -48,7 +57,6 @@ func _prepare_responsive_layout() -> void:
 	_fit_background_to_viewport()
 	_configure_top_labels()
 	_configure_settings_shortcut(settings_btn)
-	_configure_settings_shortcut(get_node_or_null("SettingsButton2") as Button)
 	_configure_settings_hint()
 
 func _on_viewport_size_changed() -> void:
@@ -83,19 +91,30 @@ func _configure_settings_shortcut(button: Button) -> void:
 	if button == null:
 		return
 	button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	button.offset_left = -102.0
-	button.offset_top = 20.0
-	button.offset_right = -30.0
-	button.offset_bottom = 92.0
+	button.offset_left = SETTINGS_BUTTON_LEFT
+	button.offset_top = SETTINGS_BUTTON_TOP
+	button.offset_right = SETTINGS_BUTTON_RIGHT
+	button.offset_bottom = SETTINGS_BUTTON_BOTTOM
+	button.z_index = 100
+	button.text = "⚙"
+	button.tooltip_text = SettingsManager.text("settings")
 
 func _configure_settings_hint() -> void:
 	if settings_hint == null:
 		return
 	settings_hint.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	settings_hint.offset_left = -166.0
-	settings_hint.offset_top = 92.0
-	settings_hint.offset_right = -30.0
-	settings_hint.offset_bottom = 120.0
+	settings_hint.offset_left = SETTINGS_HINT_LEFT
+	settings_hint.offset_top = SETTINGS_HINT_TOP
+	settings_hint.offset_right = SETTINGS_HINT_RIGHT
+	settings_hint.offset_bottom = SETTINGS_HINT_BOTTOM
+	settings_hint.z_index = 101
+	settings_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	settings_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	settings_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	settings_hint.add_theme_font_size_override("font_size", 17)
+	settings_hint.add_theme_color_override("font_color", Color(1.0, 0.96, 0.66, 1.0))
+	settings_hint.add_theme_color_override("font_outline_color", Color(0.17, 0.09, 0.03, 1.0))
+	settings_hint.add_theme_constant_override("outline_size", 4)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -113,6 +132,7 @@ func _apply_language() -> void:
 	title_label.text = SettingsManager.text("app_title")
 	subtitle_label.text = SettingsManager.text("main_subtitle")
 	settings_hint.text = SettingsManager.text("settings")
+	settings_btn.tooltip_text = SettingsManager.text("settings")
 	start_btn.text = SettingsManager.text("start_game")
 	instr_btn.text = SettingsManager.text("instructions")
 	map_btn.text = SettingsManager.text("level_map")
