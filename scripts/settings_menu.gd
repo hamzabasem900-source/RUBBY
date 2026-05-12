@@ -20,6 +20,13 @@ func _ready() -> void:
 	SettingsManager.apply_wooden_buttons(self)
 	SettingsManager.language_changed.connect(_refresh_language)
 
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
+		_on_back_pressed()
+
+func _is_escape_key(event: InputEvent) -> bool:
+	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
+
 func _build_interface() -> void:
 	var background := ColorRect.new()
 	background.color = Color(0.10, 0.30, 0.13, 1.0)
