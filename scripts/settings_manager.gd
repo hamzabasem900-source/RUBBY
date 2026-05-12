@@ -95,8 +95,22 @@ func _is_fullscreen_mode(mode: int) -> bool:
 	return mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
 
 func _apply_fullscreen_window() -> void:
+	var screen_size := DisplayServer.screen_get_size()
+	var screen_position := DisplayServer.screen_get_position()
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	DisplayServer.window_set_position(screen_position)
+	DisplayServer.window_set_size(screen_size)
+	get_window().size = screen_size
+	call_deferred("_finish_fullscreen_apply", screen_size, screen_position)
+
+func _finish_fullscreen_apply(screen_size: Vector2i, screen_position: Vector2i) -> void:
+	if not bool(values["fullscreen"]):
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	DisplayServer.window_set_position(screen_position)
+	DisplayServer.window_set_size(screen_size)
+	get_window().size = screen_size
 
 func _apply_windowed_size(size: Vector2i) -> void:
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
