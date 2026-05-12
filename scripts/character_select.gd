@@ -1,6 +1,8 @@
 extends Control
 @onready var white_btn:   Button    = $CenterContainer/VBoxContainer/WhiteButton
 @onready var alt_white_btn: Button   = $CenterContainer/VBoxContainer/WhiteAltButton
+@onready var dune_btn: Button        = $CenterContainer/VBoxContainer/DuneButton
+@onready var snow_btn: Button        = $CenterContainer/VBoxContainer/SnowButton
 @onready var confirm_btn: Button    = $CenterContainer/VBoxContainer/ConfirmButton
 @onready var back_btn:    Button    = $BackButton
 @onready var title_label: Label     = $TitleLabel
@@ -17,6 +19,8 @@ func _ready() -> void:
 	SettingsManager.apply_wooden_buttons(self)
 	white_btn.pressed.connect(func(): _pick("white_bunny"))
 	alt_white_btn.pressed.connect(func(): _pick("brown_bunny"))
+	dune_btn.pressed.connect(func(): _pick("dune_hare"))
+	snow_btn.pressed.connect(func(): _pick("snow_scout"))
 	confirm_btn.pressed.connect(_on_confirm)
 	back_btn.pressed.connect(_on_back)
 	_update_preview()
@@ -25,6 +29,8 @@ func _apply_language() -> void:
 	title_label.text = SettingsManager.text("choose_bunny")
 	white_btn.text = SettingsManager.text("white_bunny_button")
 	alt_white_btn.text = SettingsManager.text("brown_bunny_button")
+	dune_btn.text = SettingsManager.text("select_dune_bunny_button")
+	snow_btn.text = SettingsManager.text("select_snow_bunny_button")
 	confirm_btn.text = SettingsManager.text("confirm_play")
 	back_btn.text = "← " + SettingsManager.text("back")
 
