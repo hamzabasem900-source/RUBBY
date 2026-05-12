@@ -58,7 +58,7 @@ const DEFAULT_SKIN_ID: String = "white_bunny"
 const SKIN_CATALOG: Array[Dictionary] = [
 	{
 		"id": "white_bunny", "name_key": "skin_white_name", "description_key": "skin_white_desc",
-		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82), "icon_tint": Color(1.0, 1.0, 1.0)
 	},
 	{
 		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
