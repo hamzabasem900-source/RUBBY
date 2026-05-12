@@ -37,6 +37,15 @@ const SETTINGS_HINT_RIGHT: float = 0.0
 const SETTINGS_HINT_BOTTOM: float = 122.0
 const MENU_SPARKLE_ICONS: Array[String] = ["✦", "✧", "❀", "🍃", "✨"]
 
+const SETTINGS_BUTTON_LEFT: float = -112.0
+const SETTINGS_BUTTON_TOP: float = 16.0
+const SETTINGS_BUTTON_RIGHT: float = -28.0
+const SETTINGS_BUTTON_BOTTOM: float = 92.0
+const SETTINGS_HINT_LEFT: float = -140.0
+const SETTINGS_HINT_TOP: float = 92.0
+const SETTINGS_HINT_RIGHT: float = 0.0
+const SETTINGS_HINT_BOTTOM: float = 122.0
+
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_prepare_responsive_layout()
