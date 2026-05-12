@@ -25,6 +25,7 @@ var _hop_time:      float = 0.0
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
 var _bunny_facing_right: bool = true
+var _skin_badge: Label
 
 @onready var sprite:  ColorRect = $Sprite
 @onready var ear_l:   ColorRect = $EarLeft
@@ -45,6 +46,7 @@ func _ready() -> void:
 	if tail:   tail.color   = tail_col
 	if bunny_icon:
 		bunny_icon.text = str(skin["icon"])
+		_apply_skin_badge(str(skin.get("badge", "")))
 		_bunny_icon_base_position = bunny_icon.position
 		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y))
 		bunny_icon.scale = _get_bunny_facing_scale(0.0)
@@ -52,6 +54,19 @@ func _ready() -> void:
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
+
+func _apply_skin_badge(badge: String) -> void:
+	if _skin_badge == null:
+		_skin_badge = Label.new()
+		_skin_badge.name = "SkinBadge"
+		_skin_badge.position = Vector2(17, -58)
+		_skin_badge.size = Vector2(34, 34)
+		_skin_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_skin_badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_skin_badge.add_theme_font_size_override("font_size", 24)
+		add_child(_skin_badge)
+	_skin_badge.text = badge
+	_skin_badge.visible = badge != ""
 
 func _physics_process(delta: float) -> void:
 	# ── Invincibility countdown + flash ──────────────────────────────────────

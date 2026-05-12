@@ -56,27 +56,27 @@ const DEFAULT_SKIN_ID: String = "white_bunny"
 const SKIN_CATALOG: Array[Dictionary] = [
 	{
 		"id": "white_bunny", "name_key": "skin_white_name", "description_key": "skin_white_desc",
-		"price": 0, "icon": "🐰", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
 	},
 	{
 		"id": "brown_bunny", "name_key": "skin_brown_name", "description_key": "skin_brown_desc",
-		"price": 0, "icon": "🐇", "body_color": Color(0.60, 0.35, 0.10), "tail_color": Color(0.46, 0.25, 0.08)
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.60, 0.35, 0.10), "tail_color": Color(0.46, 0.25, 0.08)
 	},
 	{
 		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
-		"price": 12, "icon": "🌿", "body_color": Color(0.54, 0.82, 0.42), "tail_color": Color(0.38, 0.64, 0.30)
+		"price": 12, "icon": "🐰", "badge": "🌿", "body_color": Color(0.54, 0.82, 0.42), "tail_color": Color(0.38, 0.64, 0.30)
 	},
 	{
 		"id": "rose_bunny", "name_key": "skin_rose_name", "description_key": "skin_rose_desc",
-		"price": 28, "icon": "🌸", "body_color": Color(1.00, 0.58, 0.72), "tail_color": Color(0.88, 0.38, 0.56)
+		"price": 28, "icon": "🐰", "badge": "🌸", "body_color": Color(1.00, 0.58, 0.72), "tail_color": Color(0.88, 0.38, 0.56)
 	},
 	{
 		"id": "golden_bunny", "name_key": "skin_golden_name", "description_key": "skin_golden_desc",
-		"price": 55, "icon": "⭐", "body_color": Color(1.00, 0.76, 0.18), "tail_color": Color(0.88, 0.56, 0.10)
+		"price": 55, "icon": "🐰", "badge": "⭐", "body_color": Color(1.00, 0.76, 0.18), "tail_color": Color(0.88, 0.56, 0.10)
 	},
 	{
 		"id": "night_bunny", "name_key": "skin_night_name", "description_key": "skin_night_desc",
-		"price": 90, "icon": "🌙", "body_color": Color(0.20, 0.22, 0.36), "tail_color": Color(0.12, 0.14, 0.26)
+		"price": 90, "icon": "🐰", "badge": "🌙", "body_color": Color(0.20, 0.22, 0.36), "tail_color": Color(0.12, 0.14, 0.26)
 	}
 ]
 

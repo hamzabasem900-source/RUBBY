@@ -209,7 +209,7 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	row.add_child(icon_box)
 
 	var icon := Label.new()
-	icon.text = str(skin["icon"])
+	icon.text = _skin_icon_text(skin)
 	icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	icon.add_theme_font_size_override("font_size", 42)
@@ -299,6 +299,10 @@ func _skin_icon_style(accent: Color) -> StyleBoxFlat:
 	style.set_corner_radius_all(18)
 	return style
 
+func _skin_icon_text(skin: Dictionary) -> String:
+	var badge := str(skin.get("badge", ""))
+	return str(skin["icon"]) if badge == "" else str(skin["icon"]) + " " + badge
+
 func _on_wallet_changed(total: int) -> void:
 	_update_reward_panel(total)
 	_refresh_shop_cards()
@@ -309,7 +313,7 @@ func _on_selected_skin_changed(_skin_id: String) -> void:
 
 func _update_reward_panel(total_carrots: int) -> void:
 	var skin := GameManager.get_selected_skin_data()
-	var skin_icon := str(skin["icon"])
+	var skin_icon := _skin_icon_text(skin)
 	if _wallet_label != null:
 		_wallet_label.text = SettingsManager.format_text("carrot_wallet", {"count": total_carrots})
 	if _bunny_preview != null:
