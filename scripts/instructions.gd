@@ -136,6 +136,13 @@ func _create_card(card: Dictionary) -> PanelContainer:
 
 	return panel
 
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
+		_on_back()
+
+func _is_escape_key(event: InputEvent) -> bool:
+	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
+
 func _on_back() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

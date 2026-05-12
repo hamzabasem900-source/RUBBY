@@ -3,11 +3,6 @@ extends Area2D
 # =============================================
 # Carrot Collectible
 # Normal = 10 pts | Golden = 25 pts
-# Bug fixes:
-#   - is_golden now uses a setter so colour updates even when
-#     the property is assigned AFTER _ready() runs.
-#   - bob_offset is initialized lazily on the first _process
-#     frame so the actual spawned position is captured.
 # =============================================
 
 @export var is_golden: bool = false:
@@ -21,37 +16,67 @@ var bob_offset:    float = 0.0
 var bob_time:      float = 0.0
 var _bob_ready:    bool  = false
 
-@onready var sprite:    ColorRect     = $Sprite
-@onready var particles: CPUParticles2D = $CollectParticles
+@onready var body:       Polygon2D      = $Body
+@onready var glow:       Polygon2D      = $Glow
+@onready var outline:    Line2D         = $BodyOutline
+@onready var highlight:  Line2D         = $Highlight
+@onready var particles:  CPUParticles2D = $CollectParticles
 
 const NORMAL_COLOR := Color(1.0, 0.50, 0.00)
-const GOLDEN_COLOR := Color(1.0, 0.85, 0.00)
+const NORMAL_DARK := Color(0.62, 0.22, 0.00)
+const NORMAL_LIGHT := Color(1.0, 0.86, 0.38)
+const GOLDEN_COLOR := Color(1.0, 0.86, 0.06)
+const GOLDEN_DARK := Color(0.72, 0.48, 0.00)
+const GOLDEN_LIGHT := Color(1.0, 1.0, 0.62)
 
 func _ready() -> void:
 	add_to_group("carrot")
 	_apply_style()
 
 func _apply_style() -> void:
-	if not sprite:
-		return
-	if is_golden:
-		sprite.color    = GOLDEN_COLOR
-		sprite.size     = Vector2(22, 28)
-		sprite.position = Vector2(-11, -14)
-	else:
-		sprite.color    = NORMAL_COLOR
-		sprite.size     = Vector2(18, 28)
-		sprite.position = Vector2(-9, -14)
+	var main_color := GOLDEN_COLOR if is_golden else NORMAL_COLOR
+	var dark_color := GOLDEN_DARK if is_golden else NORMAL_DARK
+	var light_color := GOLDEN_LIGHT if is_golden else NORMAL_LIGHT
+	var visual_scale := Vector2(1.16, 1.16) if is_golden else Vector2.ONE
+
+	for node in _visual_nodes():
+		if node != null:
+			node.scale = visual_scale
+
+	if body != null:
+		body.color = main_color
+	if glow != null:
+		glow.color = Color(main_color.r, main_color.g, main_color.b, 0.34 if is_golden else 0.24)
+		glow.scale = visual_scale * (Vector2(1.12, 1.12) if is_golden else Vector2.ONE)
+	if outline != null:
+		outline.default_color = dark_color
+	if highlight != null:
+		highlight.default_color = Color(light_color.r, light_color.g, light_color.b, 0.95)
+	for stripe_name in ["StripeTop", "StripeMiddle", "StripeBottom"]:
+		var stripe := get_node_or_null(stripe_name) as Line2D
+		if stripe != null:
+			stripe.default_color = Color(dark_color.r, dark_color.g, dark_color.b, 0.72)
+	if particles != null:
+		particles.color = main_color
+
+func _visual_nodes() -> Array[Node2D]:
+	var nodes: Array[Node2D] = []
+	for node_name in ["Glow", "Shadow", "Body", "BodyOutline", "Highlight", "StripeTop", "StripeMiddle", "StripeBottom", "LeafLeft", "LeafCenter", "LeafRight", "LeafShine"]:
+		var node := get_node_or_null(node_name) as Node2D
+		if node != null:
+			nodes.append(node)
+	return nodes
 
 func _process(delta: float) -> void:
 	if collected:
 		return
-	# Lazy-init so we capture the real spawned Y position
+	# Lazy-init so we capture the real spawned Y position.
 	if not _bob_ready:
 		bob_offset = position.y
 		_bob_ready = true
-	bob_time   += delta
-	position.y  = bob_offset + sin(bob_time * 2.8) * 4.0
+	bob_time += delta
+	position.y = bob_offset + sin(bob_time * 2.8) * 5.0
+	rotation = sin(bob_time * 2.0) * 0.045
 
 func get_points() -> int:
 	return 25 if is_golden else 10
@@ -64,9 +89,9 @@ func collect() -> void:
 		return
 	collected = true
 	set_deferred("monitoring", false)
-	if sprite:
-		sprite.visible = false
-	if particles:
+	for node in _visual_nodes():
+		node.visible = false
+	if particles != null:
 		particles.emitting = true
 	await get_tree().create_timer(0.5).timeout
 	queue_free()

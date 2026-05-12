@@ -21,7 +21,7 @@ func _apply_style() -> void:
 		shadow.visible = true
 
 	var hole_nodes := ["DirtRim", "InnerPit", "Highlight", "Pebble1", "Pebble2"]
-	var thorn_nodes := ["BackLeaves", "FrontLeaves", "LeafHighlight", "ThornTop", "ThornRight", "ThornLeft", "ThornBottom"]
+	var thorn_nodes := ["BackLeaves", "FrontLeaves", "LeafHighlight", "WarningRing", "ThornTop", "ThornRight", "ThornLeft", "ThornBottom", "ThornCenter", "ThornUpperLeft", "ThornUpperRight", "ThornLowerLeft", "ThornLowerRight"]
 	for node_name in hole_nodes:
 		var node := get_node_or_null(node_name) as CanvasItem
 		if node != null:
