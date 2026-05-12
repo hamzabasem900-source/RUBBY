@@ -193,8 +193,8 @@ func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	shadow.modulate.a = 1.0 - lift_ratio * 0.25
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
-	# The side-view rabbit emoji artwork faces left by default in Godot.
-	# Mirror only the Label when moving right so every rabbit points correctly.
+	# Every playable rabbit uses the same side-view rabbit glyph. In Godot this
+	# glyph points left by default, so a right-facing bunny must be mirrored.
 	var facing_sign := -1.0 if _bunny_facing_right else 1.0
 	return _bunny_icon_base_scale * Vector2(
 		facing_sign * (1.0 + squash * 0.05),
