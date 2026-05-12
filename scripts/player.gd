@@ -26,11 +26,6 @@ var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
 var _bunny_facing_right: bool = true
 
-var character_colors: Dictionary = {
-	"white_bunny": Color(0.95, 0.95, 0.95),
-	"brown_bunny": Color(0.60, 0.35, 0.10)
-}
-
 @onready var sprite:  ColorRect = $Sprite
 @onready var ear_l:   ColorRect = $EarLeft
 @onready var ear_r:   ColorRect = $EarRight
@@ -40,16 +35,16 @@ var character_colors: Dictionary = {
 
 func _ready() -> void:
 	add_to_group("player")
-	# Apply selected character colour
-	var col: Color = character_colors.get(
-		GameManager.selected_character, Color(0.95, 0.95, 0.95)
-	)
+	# Apply selected skin colour
+	var skin: Dictionary = GameManager.get_selected_skin_data()
+	var col: Color = skin["body_color"]
+	var tail_col: Color = skin["tail_color"]
 	if sprite: sprite.color = col
 	if ear_l:  ear_l.color  = col
 	if ear_r:  ear_r.color  = col
-	if tail:   tail.color   = Color(col.r * 0.88, col.g * 0.88, col.b * 0.88)
+	if tail:   tail.color   = tail_col
 	if bunny_icon:
-		bunny_icon.text = "🐇"
+		bunny_icon.text = str(skin["icon"])
 		_bunny_icon_base_position = bunny_icon.position
 		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y))
 		bunny_icon.scale = _get_bunny_facing_scale(0.0)
@@ -159,7 +154,8 @@ func take_damage() -> void:
 func _on_pickup_area_entered(area: Area2D) -> void:
 	if area.is_in_group("carrot"):
 		var points: int = area.get_points()
-		GameManager.add_score(points)
+		var currency_value: int = area.get_currency_value() if area.has_method("get_currency_value") else 1
+		GameManager.add_score(points, currency_value)
 		if points >= 25:
 			AudioManager.play_golden_collect()
 		else:

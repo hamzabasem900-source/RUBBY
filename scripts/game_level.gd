@@ -18,6 +18,9 @@ const AREA_MIN := Vector2(96.0,  105.0)
 const AREA_MAX := Vector2(928.0, 640.0)
 
 var transitioning: bool = false
+var _pause_layer: CanvasLayer
+var _pause_overlay: Control
+var _pause_button: Button
 
 func _ready() -> void:
 	GameManager.level_won.connect(_on_level_won)
@@ -25,10 +28,139 @@ func _ready() -> void:
 	GameManager.timer_running = true
 	AudioManager.play_gameplay_music()
 	_spawn_all()
+	_build_pause_menu()
 
 func _process(delta: float) -> void:
-	if not transitioning:
+	if not transitioning and not get_tree().paused:
 		GameManager.tick_timer(delta)
+
+func _exit_tree() -> void:
+	get_tree().paused = false
+
+# ── Pause Menu ────────────────────────────────────────────────────────────────
+
+func _build_pause_menu() -> void:
+	_pause_layer = CanvasLayer.new()
+	_pause_layer.name = "PauseLayer"
+	_pause_layer.layer = 50
+	_pause_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_pause_layer)
+
+	_pause_button = Button.new()
+	_pause_button.name = "PauseButton"
+	_pause_button.text = "☰"
+	_pause_button.tooltip_text = SettingsManager.text("pause_button_hint")
+	_pause_button.custom_minimum_size = Vector2(58, 52)
+	_pause_button.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_pause_button.offset_left = -78
+	_pause_button.offset_top = 96
+	_pause_button.offset_right = -20
+	_pause_button.offset_bottom = 148
+	_pause_button.add_theme_font_size_override("font_size", 28)
+	SettingsManager.style_wooden_button(_pause_button)
+	_pause_button.pressed.connect(_open_pause_menu)
+	_pause_layer.add_child(_pause_button)
+
+	_pause_overlay = Control.new()
+	_pause_overlay.name = "PauseOverlay"
+	_pause_overlay.visible = false
+	_pause_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pause_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pause_layer.add_child(_pause_overlay)
+
+	var dim := ColorRect.new()
+	dim.name = "Dimmer"
+	dim.color = Color(0.0, 0.0, 0.0, 0.52)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pause_overlay.add_child(dim)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pause_overlay.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(420, 430)
+	panel.add_theme_stylebox_override("panel", _panel_style())
+	center.add_child(panel)
+
+	var box := VBoxContainer.new()
+	box.alignment = BoxContainer.ALIGNMENT_CENTER
+	box.add_theme_constant_override("separation", 14)
+	panel.add_child(box)
+
+	var title := Label.new()
+	title.text = SettingsManager.text("pause_title")
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 38)
+	title.add_theme_color_override("font_color", Color(1.0, 0.96, 0.68, 1.0))
+	box.add_child(title)
+
+	var subtitle := Label.new()
+	subtitle.text = SettingsManager.text("pause_subtitle")
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	subtitle.add_theme_font_size_override("font_size", 18)
+	subtitle.add_theme_color_override("font_color", Color(0.85, 1.0, 0.85, 1.0))
+	box.add_child(subtitle)
+
+	box.add_child(_pause_menu_button("pause_resume", Color(0.62, 0.94, 0.56, 1.0), _resume_game))
+	box.add_child(_pause_menu_button("pause_restart", Color(1.0, 0.76, 0.35, 1.0), _restart_level))
+	box.add_child(_pause_menu_button("pause_lobby", Color(0.60, 0.84, 1.0, 1.0), _go_to_lobby))
+	box.add_child(_pause_menu_button("pause_quit", Color(1.0, 0.48, 0.48, 1.0), _quit_game))
+
+func _pause_menu_button(text_key: String, font_color: Color, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = SettingsManager.text(text_key)
+	button.custom_minimum_size = Vector2(320, 56)
+	button.add_theme_font_size_override("font_size", 24)
+	SettingsManager.style_wooden_button(button, font_color)
+	button.pressed.connect(callback)
+	return button
+
+func _panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.04, 0.16, 0.07, 0.97)
+	style.border_color = Color(0.78, 0.95, 0.42, 0.95)
+	style.set_border_width_all(3)
+	style.set_corner_radius_all(26)
+	style.shadow_color = Color(0, 0, 0, 0.38)
+	style.shadow_size = 16
+	style.content_margin_left = 34
+	style.content_margin_right = 34
+	style.content_margin_top = 28
+	style.content_margin_bottom = 28
+	return style
+
+func _open_pause_menu() -> void:
+	if transitioning:
+		return
+	AudioManager.play_button_click()
+	_pause_button.visible = false
+	_pause_overlay.visible = true
+	get_tree().paused = true
+
+func _resume_game() -> void:
+	AudioManager.play_button_click()
+	get_tree().paused = false
+	_pause_overlay.visible = false
+	_pause_button.visible = true
+
+func _restart_level() -> void:
+	AudioManager.play_button_click()
+	get_tree().paused = false
+	GameManager.start_level(GameManager.current_level)
+	get_tree().reload_current_scene()
+
+func _go_to_lobby() -> void:
+	AudioManager.play_button_click()
+	get_tree().paused = false
+	GameManager.timer_running = false
+	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+
+func _quit_game() -> void:
+	AudioManager.play_button_click()
+	get_tree().paused = false
+	get_tree().quit()
 
 # ── Spawning ─────────────────────────────────────────────────────────────────
 
@@ -124,6 +256,7 @@ func _spawn_fox(used: Array) -> void:
 func _on_level_won() -> void:
 	if transitioning:
 		return
+	get_tree().paused = false
 	transitioning = true
 	GameManager.timer_running = false
 	GameManager.unlock_next_level()
@@ -134,6 +267,7 @@ func _on_level_won() -> void:
 func _on_game_over() -> void:
 	if transitioning:
 		return
+	get_tree().paused = false
 	transitioning = true
 	GameManager.timer_running = false
 	AudioManager.play_game_over()
