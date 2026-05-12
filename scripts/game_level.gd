@@ -23,6 +23,7 @@ var _pause_overlay: Control
 var _pause_button: Button
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	GameManager.level_won.connect(_on_level_won)
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.timer_running = true
@@ -33,6 +34,16 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not transitioning and not get_tree().paused:
 		GameManager.tick_timer(delta)
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
+		if get_tree().paused and _pause_overlay != null and _pause_overlay.visible:
+			_resume_game()
+		else:
+			_open_pause_menu()
+
+func _is_escape_key(event: InputEvent) -> bool:
+	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
 func _exit_tree() -> void:
 	get_tree().paused = false
@@ -132,7 +143,7 @@ func _panel_style() -> StyleBoxFlat:
 	return style
 
 func _open_pause_menu() -> void:
-	if transitioning:
+	if transitioning or get_tree().paused:
 		return
 	AudioManager.play_button_click()
 	_pause_button.visible = false
@@ -140,6 +151,8 @@ func _open_pause_menu() -> void:
 	get_tree().paused = true
 
 func _resume_game() -> void:
+	if _pause_overlay == null or not _pause_overlay.visible:
+		return
 	AudioManager.play_button_click()
 	get_tree().paused = false
 	_pause_overlay.visible = false
