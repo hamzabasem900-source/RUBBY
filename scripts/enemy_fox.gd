@@ -28,6 +28,7 @@ var _visual_rects: Array = []
 var _visual_offsets: Dictionary = {}
 var _attack_pause_timer: float = 0.0
 var _damage_cooldown_timer: float = 0.0
+var _walk_time: float = 0.0
 
 @onready var hurt_area: Area2D = $HurtArea
 
@@ -63,6 +64,7 @@ func _physics_process(delta: float) -> void:
 		if abs(velocity.x) > 1.0:
 			_apply_facing(velocity.x < 0.0)
 		move_and_slide()
+		_animate_fox(delta)
 		return
 
 	# ── Fallback patrol only if the player is not available ──────────────────
@@ -70,6 +72,7 @@ func _physics_process(delta: float) -> void:
 	if abs(velocity.x) > 1.0:
 		_apply_facing(velocity.x < 0.0)
 	move_and_slide()
+	_animate_fox(delta)
 
 	var offset: float = global_position.x - start_pos.x
 	if offset > patrol_distance and dir > 0.0:
@@ -106,7 +109,9 @@ func _get_fox_separation_velocity() -> Vector2:
 func _cache_visual_offsets() -> void:
 	var visual_names := [
 		"Tail", "TailTip", "Sprite", "Chest", "Head", "EarLeft",
-		"EarRight", "Snout", "Eye", "Nose", "LegFront", "LegBack"
+		"EarRight", "InnerEarLeft", "InnerEarRight", "Snout", "Cheek",
+		"Eye", "EyeGlint", "Nose", "WhiskerTop", "WhiskerBottom",
+		"LegFront", "LegBack", "PawFront", "PawBack"
 	]
 	for node_name in visual_names:
 		var rect := get_node_or_null(node_name) as ColorRect
@@ -125,15 +130,44 @@ func _apply_facing(face_left: bool) -> void:
 		return
 	_facing_left = face_left
 	for rect in _visual_rects:
-		var offsets: Array = _visual_offsets[rect]
-		if face_left:
-			rect.offset_left = -float(offsets[1])
-			rect.offset_right = -float(offsets[0])
-		else:
-			rect.offset_left = float(offsets[0])
-			rect.offset_right = float(offsets[1])
-		rect.offset_top = float(offsets[2])
-		rect.offset_bottom = float(offsets[3])
+		_position_visual_rect(rect, 0.0, 0.0)
+
+func _animate_fox(delta: float) -> void:
+	var speed_ratio: float = clamp(velocity.length() / max(chase_speed, 1.0), 0.0, 1.0)
+	if speed_ratio <= 0.03:
+		_walk_time = 0.0
+	else:
+		_walk_time += delta * lerp(6.0, 13.0, speed_ratio)
+	var body_bob: float = sin(_walk_time * 2.0) * 1.6 * speed_ratio
+	var leg_stride: float = sin(_walk_time) * 5.0 * speed_ratio
+	var tail_sway: float = sin(_walk_time * 1.35) * 2.4 * speed_ratio
+	for rect in _visual_rects:
+		var y_shift := 0.0
+		var x_shift := 0.0
+		match rect.name:
+			"Sprite", "Chest", "Head", "EarLeft", "EarRight", "InnerEarLeft", "InnerEarRight", "Snout", "Cheek", "Eye", "EyeGlint", "Nose", "WhiskerTop", "WhiskerBottom":
+				y_shift = body_bob
+			"LegFront", "PawFront":
+				x_shift = leg_stride
+				y_shift = abs(leg_stride) * -0.18
+			"LegBack", "PawBack":
+				x_shift = -leg_stride
+				y_shift = abs(leg_stride) * -0.18
+			"Tail", "TailTip":
+				y_shift = body_bob - tail_sway
+		_position_visual_rect(rect, x_shift, y_shift)
+
+func _position_visual_rect(rect: ColorRect, x_shift: float, y_shift: float) -> void:
+	var offsets: Array = _visual_offsets[rect]
+	var signed_x_shift := -x_shift if _facing_left else x_shift
+	if _facing_left:
+		rect.offset_left = -float(offsets[1]) + signed_x_shift
+		rect.offset_right = -float(offsets[0]) + signed_x_shift
+	else:
+		rect.offset_left = float(offsets[0]) + signed_x_shift
+		rect.offset_right = float(offsets[1]) + signed_x_shift
+	rect.offset_top = float(offsets[2]) + y_shift
+	rect.offset_bottom = float(offsets[3]) + y_shift
 
 func _on_hurt_area_body_entered(body: Node2D) -> void:
 	if _damage_cooldown_timer > 0.0:

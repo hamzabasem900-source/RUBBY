@@ -36,6 +36,7 @@ var _skin_badge: Label
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var pickup_collision: CollisionShape2D = $PickupArea/PickupCollision
 @onready var bunny_icon: Label = $BunnyIcon
+@onready var shadow: ColorRect = $Shadow
 
 func _ready() -> void:
 	add_to_group("player")
@@ -50,6 +51,11 @@ func _ready() -> void:
 	_apply_skin_physics(skin)
 	if bunny_icon:
 		bunny_icon.text = str(skin["icon"])
+		var icon_tint: Color = col
+		if skin.has("icon_tint") and skin["icon_tint"] is Color:
+			icon_tint = skin["icon_tint"]
+		bunny_icon.modulate = icon_tint
+		bunny_icon.add_theme_color_override("font_color", icon_tint)
 		bunny_icon.add_theme_font_size_override("font_size", int(skin.get("icon_font_size", 58)))
 		_bunny_icon_base_position = bunny_icon.position
 		var visual_scale := float(skin.get("visual_scale", 1.0))
@@ -145,8 +151,8 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 		return
 	var t: float = min(delta * 10.0, 1.0)
 	if abs(dir.x) > 0.05:
-		# The bunny emoji artwork renders facing left in-game, so mirror only
-		# the visual Label when moving right. The physics root stays positive.
+		# Face the visual Label toward the last horizontal movement direction.
+		# The physics root stays positive to avoid mirrored collisions.
 		_bunny_facing_right = dir.x > 0.0
 
 	if dir.length() <= 0.0:
@@ -165,6 +171,7 @@ func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: floa
 	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
 	bunny_icon.scale = _get_bunny_facing_scale(squash)
 	bunny_icon.rotation = rotation_value
+	_update_shadow_for_hop(hop, squash)
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge_base_position + Vector2(0.0, -hop)
 		_skin_badge.rotation = rotation_value
@@ -173,11 +180,21 @@ func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: flo
 	bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position + Vector2(0.0, -hop), weight)
 	bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(squash), weight)
 	bunny_icon.rotation = lerp(bunny_icon.rotation, rotation_value, weight)
+	_update_shadow_for_hop(hop, squash)
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + Vector2(0.0, -hop), weight)
 		_skin_badge.rotation = lerp(_skin_badge.rotation, rotation_value, weight)
 
+func _update_shadow_for_hop(hop: float, squash: float) -> void:
+	if shadow == null:
+		return
+	var lift_ratio: float = clamp(hop / 12.0, 0.0, 1.0)
+	shadow.scale = Vector2(1.0 - lift_ratio * 0.18 + squash * 0.03, 1.0 - lift_ratio * 0.10)
+	shadow.modulate.a = 1.0 - lift_ratio * 0.25
+
 func _get_bunny_facing_scale(squash: float) -> Vector2:
+	# Every playable rabbit uses the same side-view rabbit glyph. In Godot this
+	# glyph points left by default, so a right-facing bunny must be mirrored.
 	var facing_sign := -1.0 if _bunny_facing_right else 1.0
 	return _bunny_icon_base_scale * Vector2(
 		facing_sign * (1.0 + squash * 0.05),
