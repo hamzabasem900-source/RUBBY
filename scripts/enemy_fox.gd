@@ -121,15 +121,17 @@ func _get_chase_velocity() -> Vector2:
 		return away_from_player * separation_strength * push_ratio
 
 	var chase_dir_to_player: Vector2 = to_player / player_dist
-	var side_sign: float = chase_flank_side
-	if abs(side_sign) <= 0.01:
-		side_sign = 1.0 if cos(chase_flank_angle) >= 0.0 else -1.0
-	var tangent := Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * side_sign
 	var offset_scale: float = clamp((player_dist - arrival_distance) / 180.0, 0.0, 1.0)
 	var weave: float = sin(Time.get_ticks_msec() * 0.0035 + chase_weave_phase) * chase_weave_strength
-	var flank_offset: Vector2 = tangent * (chase_flank_distance + weave) * offset_scale
+	var flank_direction: Vector2 = Vector2.RIGHT.rotated(chase_flank_angle)
+	if chase_flank_distance <= 0.01:
+		var side_sign: float = chase_flank_side
+		if abs(side_sign) <= 0.01:
+			side_sign = 1.0
+		flank_direction = Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * side_sign
+	var flank_offset: Vector2 = flank_direction.normalized() * (chase_flank_distance + weave) * offset_scale
 	var lead_offset: Vector2 = chase_dir_to_player * chase_lead_distance * offset_scale
-	var target_position := _player.global_position + flank_offset + lead_offset
+	var target_position: Vector2 = _player.global_position + flank_offset + lead_offset
 	var to_target: Vector2 = target_position - global_position
 	var target_dist: float = to_target.length()
 	if target_dist <= 0.001:
