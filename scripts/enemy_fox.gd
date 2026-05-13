@@ -11,8 +11,8 @@ const FOX_SHEET_COLUMNS: int = 7
 const FOX_SHEET_ROWS: int = 4
 
 @export var patrol_distance: float = 100.0
-@export var patrol_speed: float = 62.0
-@export var chase_speed: float = 132.0
+@export var patrol_speed: float = 68.0
+@export var chase_speed: float = 145.0
 @export var chase_range: float = 9999.0
 @export var acceleration: float = 520.0
 @export var arrival_distance: float = 52.0

@@ -412,7 +412,7 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if "separation_strength" in fox:
 		fox.separation_strength = 150.0 if GameManager.current_level == 1 else 130.0
 	if "chase_speed" in fox and GameManager.current_level == 1:
-		fox.chase_speed = 124.0 + float(fox_index % 2) * 24.0
+		fox.chase_speed = 136.0 + float(fox_index % 2) * 24.0
 
 # ── Transitions ───────────────────────────────────────────────────────────────
 
