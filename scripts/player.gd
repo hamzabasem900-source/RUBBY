@@ -267,6 +267,38 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 		_apply_damage_reaction(delta, dir, blend_weight)
 		_was_moving_last_frame = moving
 		return
+	if not _was_moving_last_frame:
+		_landing_squash_timer = LANDING_SQUASH_DURATION * 0.55
+	_idle_time = 0.0
+	var animation_name := "hop"
+	var animation_speed := 1.0
+	if dash_active:
+		animation_name = "dash"
+		animation_speed = 1.35
+	_play_white_bunny_animation(animation_name, animation_speed)
+	var hop_speed := WALK_HOP_SPEED
+	if dash_active:
+		hop_speed = DASH_HOP_SPEED
+	_hop_time += delta * hop_speed
+	var hop_wave := abs(sin(_hop_time))
+	var hop_height := 8.5
+	var squash_strength := 0.24
+	if dash_active:
+		hop_height = 13.5
+		squash_strength = 0.34
+	var hop := hop_wave * hop_height
+	var stride_squash := pow(1.0 - hop_wave, 2.0) * squash_strength
+	var landing_squash := _get_landing_squash_ratio() * 0.28
+	var lean_strength := 0.10
+	var forward_strength := 2.0
+	if dash_active:
+		lean_strength = 0.18
+		forward_strength = 5.0
+	var direction_lean := clamp(dir.x, -1.0, 1.0) * lean_strength
+	var vertical_lean := clamp(dir.y, -1.0, 1.0) * 0.04
+	var forward_offset := Vector2(_get_bunny_facing_sign() * forward_strength, 0.0)
+	_set_bunny_visual_transform(hop, stride_squash + landing_squash, direction_lean + vertical_lean, forward_offset)
+	_was_moving_last_frame = true
 
 	if moving:
 		_animate_moving_bunny(delta, dir, dash_active)
