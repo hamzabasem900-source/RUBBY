@@ -101,6 +101,10 @@ func stop_music() -> void:
 	for key in MUSIC_KEYS:
 		stop(key)
 
+func stop_end_screen_sfx() -> void:
+	stop("game_over")
+	stop("win")
+
 func play_menu_music() -> void:
 	play_music("menu_music")
 

@@ -35,16 +35,20 @@ var level_configs: Array = [
 		"carrot_respawn_delay": 3.0
 	},
 	{
-		"level": 2, "time_limit": 55.0, "lives": 3,
-		"required_score": 140, "fox_count": 2,
-		"hole_count": 5, "thorn_count": 5,
-		"carrot_count": 16, "golden_carrot_count": 3
+		"level": 2, "time_limit": 135.0, "lives": 3,
+		"required_score": 250, "fox_count": 3,
+		"hole_count": 6, "thorn_count": 6,
+		"carrot_count": 20, "golden_carrot_count": 3,
+		"carrot_min_dist": 78.0, "hazard_min_dist": 74.0,
+		"fox_min_dist": 112.0
 	},
 	{
-		"level": 3, "time_limit": 45.0, "lives": 2,
-		"required_score": 180, "fox_count": 3,
-		"hole_count": 7, "thorn_count": 8,
-		"carrot_count": 20, "golden_carrot_count": 4
+		"level": 3, "time_limit": 120.0, "lives": 2,
+		"required_score": 330, "fox_count": 4,
+		"hole_count": 8, "thorn_count": 10,
+		"carrot_count": 24, "golden_carrot_count": 5,
+		"carrot_min_dist": 66.0, "hazard_min_dist": 62.0,
+		"fox_min_dist": 100.0
 	}
 ]
 
