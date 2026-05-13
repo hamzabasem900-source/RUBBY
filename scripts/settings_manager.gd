@@ -119,7 +119,11 @@ func _finish_windowed_size_apply(size: Vector2i) -> void:
 
 func _center_window(size: Vector2i) -> void:
 	var screen_size := DisplayServer.screen_get_size()
-	DisplayServer.window_set_position((screen_size - size) / 2)
+	var centered_position := Vector2i(
+		int((screen_size.x - size.x) / 2.0),
+		int((screen_size.y - size.y) / 2.0)
+	)
+	DisplayServer.window_set_position(centered_position)
 
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
@@ -259,6 +263,8 @@ func text(key: String) -> String:
 		"skin_tiny_desc": "A small round bunny shape with a smaller physics body for tight garden paths.",
 		"skin_lop_name": "Long-Eared Lop",
 		"skin_lop_desc": "A taller lop bunny shape with longer reach and matching collision physics.",
+		"skin_spotted_name": "Spotted Trail Bunny",
+		"skin_spotted_desc": "A premium brown-and-white bunny with its own sprite-sheet hop animation.",
 		"start_game": "▶  Start Game",
 		"instructions": "📖  Instructions",
 		"level_map": "🗺  Level Map",
@@ -380,6 +386,8 @@ func text(key: String) -> String:
 		"skin_tiny_desc": "ارنب صغير يناسب الطرق الضيقة.",
 		"skin_lop_name": "ارنب طويل الاذن",
 		"skin_lop_desc": "ارنب طويل بأذنين طويلتين.",
+		"skin_spotted_name": "ارنب الطريق المرقط",
+		"skin_spotted_desc": "ارنب بني وابيض مميز مع انميشن قفز خاص به.",
 		"start_game": "▶  ابدأ اللعب",
 		"instructions": "📖  التعليمات",
 		"level_map": "🗺  خريطة المراحل",
