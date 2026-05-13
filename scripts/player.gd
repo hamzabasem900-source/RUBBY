@@ -38,6 +38,7 @@ var _bunny_icon_base_scale: Vector2 = Vector2.ONE
 var _bunny_icon_base_tint: Color = Color(1.0, 1.0, 1.0, 1.0)
 var _bunny_frames_base_position: Vector2 = Vector2.ZERO
 var _bunny_frames_base_scale: Vector2 = Vector2.ONE
+var _bunny_frames_base_tint: Color = Color(1.0, 1.0, 1.0, 1.0)
 var _skin_badge_base_position: Vector2 = Vector2.ZERO
 var _bunny_facing_right: bool = true
 var _use_white_bunny_frames: bool = false
@@ -65,13 +66,14 @@ func _ready() -> void:
 	if ear_r:  ear_r.color  = col
 	if tail:   tail.color   = tail_col
 	_apply_skin_physics(skin)
-	_use_white_bunny_frames = str(skin.get("id", "")) == "white_bunny" and bunny_frames != null
+	_use_white_bunny_frames = _skin_uses_sprite_frames(str(skin.get("id", ""))) and bunny_frames != null
 	if bunny_icon:
 		bunny_icon.text = str(skin["icon"])
 		var icon_tint: Color = col
 		if skin.has("icon_tint") and skin["icon_tint"] is Color:
 			icon_tint = skin["icon_tint"]
 		_bunny_icon_base_tint = icon_tint
+		_bunny_frames_base_tint = _get_sprite_frame_tint(skin, icon_tint)
 		bunny_icon.modulate = icon_tint
 		bunny_icon.add_theme_color_override("font_color", icon_tint)
 		bunny_icon.add_theme_font_size_override("font_size", int(skin.get("icon_font_size", 58)))
@@ -91,6 +93,18 @@ func _ready() -> void:
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
+
+func _skin_uses_sprite_frames(skin_id: String) -> bool:
+	# Use the same hand-drawn bunny sheet for every playable bunny skin, then
+	# tint it per skin so brown/dune/snow bunnies animate like the white one.
+	return skin_id.ends_with("_bunny") or skin_id == "dune_hare" or skin_id == "snow_scout"
+
+func _get_sprite_frame_tint(skin: Dictionary, fallback_tint: Color) -> Color:
+	if str(skin.get("id", "")) == "white_bunny":
+		return Color(1.0, 1.0, 1.0, 1.0)
+	if skin.has("icon_tint") and skin["icon_tint"] is Color:
+		return skin["icon_tint"]
+	return fallback_tint
 
 func _apply_skin_physics(skin: Dictionary) -> void:
 	if collision_shape != null and collision_shape.shape is CapsuleShape2D:
@@ -324,7 +338,7 @@ func _get_landing_squash_ratio() -> float:
 
 func _set_bunny_visual_tint(tint: Color) -> void:
 	if _use_white_bunny_frames and bunny_frames != null:
-		bunny_frames.modulate = tint
+		bunny_frames.modulate = _bunny_frames_base_tint * tint
 	elif bunny_icon != null:
 		bunny_icon.modulate = _bunny_icon_base_tint * tint
 
