@@ -26,10 +26,13 @@ var owned_skins: Array[String] = ["white_bunny", "brown_bunny", "dune_hare", "sn
 
 var level_configs: Array = [
 	{
-		"level": 1, "time_limit": 70.0, "lives": 3,
-		"required_score": 100, "fox_count": 1,
-		"hole_count": 3, "thorn_count": 3,
-		"carrot_count": 12, "golden_carrot_count": 2
+		"level": 1, "time_limit": 150.0, "lives": 3,
+		"required_score": 300, "fox_count": 2,
+		"hole_count": 4, "thorn_count": 4,
+		"carrot_count": 12, "golden_carrot_count": 2,
+		"organized_carrots": true, "carrot_min_dist": 95.0,
+		"hazard_min_dist": 85.0, "fox_min_dist": 130.0,
+		"carrot_respawn_delay": 3.0
 	},
 	{
 		"level": 2, "time_limit": 55.0, "lives": 3,

@@ -21,6 +21,12 @@ const FOX_SHEET_ROWS: int = 4
 @export var attack_recoil_speed: float = 210.0
 @export var attack_pause_duration: float = 0.45
 @export var damage_cooldown: float = 0.9
+@export var chase_flank_angle: float = 0.0
+@export var chase_flank_distance: float = 0.0
+@export var chase_flank_side: float = 0.0
+@export var chase_lead_distance: float = 0.0
+@export var chase_weave_strength: float = 0.0
+@export var chase_weave_phase: float = 0.0
 @export var move_right_first: bool = true
 
 var start_pos: Vector2 = Vector2.ZERO
@@ -102,16 +108,31 @@ func _get_chase_velocity() -> Vector2:
 	if _player == null:
 		return Vector2.ZERO
 	var to_player: Vector2 = _player.global_position - global_position
-	var dist: float = to_player.length()
-	if dist <= 0.001:
+	var player_dist: float = to_player.length()
+	if player_dist <= 0.001:
 		return Vector2.ZERO
-	var away_from_player: Vector2 = -to_player / dist
+	var away_from_player: Vector2 = -to_player / player_dist
 	if _attack_pause_timer > 0.0:
 		return away_from_player * attack_recoil_speed
-	if dist < arrival_distance:
-		var push_ratio: float = 1.0 - (dist / arrival_distance)
+	if player_dist < arrival_distance:
+		var push_ratio: float = 1.0 - (player_dist / arrival_distance)
 		return away_from_player * separation_strength * push_ratio
-	var chase_dir: Vector2 = to_player / dist
+
+	var chase_dir_to_player: Vector2 = to_player / player_dist
+	var side_sign: float = chase_flank_side
+	if abs(side_sign) <= 0.01:
+		side_sign = 1.0 if cos(chase_flank_angle) >= 0.0 else -1.0
+	var tangent := Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * side_sign
+	var offset_scale: float = clamp((player_dist - arrival_distance) / 180.0, 0.0, 1.0)
+	var weave: float = sin(Time.get_ticks_msec() * 0.0035 + chase_weave_phase) * chase_weave_strength
+	var flank_offset: Vector2 = tangent * (chase_flank_distance + weave) * offset_scale
+	var lead_offset: Vector2 = chase_dir_to_player * chase_lead_distance * offset_scale
+	var target_position := _player.global_position + flank_offset + lead_offset
+	var to_target: Vector2 = target_position - global_position
+	var target_dist: float = to_target.length()
+	if target_dist <= 0.001:
+		return Vector2.ZERO
+	var chase_dir: Vector2 = to_target / target_dist
 	return chase_dir * chase_speed
 
 func _get_fox_separation_velocity() -> Vector2:

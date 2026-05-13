@@ -25,6 +25,9 @@ var _damage_layer: CanvasLayer
 var _damage_overlay: ColorRect
 var _damage_timer: float = 0.0
 var _base_position: Vector2 = Vector2.ZERO
+var _used_spawn_positions: Array[Vector2] = []
+var _level_carrot_slots: Array[Vector2] = []
+var _level_one_spawning: bool = false
 
 @onready var background: Sprite2D = $Background
 
@@ -251,29 +254,44 @@ func _quit_game() -> void:
 
 func _spawn_all() -> void:
 	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
-	var used: Array = []
+	_used_spawn_positions.clear()
+	_level_one_spawning = GameManager.current_level == 1 and bool(config.get("organized_carrots", false))
+	_level_carrot_slots.clear()
+	if _level_one_spawning:
+		_level_carrot_slots = _build_level_one_carrot_slots()
 
 	# Keep centre clear for player start
-	used.append(Vector2(512, 380))
+	_used_spawn_positions.append(Vector2(512, 380))
 
 	for _i in range(config["carrot_count"]):
-		_spawn(CARROT_SCENE, used, false)
+		_spawn(CARROT_SCENE, _used_spawn_positions, false)
 
 	for _i in range(config["golden_carrot_count"]):
-		_spawn(CARROT_SCENE, used, true)
+		_spawn(CARROT_SCENE, _used_spawn_positions, true)
 
 	for _i in range(config["hole_count"]):
-		_spawn_hazard(HOLE_SCENE, used, true)
+		_spawn_hazard(HOLE_SCENE, _used_spawn_positions, true)
 
 	for _i in range(config["thorn_count"]):
-		_spawn_hazard(THORN_SCENE, used, false)
+		_spawn_hazard(THORN_SCENE, _used_spawn_positions, false)
 
-	for _i in range(config["fox_count"]):
-		_spawn_fox(used)
+	for fox_index in range(config["fox_count"]):
+		_spawn_fox(_used_spawn_positions, fox_index)
+
+func _build_level_one_carrot_slots() -> Array[Vector2]:
+	var slots: Array[Vector2] = []
+	var columns := [150.0, 280.0, 410.0, 540.0, 670.0, 800.0, 900.0]
+	var rows := [155.0, 275.0, 505.0, 615.0]
+	for row_index in range(rows.size()):
+		for column_index in range(columns.size()):
+			var stagger := 36.0 if row_index % 2 == 1 else 0.0
+			slots.append(Vector2(min(columns[column_index] + stagger, AREA_MAX.x), rows[row_index]))
+	slots.shuffle()
+	return slots
 
 func _random_pos(used: Array, min_dist: float = 55.0) -> Vector2:
 	var pos := Vector2.ZERO
-	for _attempt in range(80):
+	for _attempt in range(120):
 		pos = Vector2(
 			randf_range(AREA_MIN.x, AREA_MAX.x),
 			randf_range(AREA_MIN.y, AREA_MAX.y)
@@ -288,6 +306,34 @@ func _random_pos(used: Array, min_dist: float = 55.0) -> Vector2:
 	used.append(pos)
 	return pos
 
+func _level_one_carrot_pos(used: Array, min_dist: float) -> Vector2:
+	for slot in _level_carrot_slots:
+		var ok := true
+		for u in used:
+			if slot.distance_to(u) < min_dist:
+				ok = false
+				break
+		if ok:
+			used.append(slot)
+			return slot
+	return _random_pos(used, min_dist)
+
+func _forget_spawn_position(pos: Vector2) -> void:
+	for index in range(_used_spawn_positions.size() - 1, -1, -1):
+		if _used_spawn_positions[index].distance_to(pos) < 4.0:
+			_used_spawn_positions.remove_at(index)
+			return
+
+func _on_carrot_collected_for_respawn(is_golden: bool, old_position: Vector2) -> void:
+	if not _level_one_spawning or transitioning:
+		return
+	_forget_spawn_position(old_position)
+	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
+	await get_tree().create_timer(float(config.get("carrot_respawn_delay", 3.0))).timeout
+	if not is_inside_tree() or transitioning or GameManager.current_level != 1:
+		return
+	_spawn(CARROT_SCENE, _used_spawn_positions, is_golden)
+
 func _spawn(scene_path: String, used: Array, golden: bool) -> void:
 	if not ResourceLoader.exists(scene_path):
 		push_warning("GameLevel: scene not found — " + scene_path)
@@ -299,10 +345,14 @@ func _spawn(scene_path: String, used: Array, golden: bool) -> void:
 	var obj := packed.instantiate()
 	add_child(obj)
 	obj.scale = Vector2(1.2, 1.2)
-	obj.global_position = _random_pos(used)
+	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
+	var carrot_min_dist := float(config.get("carrot_min_dist", 55.0))
+	obj.global_position = _level_one_carrot_pos(used, carrot_min_dist) if _level_one_spawning else _random_pos(used, carrot_min_dist)
 	# Property setter handles the colour update
 	if "is_golden" in obj:
 		obj.is_golden = golden
+	if _level_one_spawning and obj.has_signal("collected_for_respawn"):
+		obj.collected_for_respawn.connect(_on_carrot_collected_for_respawn)
 
 func _spawn_hazard(scene_path: String, used: Array, is_hole: bool) -> void:
 	if not ResourceLoader.exists(scene_path):
@@ -315,12 +365,13 @@ func _spawn_hazard(scene_path: String, used: Array, is_hole: bool) -> void:
 	var obj := packed.instantiate()
 	add_child(obj)
 	obj.scale = Vector2(1.18, 1.18)
-	obj.global_position = _random_pos(used, 60.0)
+	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
+	obj.global_position = _random_pos(used, float(config.get("hazard_min_dist", 60.0)))
 	# Property setter handles the colour update
 	if "is_hole" in obj:
 		obj.is_hole = is_hole
 
-func _spawn_fox(used: Array) -> void:
+func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if not ResourceLoader.exists(FOX_SCENE):
 		push_warning("GameLevel: Fox scene not found")
 		return
@@ -330,11 +381,34 @@ func _spawn_fox(used: Array) -> void:
 	var fox := packed.instantiate()
 	add_child(fox)
 	fox.scale = Vector2(1.08, 1.08)
-	fox.global_position = _random_pos(used, 100.0)
+	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
+	fox.global_position = _random_pos(used, float(config.get("fox_min_dist", 100.0)))
 	if "patrol_distance" in fox:
 		fox.patrol_distance = randf_range(100.0, 190.0)
 	if "move_right_first" in fox:
-		fox.move_right_first = (randi() % 2 == 0)
+		fox.move_right_first = fox_index % 2 == 0
+	var fox_count := max(int(config.get("fox_count", 1)), 1)
+	var side := -1.0 if fox_index % 2 == 0 else 1.0
+	if "chase_flank_angle" in fox:
+		fox.chase_flank_angle = (TAU / fox_count) * fox_index
+	if "chase_flank_side" in fox:
+		fox.chase_flank_side = side
+	if "chase_flank_distance" in fox:
+		fox.chase_flank_distance = 150.0 if GameManager.current_level == 1 else 85.0
+	if "chase_lead_distance" in fox:
+		fox.chase_lead_distance = 0.0
+		if GameManager.current_level == 1:
+			fox.chase_lead_distance = 35.0 if fox_index % 2 == 0 else -25.0
+	if "chase_weave_strength" in fox:
+		fox.chase_weave_strength = 32.0 if GameManager.current_level == 1 else 18.0
+	if "chase_weave_phase" in fox:
+		fox.chase_weave_phase = float(fox_index) * PI
+	if "separation_distance" in fox:
+		fox.separation_distance = 150.0 if GameManager.current_level == 1 else 90.0
+	if "separation_strength" in fox:
+		fox.separation_strength = 260.0 if GameManager.current_level == 1 else 170.0
+	if "chase_speed" in fox and GameManager.current_level == 1:
+		fox.chase_speed = 124.0 + float(fox_index % 2) * 24.0
 
 # ── Transitions ───────────────────────────────────────────────────────────────
 
