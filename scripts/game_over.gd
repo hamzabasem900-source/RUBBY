@@ -31,10 +31,12 @@ func _apply_language() -> void:
 	menu_btn.text = SettingsManager.text("main_menu")
 
 func _on_retry() -> void:
+	AudioManager.stop_end_screen_sfx()
 	AudioManager.play_button_click()
 	GameManager.start_level(GameManager.current_level)
 	get_tree().change_scene_to_file("res://scenes/GameLevel.tscn")
 
 func _on_menu() -> void:
+	AudioManager.stop_end_screen_sfx()
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
