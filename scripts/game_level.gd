@@ -403,6 +403,10 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 		fox.chase_weave_strength = 32.0 if GameManager.current_level == 1 else 18.0
 	if "chase_weave_phase" in fox:
 		fox.chase_weave_phase = float(fox_index) * PI
+	if "chase_orbit_direction" in fox:
+		fox.chase_orbit_direction = -1.0 if fox_index % 2 == 0 else 1.0
+	if "chase_orbit_strength" in fox:
+		fox.chase_orbit_strength = 0.42 if GameManager.current_level == 1 else 0.25
 	if "separation_distance" in fox:
 		fox.separation_distance = 150.0 if GameManager.current_level == 1 else 90.0
 	if "separation_strength" in fox:
