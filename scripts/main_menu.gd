@@ -96,6 +96,9 @@ func _configure_settings_hint() -> void:
 	settings_hint.offset_top = 92.0
 	settings_hint.offset_right = -30.0
 	settings_hint.offset_bottom = 120.0
+	settings_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	settings_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	settings_hint.clip_text = false
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -113,6 +116,7 @@ func _apply_language() -> void:
 	title_label.text = SettingsManager.text("app_title")
 	subtitle_label.text = SettingsManager.text("main_subtitle")
 	settings_hint.text = SettingsManager.text("settings")
+	_apply_settings_hint_language_fit()
 	start_btn.text = SettingsManager.text("start_game")
 	instr_btn.text = SettingsManager.text("instructions")
 	map_btn.text = SettingsManager.text("level_map")
@@ -250,6 +254,10 @@ func _build_shop_overlay() -> void:
 func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	var skin_id := str(skin["id"])
 	var accent: Color = skin["body_color"]
+	var icon_tint := accent
+	var icon_tint_value: Variant = skin.get("icon_tint", accent)
+	if icon_tint_value is Color:
+		icon_tint = icon_tint_value
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(390, 176)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -268,6 +276,8 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	icon.text = _skin_icon_text(skin)
 	icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	icon.modulate = icon_tint
+	icon.add_theme_color_override("font_color", icon_tint)
 	icon.add_theme_font_size_override("font_size", _skin_preview_font_size(skin))
 	icon_box.add_child(icon)
 
@@ -378,7 +388,13 @@ func _update_reward_panel(total_carrots: int) -> void:
 	if _wallet_label != null:
 		_wallet_label.text = SettingsManager.format_text("carrot_wallet", {"count": total_carrots})
 	if _bunny_preview != null:
+		var preview_tint: Color = skin["body_color"]
+		var preview_tint_value: Variant = skin.get("icon_tint", preview_tint)
+		if preview_tint_value is Color:
+			preview_tint = preview_tint_value
 		_bunny_preview.text = skin_icon
+		_bunny_preview.modulate = preview_tint
+		_bunny_preview.add_theme_color_override("font_color", preview_tint)
 		_bunny_preview.add_theme_font_size_override("font_size", _skin_preview_font_size(skin))
 	if _skin_name_label != null:
 		_skin_name_label.text = SettingsManager.text(str(skin["name_key"]))
@@ -436,6 +452,19 @@ func _refresh_shop_cards() -> void:
 			button.text = SettingsManager.text("skin_equip")
 		else:
 			button.text = SettingsManager.text("skin_buy")
+
+func _apply_settings_hint_language_fit() -> void:
+	if settings_hint == null:
+		return
+	var language := str(SettingsManager.get_setting("language"))
+	if language == "العربية":
+		settings_hint.text_direction = Control.TEXT_DIRECTION_RTL
+		settings_hint.language = "ar"
+		settings_hint.add_theme_font_size_override("font_size", 15)
+	else:
+		settings_hint.text_direction = Control.TEXT_DIRECTION_AUTO
+		settings_hint.language = ""
+		settings_hint.add_theme_font_size_override("font_size", 16)
 
 func _on_start() -> void:
 	AudioManager.play_button_click()

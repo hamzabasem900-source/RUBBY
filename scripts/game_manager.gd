@@ -22,7 +22,7 @@ var levels_unlocked:    int    = 1
 var carrot_wallet:      int    = 0
 var level_carrots_earned: int  = 0
 var last_banked_carrots: int    = 0
-var owned_skins: Array[String] = ["white_bunny", "brown_bunny"]
+var owned_skins: Array[String] = ["white_bunny", "brown_bunny", "dune_hare", "snow_scout"]
 
 var level_configs: Array = [
 	{
@@ -58,11 +58,11 @@ const DEFAULT_SKIN_ID: String = "white_bunny"
 const SKIN_CATALOG: Array[Dictionary] = [
 	{
 		"id": "white_bunny", "name_key": "skin_white_name", "description_key": "skin_white_desc",
-		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+		"price": 0, "icon": "🐰", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82), "icon_tint": Color(1.0, 1.0, 1.0)
 	},
 	{
 		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
-		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82)
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.58, 0.36, 0.18), "tail_color": Color(0.86, 0.70, 0.48), "icon_tint": Color(0.78, 0.50, 0.26)
 	},
 	{
 		"id": "meadow_bunny", "name_key": "skin_meadow_name", "description_key": "skin_meadow_desc",
@@ -89,6 +89,32 @@ const SKIN_CATALOG: Array[Dictionary] = [
 		"id": "lop_bunny", "name_key": "skin_lop_name", "description_key": "skin_lop_desc",
 		"price": 155, "icon": "🐇", "badge": "🎀", "body_color": Color(0.78, 0.78, 0.90), "tail_color": Color(0.64, 0.64, 0.80),
 		"visual_scale": 1.16, "icon_font_size": 58, "collision_height": 50.0, "collision_radius": 20.0, "pickup_radius": 38.0, "badge_offset": Vector2(20.0, -66.0)
+	},
+	{
+		"id": "spotted_bunny", "name_key": "skin_spotted_name", "description_key": "skin_spotted_desc",
+		"price": 210, "icon": "🐇", "badge": "🐾", "body_color": Color(0.56, 0.34, 0.18), "tail_color": Color(0.94, 0.90, 0.82), "icon_tint": Color(0.70, 0.45, 0.25),
+		"visual_scale": 1.08, "icon_font_size": 60, "collision_height": 46.0, "collision_radius": 19.0, "pickup_radius": 36.0, "badge_offset": Vector2(19.0, -63.0)
+	}
+]
+
+const PLAYABLE_CHARACTER_OVERRIDES: Array[Dictionary] = [
+	{
+		"id": "white_bunny", "name_key": "skin_white_name", "description_key": "skin_white_desc",
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.95, 0.95, 0.95), "tail_color": Color(0.84, 0.84, 0.82), "icon_tint": Color(1.0, 1.0, 1.0)
+	},
+	{
+		"id": "brown_bunny", "name_key": "skin_runner_name", "description_key": "skin_runner_desc",
+		"price": 0, "icon": "🐇", "badge": "", "body_color": Color(0.58, 0.36, 0.18), "tail_color": Color(0.86, 0.70, 0.48), "icon_tint": Color(0.78, 0.50, 0.26)
+	},
+	{
+		"id": "dune_hare", "name_key": "skin_dune_name", "description_key": "skin_dune_desc",
+		"price": 0, "icon": "🐇", "badge": "⚡", "body_color": Color(0.76, 0.42, 0.12), "tail_color": Color(1.00, 0.76, 0.35), "icon_tint": Color(0.96, 0.52, 0.13),
+		"visual_scale": 1.18, "icon_font_size": 62, "collision_height": 48.0, "collision_radius": 19.0, "pickup_radius": 37.0, "badge_offset": Vector2(21.0, -67.0)
+	},
+	{
+		"id": "snow_scout", "name_key": "skin_snow_name", "description_key": "skin_snow_desc",
+		"price": 0, "icon": "🐇", "badge": "❄", "body_color": Color(0.52, 0.82, 1.00), "tail_color": Color(0.86, 0.96, 1.00), "icon_tint": Color(0.58, 0.86, 1.00),
+		"visual_scale": 0.92, "icon_font_size": 64, "collision_height": 37.0, "collision_radius": 16.0, "pickup_radius": 30.0, "badge_offset": Vector2(15.0, -54.0)
 	}
 ]
 
@@ -98,13 +124,27 @@ func _ready() -> void:
 # ── Skins / Shop ─────────────────────────────────────────────────────────────
 
 func get_skin_catalog() -> Array[Dictionary]:
-	return SKIN_CATALOG.duplicate(true)
+	var unique_catalog: Array[Dictionary] = []
+	var seen_ids: Array[String] = []
+	for skin in SKIN_CATALOG:
+		var skin_id := str(skin["id"])
+		if seen_ids.has(skin_id):
+			continue
+		seen_ids.append(skin_id)
+		unique_catalog.append(skin.duplicate(true))
+	return unique_catalog
 
 func get_skin_data(skin_id: String) -> Dictionary:
-	return _get_base_skin_data(skin_id).duplicate(true)
+	return _get_playable_skin_data(skin_id).duplicate(true)
 
 func get_selected_skin_data() -> Dictionary:
 	return get_skin_data(selected_character)
+
+func _get_playable_skin_data(skin_id: String) -> Dictionary:
+	for skin in PLAYABLE_CHARACTER_OVERRIDES:
+		if str(skin["id"]) == skin_id:
+			return skin
+	return _get_base_skin_data(skin_id)
 
 func _get_base_skin_data(skin_id: String) -> Dictionary:
 	for skin in SKIN_CATALOG:
@@ -158,8 +198,9 @@ func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
 				sanitized.append(packed_id)
 	if not sanitized.has(DEFAULT_SKIN_ID):
 		sanitized.append(DEFAULT_SKIN_ID)
-	if not sanitized.has("brown_bunny"):
-		sanitized.append("brown_bunny")
+	for starter_skin in ["brown_bunny", "dune_hare", "snow_scout"]:
+		if not sanitized.has(starter_skin):
+			sanitized.append(starter_skin)
 	return sanitized
 
 
@@ -310,7 +351,7 @@ func reset_game() -> void:
 	lives              = 3
 	current_level      = 1
 	selected_character = DEFAULT_SKIN_ID
-	owned_skins = [DEFAULT_SKIN_ID, "brown_bunny"]
+	owned_skins = [DEFAULT_SKIN_ID, "brown_bunny", "dune_hare", "snow_scout"]
 	levels_unlocked    = 1
 	carrot_wallet      = 0
 	level_carrots_earned = 0

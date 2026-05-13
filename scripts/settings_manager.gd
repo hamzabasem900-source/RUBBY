@@ -119,7 +119,11 @@ func _finish_windowed_size_apply(size: Vector2i) -> void:
 
 func _center_window(size: Vector2i) -> void:
 	var screen_size := DisplayServer.screen_get_size()
-	DisplayServer.window_set_position((screen_size - size) / 2)
+	var centered_position := Vector2i(
+		int((screen_size.x - size.x) / 2.0),
+		int((screen_size.y - size.y) / 2.0)
+	)
+	DisplayServer.window_set_position(centered_position)
 
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
@@ -237,6 +241,16 @@ func text(key: String) -> String:
 		"skin_white_desc": "The original bunny look. Always ready for carrots.",
 		"skin_runner_name": "Runner Bunny",
 		"skin_runner_desc": "The earlier side-view bunny shape, ready to hop.",
+		"skin_dune_name": "Dune Hare",
+		"skin_dune_desc": "A taller desert hare with long ears, a lean body, and fast stride physics.",
+		"skin_snow_name": "Snow Scout",
+		"skin_snow_desc": "A compact white scout bunny with a rounded body and smaller collision shape.",
+		"choose_bunny": "Choose Your Bunny! 🐰",
+		"white_bunny_button": "🐰 Classic Bunny",
+		"brown_bunny_button": "🐇 Runner Bunny",
+		"select_dune_bunny_button": "🐇 Dune Hare",
+		"select_snow_bunny_button": "🐰 Snow Scout",
+		"confirm_play": "✔ Let's Go! Play!",
 		"skin_meadow_name": "Meadow Scarf",
 		"skin_meadow_desc": "A bunny outfit with a leafy scarf for garden camouflage.",
 		"skin_rose_name": "Rose Bow",
@@ -249,6 +263,8 @@ func text(key: String) -> String:
 		"skin_tiny_desc": "A small round bunny shape with a smaller physics body for tight garden paths.",
 		"skin_lop_name": "Long-Eared Lop",
 		"skin_lop_desc": "A taller lop bunny shape with longer reach and matching collision physics.",
+		"skin_spotted_name": "Spotted Trail Bunny",
+		"skin_spotted_desc": "A premium brown-and-white bunny with its own sprite-sheet hop animation.",
 		"start_game": "▶  Start Game",
 		"instructions": "📖  Instructions",
 		"level_map": "🗺  Level Map",
@@ -348,6 +364,16 @@ func text(key: String) -> String:
 		"skin_white_desc": "شكل الارنب الاساسي وجاهز للجزر.",
 		"skin_runner_name": "القافز",
 		"skin_runner_desc": "شكل الارنب السابق الجانبي وجاهز للقفز.",
+		"skin_dune_name": "أرنب الصحراء",
+		"skin_dune_desc": "أرنب طويل بأذنين طويلتين وجسم رشيق وحركة سريعة.",
+		"skin_snow_name": "كشاف الثلج",
+		"skin_snow_desc": "أرنب أبيض صغير بجسم مستدير وتصادم أصغر للممرات الضيقة.",
+		"choose_bunny": "اختر الأرنب! 🐰",
+		"white_bunny_button": "🐰 الأرنب الكلاسيكي",
+		"brown_bunny_button": "🐇 الأرنب القافز",
+		"select_dune_bunny_button": "🐇 أرنب الصحراء",
+		"select_snow_bunny_button": "🐰 كشاف الثلج",
+		"confirm_play": "✔ هيا نلعب!",
 		"skin_meadow_name": "وشاح اخضر",
 		"skin_meadow_desc": "ارنب مع وشاح اخضر بسيط.",
 		"skin_rose_name": "ربطة ورد",
@@ -360,6 +386,8 @@ func text(key: String) -> String:
 		"skin_tiny_desc": "ارنب صغير يناسب الطرق الضيقة.",
 		"skin_lop_name": "ارنب طويل الاذن",
 		"skin_lop_desc": "ارنب طويل بأذنين طويلتين.",
+		"skin_spotted_name": "ارنب الطريق المرقط",
+		"skin_spotted_desc": "ارنب بني وابيض مميز مع انميشن قفز خاص به.",
 		"start_game": "▶  ابدأ اللعب",
 		"instructions": "📖  التعليمات",
 		"level_map": "🗺  خريطة المراحل",
