@@ -396,7 +396,9 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if "chase_flank_side" in fox:
 		fox.chase_flank_side = side
 	if "chase_flank_distance" in fox:
-		fox.chase_flank_distance = 125.0 if GameManager.current_level == 1 else 90.0
+		fox.chase_flank_distance = 135.0 if GameManager.current_level == 1 else 100.0
+	if "chase_entry_distance" in fox:
+		fox.chase_entry_distance = 95.0 if GameManager.current_level == 1 else 70.0
 	if "chase_lead_distance" in fox:
 		fox.chase_lead_distance = 0.0
 	if "chase_weave_strength" in fox:
@@ -412,7 +414,7 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if "separation_strength" in fox:
 		fox.separation_strength = 150.0 if GameManager.current_level == 1 else 130.0
 	if "chase_speed" in fox and GameManager.current_level == 1:
-		fox.chase_speed = 136.0 + float(fox_index % 2) * 24.0
+		fox.chase_speed = 148.0 + float(fox_index % 2) * 24.0
 
 # ── Transitions ───────────────────────────────────────────────────────────────
 
