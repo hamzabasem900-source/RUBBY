@@ -27,19 +27,19 @@ var owned_skins: Array[String] = ["white_bunny", "brown_bunny", "dune_hare", "sn
 var level_configs: Array = [
 	{
 		"level": 1, "time_limit": 70.0, "lives": 3,
-		"required_score": 80,  "fox_count": 1,
+		"required_score": 100, "fox_count": 1,
 		"hole_count": 3, "thorn_count": 3,
 		"carrot_count": 12, "golden_carrot_count": 2
 	},
 	{
 		"level": 2, "time_limit": 55.0, "lives": 3,
-		"required_score": 120, "fox_count": 2,
+		"required_score": 140, "fox_count": 2,
 		"hole_count": 5, "thorn_count": 5,
 		"carrot_count": 16, "golden_carrot_count": 3
 	},
 	{
 		"level": 3, "time_limit": 45.0, "lives": 2,
-		"required_score": 160, "fox_count": 3,
+		"required_score": 180, "fox_count": 3,
 		"hole_count": 7, "thorn_count": 8,
 		"carrot_count": 20, "golden_carrot_count": 4
 	}
@@ -89,6 +89,11 @@ const SKIN_CATALOG: Array[Dictionary] = [
 		"id": "lop_bunny", "name_key": "skin_lop_name", "description_key": "skin_lop_desc",
 		"price": 155, "icon": "🐇", "badge": "🎀", "body_color": Color(0.78, 0.78, 0.90), "tail_color": Color(0.64, 0.64, 0.80),
 		"visual_scale": 1.16, "icon_font_size": 58, "collision_height": 50.0, "collision_radius": 20.0, "pickup_radius": 38.0, "badge_offset": Vector2(20.0, -66.0)
+	},
+	{
+		"id": "spotted_bunny", "name_key": "skin_spotted_name", "description_key": "skin_spotted_desc",
+		"price": 40, "icon": "🐇", "badge": "🐾", "body_color": Color(0.56, 0.34, 0.18), "tail_color": Color(0.94, 0.90, 0.82), "icon_tint": Color(0.70, 0.45, 0.25),
+		"visual_scale": 1.08, "icon_font_size": 60, "collision_height": 46.0, "collision_radius": 19.0, "pickup_radius": 36.0, "badge_offset": Vector2(19.0, -63.0)
 	}
 ]
 
@@ -234,11 +239,11 @@ func _apply_difficulty(config: Dictionary) -> Dictionary:
 		"Easy":
 			adjusted["time_limit"] = float(adjusted["time_limit"]) + 15.0
 			adjusted["lives"] = int(adjusted["lives"]) + 1
-			adjusted["required_score"] = int(float(adjusted["required_score"]) * 0.85)
+			adjusted["required_score"] = max(100, int(adjusted["required_score"]) - 20)
 		"Hard":
 			adjusted["time_limit"] = max(25.0, float(adjusted["time_limit"]) - 10.0)
 			adjusted["lives"] = max(1, int(adjusted["lives"]) - 1)
-			adjusted["required_score"] = int(float(adjusted["required_score"]) * 1.15)
+			adjusted["required_score"] = int(adjusted["required_score"]) + 20
 	return adjusted
 
 # ── Score ────────────────────────────────────────────────────────────────────
