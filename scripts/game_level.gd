@@ -387,26 +387,26 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 		fox.patrol_distance = randf_range(100.0, 190.0)
 	if "move_right_first" in fox:
 		fox.move_right_first = fox_index % 2 == 0
-	var fox_count := max(int(config.get("fox_count", 1)), 1)
-	var side := -1.0 if fox_index % 2 == 0 else 1.0
+	var fox_count: int = int(config.get("fox_count", 1))
+	if fox_count < 1:
+		fox_count = 1
+	var side: float = -1.0 if fox_index % 2 == 0 else 1.0
 	if "chase_flank_angle" in fox:
 		fox.chase_flank_angle = (TAU / fox_count) * fox_index
 	if "chase_flank_side" in fox:
 		fox.chase_flank_side = side
 	if "chase_flank_distance" in fox:
-		fox.chase_flank_distance = 150.0 if GameManager.current_level == 1 else 85.0
+		fox.chase_flank_distance = 75.0 if GameManager.current_level == 1 else 55.0
 	if "chase_lead_distance" in fox:
 		fox.chase_lead_distance = 0.0
-		if GameManager.current_level == 1:
-			fox.chase_lead_distance = 35.0 if fox_index % 2 == 0 else -25.0
 	if "chase_weave_strength" in fox:
-		fox.chase_weave_strength = 32.0 if GameManager.current_level == 1 else 18.0
+		fox.chase_weave_strength = 8.0 if GameManager.current_level == 1 else 5.0
 	if "chase_weave_phase" in fox:
 		fox.chase_weave_phase = float(fox_index) * PI
 	if "separation_distance" in fox:
-		fox.separation_distance = 150.0 if GameManager.current_level == 1 else 90.0
+		fox.separation_distance = 95.0 if GameManager.current_level == 1 else 75.0
 	if "separation_strength" in fox:
-		fox.separation_strength = 260.0 if GameManager.current_level == 1 else 170.0
+		fox.separation_strength = 150.0 if GameManager.current_level == 1 else 130.0
 	if "chase_speed" in fox and GameManager.current_level == 1:
 		fox.chase_speed = 124.0 + float(fox_index % 2) * 24.0
 
