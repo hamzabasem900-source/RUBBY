@@ -24,8 +24,11 @@ var _dash_dir:      Vector2 = Vector2.RIGHT
 var _hop_time:      float = 0.0
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
+var _bunny_frames_base_position: Vector2 = Vector2.ZERO
+var _bunny_frames_base_scale: Vector2 = Vector2.ONE
 var _skin_badge_base_position: Vector2 = Vector2.ZERO
 var _bunny_facing_right: bool = true
+var _use_white_bunny_frames: bool = false
 var _skin_badge: Label
 
 @onready var sprite:  ColorRect = $Sprite
@@ -36,6 +39,7 @@ var _skin_badge: Label
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var pickup_collision: CollisionShape2D = $PickupArea/PickupCollision
 @onready var bunny_icon: Label = $BunnyIcon
+@onready var bunny_frames: AnimatedSprite2D = $BunnyFrames
 @onready var shadow: ColorRect = $Shadow
 
 func _ready() -> void:
@@ -49,6 +53,7 @@ func _ready() -> void:
 	if ear_r:  ear_r.color  = col
 	if tail:   tail.color   = tail_col
 	_apply_skin_physics(skin)
+	_use_white_bunny_frames = str(skin.get("id", "")) == "white_bunny" and bunny_frames != null
 	if bunny_icon:
 		bunny_icon.text = str(skin["icon"])
 		var icon_tint: Color = col
@@ -61,8 +66,15 @@ func _ready() -> void:
 		var visual_scale := float(skin.get("visual_scale", 1.0))
 		_bunny_icon_base_scale = Vector2(abs(bunny_icon.scale.x), abs(bunny_icon.scale.y)) * visual_scale
 		bunny_icon.pivot_offset = bunny_icon.size * 0.5
+		bunny_icon.visible = not _use_white_bunny_frames
 		_apply_skin_badge(str(skin.get("badge", "")), skin.get("badge_offset", Vector2(17.0, -58.0)))
-		_set_bunny_visual_transform(0.0, 0.0, 0.0)
+	if bunny_frames:
+		bunny_frames.visible = _use_white_bunny_frames
+		_bunny_frames_base_position = bunny_frames.position
+		_bunny_frames_base_scale = Vector2(abs(bunny_frames.scale.x), abs(bunny_frames.scale.y))
+		if _use_white_bunny_frames:
+			bunny_frames.play("idle")
+	_set_bunny_visual_transform(0.0, 0.0, 0.0)
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
@@ -147,7 +159,7 @@ func _physics_process(delta: float) -> void:
 	_animate_bunny(delta, dir, false)
 
 func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
-	if not bunny_icon:
+	if not _has_active_bunny_visual():
 		return
 	var t: float = min(delta * 10.0, 1.0)
 	if abs(dir.x) > 0.05:
@@ -157,9 +169,11 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 
 	if dir.length() <= 0.0:
 		_hop_time = 0.0
+		_set_white_bunny_animation("idle", 1.0)
 		_lerp_bunny_visual_transform(0.0, 0.0, 0.0, t)
 		return
 
+	_set_white_bunny_animation("hop", 1.45 if dash_active else 1.0)
 	_hop_time += delta * (18.0 if dash_active else 11.0)
 	var hop: float = abs(sin(_hop_time)) * (12.0 if dash_active else 8.0)
 	var squash: float = abs(sin(_hop_time * 1.15))
@@ -168,22 +182,51 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	_set_bunny_visual_transform(hop, squash, tilt)
 
 func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float) -> void:
-	bunny_icon.position = _bunny_icon_base_position + Vector2(0.0, -hop)
-	bunny_icon.scale = _get_bunny_facing_scale(squash)
-	bunny_icon.rotation = rotation_value
+	var target_position := _get_bunny_base_position() + Vector2(0.0, -hop)
+	var target_scale := _get_bunny_facing_scale(squash)
+	if _use_white_bunny_frames and bunny_frames != null:
+		bunny_frames.position = target_position
+		bunny_frames.scale = target_scale
+		bunny_frames.rotation = rotation_value
+	elif bunny_icon != null:
+		bunny_icon.position = target_position
+		bunny_icon.scale = target_scale
+		bunny_icon.rotation = rotation_value
 	_update_shadow_for_hop(hop, squash)
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge_base_position + Vector2(0.0, -hop)
 		_skin_badge.rotation = rotation_value
 
 func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float) -> void:
-	bunny_icon.position = bunny_icon.position.lerp(_bunny_icon_base_position + Vector2(0.0, -hop), weight)
-	bunny_icon.scale = bunny_icon.scale.lerp(_get_bunny_facing_scale(squash), weight)
-	bunny_icon.rotation = lerp(bunny_icon.rotation, rotation_value, weight)
+	var target_position := _get_bunny_base_position() + Vector2(0.0, -hop)
+	var target_scale := _get_bunny_facing_scale(squash)
+	if _use_white_bunny_frames and bunny_frames != null:
+		bunny_frames.position = bunny_frames.position.lerp(target_position, weight)
+		bunny_frames.scale = bunny_frames.scale.lerp(target_scale, weight)
+		bunny_frames.rotation = lerp(bunny_frames.rotation, rotation_value, weight)
+	elif bunny_icon != null:
+		bunny_icon.position = bunny_icon.position.lerp(target_position, weight)
+		bunny_icon.scale = bunny_icon.scale.lerp(target_scale, weight)
+		bunny_icon.rotation = lerp(bunny_icon.rotation, rotation_value, weight)
 	_update_shadow_for_hop(hop, squash)
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + Vector2(0.0, -hop), weight)
 		_skin_badge.rotation = lerp(_skin_badge.rotation, rotation_value, weight)
+
+func _has_active_bunny_visual() -> bool:
+	return (_use_white_bunny_frames and bunny_frames != null) or bunny_icon != null
+
+func _get_bunny_base_position() -> Vector2:
+	if _use_white_bunny_frames:
+		return _bunny_frames_base_position
+	return _bunny_icon_base_position
+
+func _set_white_bunny_animation(animation_name: String, speed_scale: float) -> void:
+	if not _use_white_bunny_frames or bunny_frames == null:
+		return
+	bunny_frames.speed_scale = speed_scale
+	if bunny_frames.animation != animation_name:
+		bunny_frames.play(animation_name)
 
 func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	if shadow == null:
@@ -193,10 +236,13 @@ func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	shadow.modulate.a = 1.0 - lift_ratio * 0.25
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
-	# Every playable rabbit uses the same side-view rabbit glyph. In Godot this
-	# glyph points left by default, so a right-facing bunny must be mirrored.
-	var facing_sign := -1.0 if _bunny_facing_right else 1.0
-	return _bunny_icon_base_scale * Vector2(
+	var base_scale := _bunny_frames_base_scale if _use_white_bunny_frames else _bunny_icon_base_scale
+	var facing_sign := 1.0 if _bunny_facing_right else -1.0
+	if not _use_white_bunny_frames:
+		# The fallback side-view rabbit glyph points left by default, so a
+		# right-facing emoji bunny must be mirrored.
+		facing_sign = -1.0 if _bunny_facing_right else 1.0
+	return base_scale * Vector2(
 		facing_sign * (1.0 + squash * 0.05),
 		1.0 - squash * 0.04
 	)
