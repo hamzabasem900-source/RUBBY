@@ -275,8 +275,8 @@ func _spawn_all() -> void:
 	for _i in range(config["thorn_count"]):
 		_spawn_hazard(THORN_SCENE, _used_spawn_positions, false)
 
-	for _i in range(config["fox_count"]):
-		_spawn_fox(_used_spawn_positions)
+	for fox_index in range(config["fox_count"]):
+		_spawn_fox(_used_spawn_positions, fox_index)
 
 func _build_level_one_carrot_slots() -> Array[Vector2]:
 	var slots: Array[Vector2] = []
@@ -371,7 +371,7 @@ func _spawn_hazard(scene_path: String, used: Array, is_hole: bool) -> void:
 	if "is_hole" in obj:
 		obj.is_hole = is_hole
 
-func _spawn_fox(used: Array) -> void:
+func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if not ResourceLoader.exists(FOX_SCENE):
 		push_warning("GameLevel: Fox scene not found")
 		return
@@ -386,7 +386,11 @@ func _spawn_fox(used: Array) -> void:
 	if "patrol_distance" in fox:
 		fox.patrol_distance = randf_range(100.0, 190.0)
 	if "move_right_first" in fox:
-		fox.move_right_first = (randi() % 2 == 0)
+		fox.move_right_first = fox_index % 2 == 0
+	if "chase_flank_angle" in fox:
+		fox.chase_flank_angle = (TAU / max(int(config.get("fox_count", 1)), 1)) * fox_index
+	if "chase_flank_distance" in fox:
+		fox.chase_flank_distance = 80.0 if GameManager.current_level == 1 else 55.0
 
 # ── Transitions ───────────────────────────────────────────────────────────────
 
