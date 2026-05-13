@@ -27,19 +27,19 @@ var owned_skins: Array[String] = ["white_bunny", "brown_bunny", "dune_hare", "sn
 var level_configs: Array = [
 	{
 		"level": 1, "time_limit": 70.0, "lives": 3,
-		"required_score": 80,  "fox_count": 1,
+		"required_score": 100, "fox_count": 1,
 		"hole_count": 3, "thorn_count": 3,
 		"carrot_count": 12, "golden_carrot_count": 2
 	},
 	{
 		"level": 2, "time_limit": 55.0, "lives": 3,
-		"required_score": 120, "fox_count": 2,
+		"required_score": 140, "fox_count": 2,
 		"hole_count": 5, "thorn_count": 5,
 		"carrot_count": 16, "golden_carrot_count": 3
 	},
 	{
 		"level": 3, "time_limit": 45.0, "lives": 2,
-		"required_score": 160, "fox_count": 3,
+		"required_score": 180, "fox_count": 3,
 		"hole_count": 7, "thorn_count": 8,
 		"carrot_count": 20, "golden_carrot_count": 4
 	}
@@ -239,11 +239,11 @@ func _apply_difficulty(config: Dictionary) -> Dictionary:
 		"Easy":
 			adjusted["time_limit"] = float(adjusted["time_limit"]) + 15.0
 			adjusted["lives"] = int(adjusted["lives"]) + 1
-			adjusted["required_score"] = int(float(adjusted["required_score"]) * 0.85)
+			adjusted["required_score"] = max(100, int(adjusted["required_score"]) - 20)
 		"Hard":
 			adjusted["time_limit"] = max(25.0, float(adjusted["time_limit"]) - 10.0)
 			adjusted["lives"] = max(1, int(adjusted["lives"]) - 1)
-			adjusted["required_score"] = int(float(adjusted["required_score"]) * 1.15)
+			adjusted["required_score"] = int(adjusted["required_score"]) + 20
 	return adjusted
 
 # ── Score ────────────────────────────────────────────────────────────────────

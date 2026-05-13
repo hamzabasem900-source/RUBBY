@@ -230,7 +230,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.93, 0.34, 1)
 theme_override_font_sizes/font_size = 34
-text = "🥕 0 / 80"
+text = "🥕 0 / 100"
 
 [node name="LevelLabel" type="Label" parent="HUD/MarginContainer/TopBar" unique_id=231856819]
 layout_mode = 2
