@@ -24,6 +24,18 @@ position = Vector2(531, 38)
 scale = Vector2(1.0265352, 0.8722454)
 texture = ExtResource("3_he8ie")
 
+[node name="TitleTextShadow" type="Label" parent="."]
+layout_mode = 0
+offset_left = 291.0
+offset_top = 13.0
+offset_right = 772.0
+offset_bottom = 67.0
+theme_override_colors/font_color = Color(0.1, 0.04, 0.02, 0.62)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 38
+text = "Garden Adventure Map"
+horizontal_alignment = 1
+
 [node name="TitleLabel" type="Label" parent="." unique_id=1022601210]
 layout_mode = 0
 offset_left = 287.0
