@@ -1,5 +1,7 @@
 extends Area2D
 
+signal collected_for_respawn(is_golden: bool, world_position: Vector2)
+
 # =============================================
 # Carrot Collectible
 # Normal = 10 pts | Golden = 25 pts
@@ -88,6 +90,7 @@ func collect() -> void:
 	if collected:
 		return
 	collected = true
+	collected_for_respawn.emit(is_golden, global_position)
 	set_deferred("monitoring", false)
 	for node in _visual_nodes():
 		node.visible = false
