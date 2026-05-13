@@ -89,6 +89,11 @@ const SKIN_CATALOG: Array[Dictionary] = [
 		"id": "lop_bunny", "name_key": "skin_lop_name", "description_key": "skin_lop_desc",
 		"price": 155, "icon": "🐇", "badge": "🎀", "body_color": Color(0.78, 0.78, 0.90), "tail_color": Color(0.64, 0.64, 0.80),
 		"visual_scale": 1.16, "icon_font_size": 58, "collision_height": 50.0, "collision_radius": 20.0, "pickup_radius": 38.0, "badge_offset": Vector2(20.0, -66.0)
+	},
+	{
+		"id": "spotted_bunny", "name_key": "skin_spotted_name", "description_key": "skin_spotted_desc",
+		"price": 40, "icon": "🐇", "badge": "🐾", "body_color": Color(0.56, 0.34, 0.18), "tail_color": Color(0.94, 0.90, 0.82), "icon_tint": Color(0.70, 0.45, 0.25),
+		"visual_scale": 1.08, "icon_font_size": 60, "collision_height": 46.0, "collision_radius": 19.0, "pickup_radius": 36.0, "badge_offset": Vector2(19.0, -63.0)
 	}
 ]
 

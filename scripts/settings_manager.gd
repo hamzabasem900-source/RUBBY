@@ -17,8 +17,8 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"music_volume": 0.70,
 	"sfx_volume": 0.85,
 	"mute_audio": false,
-	"language": "English",
-	"fullscreen": true,
+	"language": "العربية",
+	"fullscreen": false,
 	"resolution": "1280 x 720",
 	"difficulty": "Normal"
 }
@@ -36,6 +36,14 @@ func load_settings() -> void:
 		return
 	for key in DEFAULT_SETTINGS.keys():
 		values[key] = config.get_value(SECTION, key, DEFAULT_SETTINGS[key])
+	_sanitize_removed_settings()
+
+func _sanitize_removed_settings() -> void:
+	# English, mute, and fullscreen controls are no longer exposed in Settings.
+	# Keep saved legacy values from reintroducing them into the visible UI.
+	values["language"] = "العربية"
+	values["mute_audio"] = false
+	values["fullscreen"] = false
 
 func save_settings() -> void:
 	var config := ConfigFile.new()
@@ -47,6 +55,7 @@ func save_settings() -> void:
 
 func reset_to_defaults() -> void:
 	values = DEFAULT_SETTINGS.duplicate(true)
+	_sanitize_removed_settings()
 	apply_all()
 	save_settings()
 	settings_changed.emit()
@@ -58,12 +67,13 @@ func set_setting(key: String, value: Variant, save_now: bool = true) -> void:
 		return
 	var old_language := str(values["language"])
 	values[key] = value
+	_sanitize_removed_settings()
 	apply_all()
 	if save_now:
 		save_settings()
 	settings_changed.emit()
-	if key == "language" and old_language != str(value):
-		language_changed.emit(str(value))
+	if key == "language" and old_language != str(values["language"]):
+		language_changed.emit(str(values["language"]))
 
 func get_setting(key: String) -> Variant:
 	return values.get(key, DEFAULT_SETTINGS.get(key))
@@ -78,10 +88,10 @@ func apply_window_settings() -> void:
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
-	if bool(values["fullscreen"]):
-		_apply_fullscreen_window()
-	else:
-		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
+	# Fullscreen is no longer user-facing, so every resolution selection must
+	# apply as an actual window size immediately.
+	values["fullscreen"] = false
+	_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
 
 func _apply_fullscreen_window() -> void:
 	var screen_size := DisplayServer.screen_get_size()
@@ -119,7 +129,11 @@ func _finish_windowed_size_apply(size: Vector2i) -> void:
 
 func _center_window(size: Vector2i) -> void:
 	var screen_size := DisplayServer.screen_get_size()
-	DisplayServer.window_set_position((screen_size - size) / 2)
+	var centered_position := Vector2i(
+		int((screen_size.x - size.x) / 2.0),
+		int((screen_size.y - size.y) / 2.0)
+	)
+	DisplayServer.window_set_position(centered_position)
 
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
@@ -259,6 +273,8 @@ func text(key: String) -> String:
 		"skin_tiny_desc": "A small round bunny shape with a smaller physics body for tight garden paths.",
 		"skin_lop_name": "Long-Eared Lop",
 		"skin_lop_desc": "A taller lop bunny shape with longer reach and matching collision physics.",
+		"skin_spotted_name": "Spotted Trail Bunny",
+		"skin_spotted_desc": "A premium brown-and-white bunny with its own sprite-sheet hop animation.",
 		"start_game": "▶  Start Game",
 		"instructions": "📖  Instructions",
 		"level_map": "🗺  Level Map",
@@ -380,6 +396,8 @@ func text(key: String) -> String:
 		"skin_tiny_desc": "ارنب صغير يناسب الطرق الضيقة.",
 		"skin_lop_name": "ارنب طويل الاذن",
 		"skin_lop_desc": "ارنب طويل بأذنين طويلتين.",
+		"skin_spotted_name": "ارنب الطريق المرقط",
+		"skin_spotted_desc": "ارنب بني وابيض مميز مع انميشن قفز خاص به.",
 		"start_game": "▶  ابدأ اللعب",
 		"instructions": "📖  التعليمات",
 		"level_map": "🗺  خريطة المراحل",
