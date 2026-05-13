@@ -24,7 +24,7 @@ color = Color(0.08, 0.06, 0.03, 0.3)
 [node name="FoxFrames" type="AnimatedSprite2D" parent="."]
 visible = false
 position = Vector2(0, -9)
-scale = Vector2(0.58, 0.58)
+scale = Vector2(0.95, 0.95)
 
 [node name="Tail" type="ColorRect" parent="."]
 offset_left = -50.0
