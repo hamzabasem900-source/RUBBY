@@ -307,8 +307,6 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 		forward_offset
 	)
 
-	_was_moving_last_frame = true
-
 	if moving:
 		_animate_moving_bunny(delta, dir, dash_active)
 	else:

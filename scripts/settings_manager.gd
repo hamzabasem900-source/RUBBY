@@ -17,7 +17,7 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"music_volume": 0.70,
 	"sfx_volume": 0.85,
 	"mute_audio": false,
-	"language": "English",
+	"language": "العربية",
 	"fullscreen": true,
 	"resolution": "1280 x 720",
 	"difficulty": "Normal"
@@ -36,6 +36,13 @@ func load_settings() -> void:
 		return
 	for key in DEFAULT_SETTINGS.keys():
 		values[key] = config.get_value(SECTION, key, DEFAULT_SETTINGS[key])
+	_sanitize_removed_settings()
+
+func _sanitize_removed_settings() -> void:
+	# English, mute, and fullscreen controls are no longer exposed in Settings.
+	# Keep saved legacy values from reintroducing them into the visible UI.
+	values["language"] = "العربية"
+	values["mute_audio"] = false
 
 func save_settings() -> void:
 	var config := ConfigFile.new()
@@ -47,6 +54,7 @@ func save_settings() -> void:
 
 func reset_to_defaults() -> void:
 	values = DEFAULT_SETTINGS.duplicate(true)
+	_sanitize_removed_settings()
 	apply_all()
 	save_settings()
 	settings_changed.emit()

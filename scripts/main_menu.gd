@@ -92,10 +92,12 @@ func _configure_settings_hint() -> void:
 	if settings_hint == null:
 		return
 	settings_hint.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	settings_hint.offset_left = -166.0
-	settings_hint.offset_top = 92.0
-	settings_hint.offset_right = -30.0
-	settings_hint.offset_bottom = 120.0
+	var hint_width: float = 136.0
+	var button_center: float = (settings_btn.offset_left + settings_btn.offset_right) * 0.5
+	settings_hint.offset_left = button_center - hint_width * 0.5
+	settings_hint.offset_top = 94.0
+	settings_hint.offset_right = button_center + hint_width * 0.5
+	settings_hint.offset_bottom = 124.0
 	settings_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	settings_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	settings_hint.clip_text = false
