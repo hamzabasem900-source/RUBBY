@@ -35,7 +35,7 @@ var _was_moving_last_frame: bool = false
 var _current_bunny_animation: String = ""
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
-var _bunny_icon_base_tint: Color = Color.WHITE
+var _bunny_icon_base_tint: Color = Color(1.0, 1.0, 1.0, 1.0)
 var _bunny_frames_base_position: Vector2 = Vector2.ZERO
 var _bunny_frames_base_scale: Vector2 = Vector2.ONE
 var _skin_badge_base_position: Vector2 = Vector2.ZERO
@@ -87,7 +87,7 @@ func _ready() -> void:
 		_bunny_frames_base_scale = Vector2(abs(bunny_frames.scale.x), abs(bunny_frames.scale.y))
 		if _use_white_bunny_frames:
 			bunny_frames.play("idle")
-	_set_bunny_visual_transform(0.0, 0.0, 0.0)
+	_set_bunny_visual_transform(0.0, 0.0, 0.0, Vector2.ZERO)
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
@@ -179,7 +179,10 @@ func _physics_process(delta: float) -> void:
 func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	if not _has_active_bunny_visual():
 		return
-	var t: float = min(delta * (14.0 if dash_active else 10.0), 1.0)
+	var blend_speed := 10.0
+	if dash_active:
+		blend_speed = 14.0
+	var t: float = min(delta * blend_speed, 1.0)
 	var moving := dir.length() > 0.0
 	if abs(dir.x) > 0.05:
 		# Face only the visual toward the last horizontal movement direction.
@@ -197,34 +200,53 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 		var idle_bob := (sin(_idle_time * IDLE_BREATHE_SPEED) + 1.0) * 0.5 * IDLE_BREATHE_HEIGHT
 		var idle_squash := 0.08 + (sin(_idle_time * IDLE_BREATHE_SPEED + PI * 0.45) + 1.0) * 0.025
 		var landing_ratio := _get_landing_squash_ratio()
-		_lerp_bunny_visual_transform(idle_bob, idle_squash + landing_ratio * 0.34, 0.0, t)
+		_lerp_bunny_visual_transform(idle_bob, idle_squash + landing_ratio * 0.34, 0.0, t, Vector2.ZERO)
 		_was_moving_last_frame = false
 		return
 	if not _was_moving_last_frame:
 		_landing_squash_timer = LANDING_SQUASH_DURATION * 0.55
 	_idle_time = 0.0
-	_play_white_bunny_animation("dash" if dash_active else "hop", 1.35 if dash_active else 1.0)
-	_hop_time += delta * (DASH_HOP_SPEED if dash_active else WALK_HOP_SPEED)
+	var animation_name := "hop"
+	var animation_speed := 1.0
+	if dash_active:
+		animation_name = "dash"
+		animation_speed = 1.35
+	_play_white_bunny_animation(animation_name, animation_speed)
+	var hop_speed := WALK_HOP_SPEED
+	if dash_active:
+		hop_speed = DASH_HOP_SPEED
+	_hop_time += delta * hop_speed
 	var hop_wave := abs(sin(_hop_time))
-	var hop := hop_wave * (13.5 if dash_active else 8.5)
-	var stride_squash := pow(1.0 - hop_wave, 2.0) * (0.34 if dash_active else 0.24)
+	var hop_height := 8.5
+	var squash_strength := 0.24
+	if dash_active:
+		hop_height = 13.5
+		squash_strength = 0.34
+	var hop := hop_wave * hop_height
+	var stride_squash := pow(1.0 - hop_wave, 2.0) * squash_strength
 	var landing_squash := _get_landing_squash_ratio() * 0.28
-	var direction_lean := clamp(dir.x, -1.0, 1.0) * (0.18 if dash_active else 0.10)
+	var lean_strength := 0.10
+	var forward_strength := 2.0
+	if dash_active:
+		lean_strength = 0.18
+		forward_strength = 5.0
+	var direction_lean := clamp(dir.x, -1.0, 1.0) * lean_strength
 	var vertical_lean := clamp(dir.y, -1.0, 1.0) * 0.04
-	var forward_offset := Vector2((_get_bunny_facing_sign() * (5.0 if dash_active else 2.0)), 0.0)
+	var forward_offset := Vector2(_get_bunny_facing_sign() * forward_strength, 0.0)
 	_set_bunny_visual_transform(hop, stride_squash + landing_squash, direction_lean + vertical_lean, forward_offset)
 	_was_moving_last_frame = true
 
 func _apply_damage_reaction(_delta: float, _dir: Vector2, weight: float) -> void:
 	var progress := 1.0 - (_damage_reaction_timer / DAMAGE_REACTION_DURATION)
-	var shake := sin(progress * TAU * 5.0) * (1.0 - progress)
+	var shake := sin(progress * PI * 10.0) * (1.0 - progress)
 	var facing := _get_bunny_facing_sign()
 	var recoil := Vector2(-facing * 5.0 * (1.0 - progress), -4.0 * (1.0 - progress))
 	var squash := 0.30 * (1.0 - progress)
 	_lerp_bunny_visual_transform(2.0, squash, shake * 0.24, weight, recoil)
-	_set_bunny_visual_tint(Color(1.0, 0.72, 0.72, 1.0).lerp(Color.WHITE, progress))
+	var damage_tint := Color(1.0, 0.72, 0.72, 1.0)
+	_set_bunny_visual_tint(damage_tint.lerp(Color(1.0, 1.0, 1.0, 1.0), progress))
 
-func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float, local_offset: Vector2 = Vector2.ZERO) -> void:
+func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float, local_offset: Vector2) -> void:
 	var target_position := _get_bunny_base_position() + local_offset + Vector2(0.0, -hop)
 	var target_scale := _get_bunny_facing_scale(squash)
 	if _use_white_bunny_frames and bunny_frames != null:
@@ -236,12 +258,12 @@ func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: floa
 		bunny_icon.scale = target_scale
 		bunny_icon.rotation = rotation_value
 	_update_shadow_for_hop(hop, squash)
-	_set_bunny_visual_tint(Color.WHITE)
+	_set_bunny_visual_tint(Color(1.0, 1.0, 1.0, 1.0))
 	if _skin_badge != null:
 		_skin_badge.position = _skin_badge_base_position + local_offset + Vector2(0.0, -hop)
 		_skin_badge.rotation = rotation_value
 
-func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float, local_offset: Vector2 = Vector2.ZERO) -> void:
+func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float, local_offset: Vector2) -> void:
 	var target_position := _get_bunny_base_position() + local_offset + Vector2(0.0, -hop)
 	var target_scale := _get_bunny_facing_scale(squash)
 	if _use_white_bunny_frames and bunny_frames != null:

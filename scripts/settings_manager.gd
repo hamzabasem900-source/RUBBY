@@ -119,7 +119,11 @@ func _finish_windowed_size_apply(size: Vector2i) -> void:
 
 func _center_window(size: Vector2i) -> void:
 	var screen_size := DisplayServer.screen_get_size()
-	DisplayServer.window_set_position((screen_size - size) / 2)
+	var centered_position := Vector2i(
+		int((screen_size.x - size.x) / 2.0),
+		int((screen_size.y - size.y) / 2.0)
+	)
+	DisplayServer.window_set_position(centered_position)
 
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
