@@ -27,6 +27,8 @@ const FOX_SHEET_ROWS: int = 4
 @export var chase_lead_distance: float = 0.0
 @export var chase_weave_strength: float = 0.0
 @export var chase_weave_phase: float = 0.0
+@export var chase_orbit_strength: float = 0.0
+@export var chase_orbit_direction: float = 1.0
 @export var move_right_first: bool = true
 
 var start_pos: Vector2 = Vector2.ZERO
@@ -133,7 +135,14 @@ func _get_chase_velocity() -> Vector2:
 	if target_dist <= 0.001:
 		return Vector2.ZERO
 	var chase_dir: Vector2 = to_target / target_dist
-	return chase_dir * chase_speed
+	var chase_velocity: Vector2 = chase_dir * chase_speed
+	if abs(chase_orbit_strength) > 0.01:
+		var orbit_sign: float = 1.0 if chase_orbit_direction >= 0.0 else -1.0
+		var orbit_tangent := Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * orbit_sign
+		var orbit_ratio: float = clamp(chase_orbit_strength, 0.0, 1.0) * offset_scale
+		var orbit_velocity: Vector2 = orbit_tangent * chase_speed
+		chase_velocity = chase_velocity.lerp(orbit_velocity, orbit_ratio)
+	return chase_velocity
 
 func _get_fox_separation_velocity() -> Vector2:
 	var separation: Vector2 = Vector2.ZERO
