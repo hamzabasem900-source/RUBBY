@@ -312,6 +312,11 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	else:
 		_animate_idle_bunny(delta, blend_weight)
 
+	if moving:
+		_animate_moving_bunny(delta, dir, dash_active)
+	else:
+		_animate_idle_bunny(delta, blend_weight)
+
 func _animate_idle_bunny(delta: float, blend_weight: float) -> void:
 	_idle_time += delta
 	_hop_time = 0.0

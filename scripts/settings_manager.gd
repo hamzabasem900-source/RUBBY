@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"sfx_volume": 0.85,
 	"mute_audio": false,
 	"language": "العربية",
-	"fullscreen": true,
+	"fullscreen": false,
 	"resolution": "1280 x 720",
 	"difficulty": "Normal"
 }
@@ -43,6 +43,7 @@ func _sanitize_removed_settings() -> void:
 	# Keep saved legacy values from reintroducing them into the visible UI.
 	values["language"] = "العربية"
 	values["mute_audio"] = false
+	values["fullscreen"] = false
 
 func save_settings() -> void:
 	var config := ConfigFile.new()
@@ -66,12 +67,13 @@ func set_setting(key: String, value: Variant, save_now: bool = true) -> void:
 		return
 	var old_language := str(values["language"])
 	values[key] = value
+	_sanitize_removed_settings()
 	apply_all()
 	if save_now:
 		save_settings()
 	settings_changed.emit()
-	if key == "language" and old_language != str(value):
-		language_changed.emit(str(value))
+	if key == "language" and old_language != str(values["language"]):
+		language_changed.emit(str(values["language"]))
 
 func get_setting(key: String) -> Variant:
 	return values.get(key, DEFAULT_SETTINGS.get(key))
@@ -86,10 +88,10 @@ func apply_window_settings() -> void:
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
-	if bool(values["fullscreen"]):
-		_apply_fullscreen_window()
-	else:
-		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
+	# Fullscreen is no longer user-facing, so every resolution selection must
+	# apply as an actual window size immediately.
+	values["fullscreen"] = false
+	_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
 
 func _apply_fullscreen_window() -> void:
 	var screen_size := DisplayServer.screen_get_size()
