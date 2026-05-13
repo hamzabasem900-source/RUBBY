@@ -28,6 +28,9 @@ const FOX_SHEET_ROWS: int = 4
 @export var chase_lead_distance: float = 0.0
 @export var chase_weave_strength: float = 0.0
 @export var chase_weave_phase: float = 0.0
+@export var chase_route_distance: float = 160.0
+@export var chase_route_entry_distance: float = 110.0
+@export var chase_route_release_distance: float = 260.0
 @export var chase_orbit_strength: float = 0.0
 @export var chase_orbit_direction: float = 1.0
 @export var move_right_first: bool = true
@@ -81,10 +84,12 @@ func _physics_process(delta: float) -> void:
 	# Chase the bunny, but keep a personal-space ring so foxes do not stack
 	# on top of the player and trap the physics body.
 	if _player != null and is_instance_valid(_player):
-		var desired_velocity: Vector2 = _get_chase_velocity()
-		desired_velocity += _get_fox_separation_velocity()
-		if desired_velocity.length() > chase_speed:
-			desired_velocity = desired_velocity.normalized() * chase_speed
+		var chase_velocity: Vector2 = _get_chase_velocity()
+		var separation_velocity: Vector2 = _get_fox_separation_velocity()
+		var desired_velocity: Vector2 = chase_velocity + separation_velocity
+		var max_speed: float = chase_speed + min(separation_velocity.length() * 0.45, separation_strength * 0.45)
+		if desired_velocity.length() > max_speed:
+			desired_velocity = desired_velocity.normalized() * max_speed
 		velocity = velocity.move_toward(desired_velocity, acceleration * delta)
 		_update_facing_from_velocity()
 		move_and_slide()
@@ -122,7 +127,8 @@ func _get_chase_velocity() -> Vector2:
 		return away_from_player * separation_strength * push_ratio
 
 	var chase_dir_to_player: Vector2 = to_player / player_dist
-	var offset_scale: float = clamp((player_dist - arrival_distance) / 180.0, 0.0, 1.0)
+	var route_scale: float = clamp((player_dist - arrival_distance) / max(chase_route_release_distance, 1.0), 0.0, 1.0)
+	var close_scale: float = clamp((player_dist - arrival_distance) / 180.0, 0.0, 1.0)
 	var weave: float = sin(Time.get_ticks_msec() * 0.0035 + chase_weave_phase) * chase_weave_strength
 	var flank_direction: Vector2 = Vector2.RIGHT.rotated(chase_flank_angle)
 	if chase_flank_distance <= 0.01:
@@ -131,11 +137,12 @@ func _get_chase_velocity() -> Vector2:
 			side_sign = 1.0
 		flank_direction = Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * side_sign
 	flank_direction = flank_direction.normalized()
-	var flank_offset: Vector2 = flank_direction * (chase_flank_distance + weave) * offset_scale
-	var entry_scale: float = clamp((player_dist - chase_flank_distance) / 220.0, 0.0, 1.0)
 	var entry_direction: Vector2 = flank_direction.rotated(PI * 0.5)
-	var entry_offset: Vector2 = entry_direction * chase_entry_distance * entry_scale
-	var lead_offset: Vector2 = chase_dir_to_player * chase_lead_distance * offset_scale
+	var route_distance: float = max(chase_flank_distance, chase_route_distance)
+	var flank_offset: Vector2 = flank_direction * (route_distance + weave) * route_scale
+	var entry_scale: float = clamp((player_dist - arrival_distance) / max(chase_route_release_distance + 80.0, 1.0), 0.0, 1.0)
+	var entry_offset: Vector2 = entry_direction * max(chase_entry_distance, chase_route_entry_distance) * entry_scale
+	var lead_offset: Vector2 = chase_dir_to_player * chase_lead_distance * close_scale
 	var target_position: Vector2 = _player.global_position + flank_offset + entry_offset + lead_offset
 	var to_target: Vector2 = target_position - global_position
 	var target_dist: float = to_target.length()
