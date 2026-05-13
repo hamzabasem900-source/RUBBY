@@ -396,23 +396,29 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if "chase_flank_side" in fox:
 		fox.chase_flank_side = side
 	if "chase_flank_distance" in fox:
-		fox.chase_flank_distance = 135.0 if GameManager.current_level == 1 else 100.0
+		fox.chase_flank_distance = 220.0 if GameManager.current_level == 1 else 145.0
 	if "chase_entry_distance" in fox:
-		fox.chase_entry_distance = 95.0 if GameManager.current_level == 1 else 70.0
+		fox.chase_entry_distance = 160.0 if GameManager.current_level == 1 else 100.0
+	if "chase_route_distance" in fox:
+		fox.chase_route_distance = 220.0 if GameManager.current_level == 1 else 145.0
+	if "chase_route_entry_distance" in fox:
+		fox.chase_route_entry_distance = 160.0 if GameManager.current_level == 1 else 100.0
+	if "chase_route_release_distance" in fox:
+		fox.chase_route_release_distance = 300.0 if GameManager.current_level == 1 else 230.0
 	if "chase_lead_distance" in fox:
 		fox.chase_lead_distance = 0.0
 	if "chase_weave_strength" in fox:
-		fox.chase_weave_strength = 10.0 if GameManager.current_level == 1 else 7.0
+		fox.chase_weave_strength = 22.0 if GameManager.current_level == 1 else 12.0
 	if "chase_weave_phase" in fox:
 		fox.chase_weave_phase = float(fox_index) * PI
 	if "chase_orbit_direction" in fox:
 		fox.chase_orbit_direction = -1.0 if fox_index % 2 == 0 else 1.0
 	if "chase_orbit_strength" in fox:
-		fox.chase_orbit_strength = 0.42 if GameManager.current_level == 1 else 0.25
+		fox.chase_orbit_strength = 0.12 if GameManager.current_level == 1 else 0.18
 	if "separation_distance" in fox:
-		fox.separation_distance = 110.0 if GameManager.current_level == 1 else 85.0
+		fox.separation_distance = 160.0 if GameManager.current_level == 1 else 115.0
 	if "separation_strength" in fox:
-		fox.separation_strength = 150.0 if GameManager.current_level == 1 else 130.0
+		fox.separation_strength = 220.0 if GameManager.current_level == 1 else 160.0
 	if "chase_speed" in fox and GameManager.current_level == 1:
 		fox.chase_speed = 148.0 + float(fox_index % 2) * 24.0
 
