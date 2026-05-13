@@ -96,6 +96,9 @@ func _configure_settings_hint() -> void:
 	settings_hint.offset_top = 92.0
 	settings_hint.offset_right = -30.0
 	settings_hint.offset_bottom = 120.0
+	settings_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	settings_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	settings_hint.clip_text = false
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -113,6 +116,7 @@ func _apply_language() -> void:
 	title_label.text = SettingsManager.text("app_title")
 	subtitle_label.text = SettingsManager.text("main_subtitle")
 	settings_hint.text = SettingsManager.text("settings")
+	_apply_settings_hint_language_fit()
 	start_btn.text = SettingsManager.text("start_game")
 	instr_btn.text = SettingsManager.text("instructions")
 	map_btn.text = SettingsManager.text("level_map")
@@ -448,6 +452,19 @@ func _refresh_shop_cards() -> void:
 			button.text = SettingsManager.text("skin_equip")
 		else:
 			button.text = SettingsManager.text("skin_buy")
+
+func _apply_settings_hint_language_fit() -> void:
+	if settings_hint == null:
+		return
+	var language := str(SettingsManager.get_setting("language"))
+	if language == "العربية":
+		settings_hint.text_direction = Control.TEXT_DIRECTION_RTL
+		settings_hint.language = "ar"
+		settings_hint.add_theme_font_size_override("font_size", 15)
+	else:
+		settings_hint.text_direction = Control.TEXT_DIRECTION_AUTO
+		settings_hint.language = ""
+		settings_hint.add_theme_font_size_override("font_size", 16)
 
 func _on_start() -> void:
 	AudioManager.play_button_click()

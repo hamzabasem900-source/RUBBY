@@ -13,6 +13,12 @@ const DASH_COOLDOWN:     float = 1.2
 const INVINCIBLE_DURATION: float = 1.5
 const WORLD_MIN: Vector2 = Vector2(32.0, 88.0)
 const WORLD_MAX: Vector2 = Vector2(992.0, 694.0)
+const IDLE_BREATHE_SPEED: float = 3.2
+const IDLE_BREATHE_HEIGHT: float = 2.4
+const WALK_HOP_SPEED: float = 11.5
+const DASH_HOP_SPEED: float = 19.5
+const DAMAGE_REACTION_DURATION: float = 0.34
+const LANDING_SQUASH_DURATION: float = 0.12
 
 var invincible:      bool  = false
 var invincible_timer: float = 0.0
@@ -22,10 +28,17 @@ var _dash_timer:    float  = 0.0
 var _dash_cooldown: float  = 0.0
 var _dash_dir:      Vector2 = Vector2.RIGHT
 var _hop_time:      float = 0.0
+var _idle_time:     float = 0.0
+var _landing_squash_timer: float = 0.0
+var _damage_reaction_timer: float = 0.0
+var _was_moving_last_frame: bool = false
+var _current_bunny_animation: String = ""
 var _bunny_icon_base_position: Vector2 = Vector2.ZERO
 var _bunny_icon_base_scale: Vector2 = Vector2.ONE
+var _bunny_icon_base_tint: Color = Color(1.0, 1.0, 1.0, 1.0)
 var _bunny_frames_base_position: Vector2 = Vector2.ZERO
 var _bunny_frames_base_scale: Vector2 = Vector2.ONE
+var _bunny_frames_base_tint: Color = Color(1.0, 1.0, 1.0, 1.0)
 var _skin_badge_base_position: Vector2 = Vector2.ZERO
 var _bunny_facing_right: bool = true
 var _use_white_bunny_frames: bool = false
@@ -53,12 +66,14 @@ func _ready() -> void:
 	if ear_r:  ear_r.color  = col
 	if tail:   tail.color   = tail_col
 	_apply_skin_physics(skin)
-	_use_white_bunny_frames = str(skin.get("id", "")) == "white_bunny" and bunny_frames != null
+	_use_white_bunny_frames = _skin_uses_sprite_frames(str(skin.get("id", ""))) and bunny_frames != null
 	if bunny_icon:
 		bunny_icon.text = str(skin["icon"])
 		var icon_tint: Color = col
 		if skin.has("icon_tint") and skin["icon_tint"] is Color:
 			icon_tint = skin["icon_tint"]
+		_bunny_icon_base_tint = icon_tint
+		_bunny_frames_base_tint = _get_sprite_frame_tint(skin, icon_tint)
 		bunny_icon.modulate = icon_tint
 		bunny_icon.add_theme_color_override("font_color", icon_tint)
 		bunny_icon.add_theme_font_size_override("font_size", int(skin.get("icon_font_size", 58)))
@@ -74,10 +89,22 @@ func _ready() -> void:
 		_bunny_frames_base_scale = Vector2(abs(bunny_frames.scale.x), abs(bunny_frames.scale.y))
 		if _use_white_bunny_frames:
 			bunny_frames.play("idle")
-	_set_bunny_visual_transform(0.0, 0.0, 0.0)
+	_set_bunny_visual_transform(0.0, 0.0, 0.0, Vector2.ZERO)
 	# Connect pickup area for carrot detection
 	if pickup:
 		pickup.area_entered.connect(_on_pickup_area_entered)
+
+func _skin_uses_sprite_frames(skin_id: String) -> bool:
+	# Use the same hand-drawn bunny sheet for every playable bunny skin, then
+	# tint it per skin so brown/dune/snow bunnies animate like the white one.
+	return skin_id.ends_with("_bunny") or skin_id == "dune_hare" or skin_id == "snow_scout"
+
+func _get_sprite_frame_tint(skin: Dictionary, fallback_tint: Color) -> Color:
+	if str(skin.get("id", "")) == "white_bunny":
+		return Color(1.0, 1.0, 1.0, 1.0)
+	if skin.has("icon_tint") and skin["icon_tint"] is Color:
+		return skin["icon_tint"]
+	return fallback_tint
 
 func _apply_skin_physics(skin: Dictionary) -> void:
 	if collision_shape != null and collision_shape.shape is CapsuleShape2D:
@@ -115,6 +142,10 @@ func _physics_process(delta: float) -> void:
 	# ── Dash cooldown tick ───────────────────────────────────────────────────
 	if _dash_cooldown > 0.0:
 		_dash_cooldown -= delta
+	if _landing_squash_timer > 0.0:
+		_landing_squash_timer = max(_landing_squash_timer - delta, 0.0)
+	if _damage_reaction_timer > 0.0:
+		_damage_reaction_timer = max(_damage_reaction_timer - delta, 0.0)
 
 	# ── Active dash movement (ignores normal input while dashing) ────────────
 	if _dashing:
@@ -125,6 +156,7 @@ func _physics_process(delta: float) -> void:
 		_animate_bunny(delta, _dash_dir, true)
 		if _dash_timer <= 0.0:
 			_dashing = false
+			_landing_squash_timer = LANDING_SQUASH_DURATION
 		return
 
 	# ── Read directional input ───────────────────────────────────────────────
@@ -161,28 +193,75 @@ func _physics_process(delta: float) -> void:
 func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	if not _has_active_bunny_visual():
 		return
-	var t: float = min(delta * 10.0, 1.0)
+	var blend_speed := 10.0
+	if dash_active:
+		blend_speed = 14.0
+	var t: float = min(delta * blend_speed, 1.0)
+	var moving := dir.length() > 0.0
 	if abs(dir.x) > 0.05:
-		# Face the visual Label toward the last horizontal movement direction.
+		# Face only the visual toward the last horizontal movement direction.
 		# The physics root stays positive to avoid mirrored collisions.
 		_bunny_facing_right = dir.x > 0.0
-
-	if dir.length() <= 0.0:
-		_hop_time = 0.0
-		_set_white_bunny_animation("idle", 1.0)
-		_lerp_bunny_visual_transform(0.0, 0.0, 0.0, t)
+	if _damage_reaction_timer > 0.0:
+		_play_white_bunny_animation("hurt", 1.25)
+		_apply_damage_reaction(delta, dir, t)
+		_was_moving_last_frame = moving
 		return
+	if not moving:
+		_idle_time += delta
+		_hop_time = 0.0
+		_play_white_bunny_animation("idle", 1.0)
+		var idle_bob := (sin(_idle_time * IDLE_BREATHE_SPEED) + 1.0) * 0.5 * IDLE_BREATHE_HEIGHT
+		var idle_squash := 0.08 + (sin(_idle_time * IDLE_BREATHE_SPEED + PI * 0.45) + 1.0) * 0.025
+		var landing_ratio := _get_landing_squash_ratio()
+		_lerp_bunny_visual_transform(idle_bob, idle_squash + landing_ratio * 0.34, 0.0, t, Vector2.ZERO)
+		_was_moving_last_frame = false
+		return
+	if not _was_moving_last_frame:
+		_landing_squash_timer = LANDING_SQUASH_DURATION * 0.55
+	_idle_time = 0.0
+	var animation_name := "hop"
+	var animation_speed := 1.0
+	if dash_active:
+		animation_name = "dash"
+		animation_speed = 1.35
+	_play_white_bunny_animation(animation_name, animation_speed)
+	var hop_speed := WALK_HOP_SPEED
+	if dash_active:
+		hop_speed = DASH_HOP_SPEED
+	_hop_time += delta * hop_speed
+	var hop_wave := abs(sin(_hop_time))
+	var hop_height := 8.5
+	var squash_strength := 0.24
+	if dash_active:
+		hop_height = 13.5
+		squash_strength = 0.34
+	var hop := hop_wave * hop_height
+	var stride_squash := pow(1.0 - hop_wave, 2.0) * squash_strength
+	var landing_squash := _get_landing_squash_ratio() * 0.28
+	var lean_strength := 0.10
+	var forward_strength := 2.0
+	if dash_active:
+		lean_strength = 0.18
+		forward_strength = 5.0
+	var direction_lean := clamp(dir.x, -1.0, 1.0) * lean_strength
+	var vertical_lean := clamp(dir.y, -1.0, 1.0) * 0.04
+	var forward_offset := Vector2(_get_bunny_facing_sign() * forward_strength, 0.0)
+	_set_bunny_visual_transform(hop, stride_squash + landing_squash, direction_lean + vertical_lean, forward_offset)
+	_was_moving_last_frame = true
 
-	_set_white_bunny_animation("hop", 1.45 if dash_active else 1.0)
-	_hop_time += delta * (18.0 if dash_active else 11.0)
-	var hop: float = abs(sin(_hop_time)) * (12.0 if dash_active else 8.0)
-	var squash: float = abs(sin(_hop_time * 1.15))
-	var tilt_sign: float = 1.0 if _bunny_facing_right else -1.0
-	var tilt: float = tilt_sign * (0.16 if dash_active else 0.09)
-	_set_bunny_visual_transform(hop, squash, tilt)
+func _apply_damage_reaction(_delta: float, _dir: Vector2, weight: float) -> void:
+	var progress := 1.0 - (_damage_reaction_timer / DAMAGE_REACTION_DURATION)
+	var shake := sin(progress * PI * 10.0) * (1.0 - progress)
+	var facing := _get_bunny_facing_sign()
+	var recoil := Vector2(-facing * 5.0 * (1.0 - progress), -4.0 * (1.0 - progress))
+	var squash := 0.30 * (1.0 - progress)
+	_lerp_bunny_visual_transform(2.0, squash, shake * 0.24, weight, recoil)
+	var damage_tint := Color(1.0, 0.72, 0.72, 1.0)
+	_set_bunny_visual_tint(damage_tint.lerp(Color(1.0, 1.0, 1.0, 1.0), progress))
 
-func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float) -> void:
-	var target_position := _get_bunny_base_position() + Vector2(0.0, -hop)
+func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float, local_offset: Vector2) -> void:
+	var target_position := _get_bunny_base_position() + local_offset + Vector2(0.0, -hop)
 	var target_scale := _get_bunny_facing_scale(squash)
 	if _use_white_bunny_frames and bunny_frames != null:
 		bunny_frames.position = target_position
@@ -193,12 +272,13 @@ func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: floa
 		bunny_icon.scale = target_scale
 		bunny_icon.rotation = rotation_value
 	_update_shadow_for_hop(hop, squash)
+	_set_bunny_visual_tint(Color(1.0, 1.0, 1.0, 1.0))
 	if _skin_badge != null:
-		_skin_badge.position = _skin_badge_base_position + Vector2(0.0, -hop)
+		_skin_badge.position = _skin_badge_base_position + local_offset + Vector2(0.0, -hop)
 		_skin_badge.rotation = rotation_value
 
-func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float) -> void:
-	var target_position := _get_bunny_base_position() + Vector2(0.0, -hop)
+func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float, local_offset: Vector2) -> void:
+	var target_position := _get_bunny_base_position() + local_offset + Vector2(0.0, -hop)
 	var target_scale := _get_bunny_facing_scale(squash)
 	if _use_white_bunny_frames and bunny_frames != null:
 		bunny_frames.position = bunny_frames.position.lerp(target_position, weight)
@@ -210,7 +290,7 @@ func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: flo
 		bunny_icon.rotation = lerp(bunny_icon.rotation, rotation_value, weight)
 	_update_shadow_for_hop(hop, squash)
 	if _skin_badge != null:
-		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + Vector2(0.0, -hop), weight)
+		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + local_offset + Vector2(0.0, -hop), weight)
 		_skin_badge.rotation = lerp(_skin_badge.rotation, rotation_value, weight)
 
 func _has_active_bunny_visual() -> bool:
@@ -221,31 +301,46 @@ func _get_bunny_base_position() -> Vector2:
 		return _bunny_frames_base_position
 	return _bunny_icon_base_position
 
-func _set_white_bunny_animation(animation_name: String, speed_scale: float) -> void:
+func _play_white_bunny_animation(animation_name: String, speed_scale: float) -> void:
 	if not _use_white_bunny_frames or bunny_frames == null:
 		return
 	bunny_frames.speed_scale = speed_scale
-	if bunny_frames.animation != animation_name:
+	if _current_bunny_animation != animation_name or bunny_frames.animation != animation_name:
+		_current_bunny_animation = animation_name
 		bunny_frames.play(animation_name)
 
 func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	if shadow == null:
 		return
-	var lift_ratio: float = clamp(hop / 12.0, 0.0, 1.0)
-	shadow.scale = Vector2(1.0 - lift_ratio * 0.18 + squash * 0.03, 1.0 - lift_ratio * 0.10)
-	shadow.modulate.a = 1.0 - lift_ratio * 0.25
+	var lift_ratio: float = clamp(hop / 13.5, 0.0, 1.0)
+	shadow.scale = Vector2(1.0 - lift_ratio * 0.22 + squash * 0.10, 1.0 - lift_ratio * 0.18 + squash * 0.06)
+	shadow.modulate.a = 1.0 - lift_ratio * 0.32
 
 func _get_bunny_facing_scale(squash: float) -> Vector2:
 	var base_scale := _bunny_frames_base_scale if _use_white_bunny_frames else _bunny_icon_base_scale
-	var facing_sign := 1.0 if _bunny_facing_right else -1.0
+	var facing_sign := _get_bunny_facing_sign()
 	if not _use_white_bunny_frames:
 		# The fallback side-view rabbit glyph points left by default, so a
 		# right-facing emoji bunny must be mirrored.
 		facing_sign = -1.0 if _bunny_facing_right else 1.0
 	return base_scale * Vector2(
-		facing_sign * (1.0 + squash * 0.05),
-		1.0 - squash * 0.04
+		facing_sign * (1.0 + squash * 0.10),
+		1.0 - squash * 0.08
 	)
+
+func _get_bunny_facing_sign() -> float:
+	return 1.0 if _bunny_facing_right else -1.0
+
+func _get_landing_squash_ratio() -> float:
+	if _landing_squash_timer <= 0.0:
+		return 0.0
+	return _landing_squash_timer / LANDING_SQUASH_DURATION
+
+func _set_bunny_visual_tint(tint: Color) -> void:
+	if _use_white_bunny_frames and bunny_frames != null:
+		bunny_frames.modulate = _bunny_frames_base_tint * tint
+	elif bunny_icon != null:
+		bunny_icon.modulate = _bunny_icon_base_tint * tint
 
 func _keep_inside_world() -> void:
 	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
@@ -255,6 +350,8 @@ func take_damage() -> void:
 		return
 	invincible       = true
 	invincible_timer = INVINCIBLE_DURATION
+	_damage_reaction_timer = DAMAGE_REACTION_DURATION
+	_landing_squash_timer = LANDING_SQUASH_DURATION
 	AudioManager.play_damage()
 	GameManager.lose_life()
 

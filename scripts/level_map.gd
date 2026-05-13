@@ -5,7 +5,7 @@ extends Control
 # =============================================
 
 @onready var title_label: Label = $TitleLabel
-@onready var title_shadow: Label = $TitleTextShadow
+@onready var title_shadow: Label = get_node_or_null("TitleTextShadow") as Label
 @onready var btn1: Button = $Level1Button
 @onready var btn2: Button = $Level2Button
 @onready var btn3: Button = $Level3Button
