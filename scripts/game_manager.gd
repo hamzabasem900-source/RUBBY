@@ -36,17 +36,17 @@ var level_configs: Array = [
 	},
 	{
 		"level": 2, "time_limit": 135.0, "lives": 3,
-		"required_score": 250, "fox_count": 3,
-		"hole_count": 6, "thorn_count": 6,
-		"carrot_count": 20, "golden_carrot_count": 3,
+		"required_score": 330, "fox_count": 3,
+		"hole_count": 6, "thorn_count": 7,
+		"carrot_count": 24, "golden_carrot_count": 4,
 		"carrot_min_dist": 78.0, "hazard_min_dist": 74.0,
 		"fox_min_dist": 112.0
 	},
 	{
 		"level": 3, "time_limit": 120.0, "lives": 2,
-		"required_score": 330, "fox_count": 4,
+		"required_score": 370, "fox_count": 4,
 		"hole_count": 8, "thorn_count": 10,
-		"carrot_count": 24, "golden_carrot_count": 5,
+		"carrot_count": 25, "golden_carrot_count": 6,
 		"carrot_min_dist": 66.0, "hazard_min_dist": 62.0,
 		"fox_min_dist": 100.0
 	}
