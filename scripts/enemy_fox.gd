@@ -11,8 +11,8 @@ const FOX_SHEET_COLUMNS: int = 7
 const FOX_SHEET_ROWS: int = 4
 
 @export var patrol_distance: float = 100.0
-@export var patrol_speed: float = 62.0
-@export var chase_speed: float = 132.0
+@export var patrol_speed: float = 72.0
+@export var chase_speed: float = 154.0
 @export var chase_range: float = 9999.0
 @export var acceleration: float = 520.0
 @export var arrival_distance: float = 52.0
@@ -23,6 +23,7 @@ const FOX_SHEET_ROWS: int = 4
 @export var damage_cooldown: float = 0.9
 @export var chase_flank_angle: float = 0.0
 @export var chase_flank_distance: float = 0.0
+@export var chase_entry_distance: float = 0.0
 @export var chase_flank_side: float = 0.0
 @export var chase_lead_distance: float = 0.0
 @export var chase_weave_strength: float = 0.0
@@ -119,15 +120,21 @@ func _get_chase_velocity() -> Vector2:
 		return away_from_player * separation_strength * push_ratio
 
 	var chase_dir_to_player: Vector2 = to_player / player_dist
-	var side_sign: float = chase_flank_side
-	if abs(side_sign) <= 0.01:
-		side_sign = 1.0 if cos(chase_flank_angle) >= 0.0 else -1.0
-	var tangent := Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * side_sign
 	var offset_scale: float = clamp((player_dist - arrival_distance) / 180.0, 0.0, 1.0)
 	var weave: float = sin(Time.get_ticks_msec() * 0.0035 + chase_weave_phase) * chase_weave_strength
-	var flank_offset: Vector2 = tangent * (chase_flank_distance + weave) * offset_scale
+	var flank_direction: Vector2 = Vector2.RIGHT.rotated(chase_flank_angle)
+	if chase_flank_distance <= 0.01:
+		var side_sign: float = chase_flank_side
+		if abs(side_sign) <= 0.01:
+			side_sign = 1.0
+		flank_direction = Vector2(-chase_dir_to_player.y, chase_dir_to_player.x) * side_sign
+	flank_direction = flank_direction.normalized()
+	var flank_offset: Vector2 = flank_direction * (chase_flank_distance + weave) * offset_scale
+	var entry_scale: float = clamp((player_dist - chase_flank_distance) / 220.0, 0.0, 1.0)
+	var entry_direction: Vector2 = flank_direction.rotated(PI * 0.5)
+	var entry_offset: Vector2 = entry_direction * chase_entry_distance * entry_scale
 	var lead_offset: Vector2 = chase_dir_to_player * chase_lead_distance * offset_scale
-	var target_position := _player.global_position + flank_offset + lead_offset
+	var target_position: Vector2 = _player.global_position + flank_offset + entry_offset + lead_offset
 	var to_target: Vector2 = target_position - global_position
 	var target_dist: float = to_target.length()
 	if target_dist <= 0.001:
