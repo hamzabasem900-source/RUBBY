@@ -36,14 +36,13 @@ func load_settings() -> void:
 		return
 	for key in DEFAULT_SETTINGS.keys():
 		values[key] = config.get_value(SECTION, key, DEFAULT_SETTINGS[key])
-	_sanitize_removed_settings()
+	_sanitize_settings()
 
-func _sanitize_removed_settings() -> void:
-	# English, mute, and fullscreen controls are no longer exposed in Settings.
-	# Keep saved legacy values from reintroducing them into the visible UI.
-	values["language"] = "العربية"
-	values["mute_audio"] = false
-	values["fullscreen"] = false
+func _sanitize_settings() -> void:
+	if not ["العربية", "English"].has(str(values["language"])):
+		values["language"] = str(DEFAULT_SETTINGS["language"])
+	if not ["1024 x 720", "1280 x 720", "1600 x 900", "1920 x 1080"].has(str(values["resolution"])):
+		values["resolution"] = str(DEFAULT_SETTINGS["resolution"])
 
 func save_settings() -> void:
 	var config := ConfigFile.new()
@@ -55,7 +54,7 @@ func save_settings() -> void:
 
 func reset_to_defaults() -> void:
 	values = DEFAULT_SETTINGS.duplicate(true)
-	_sanitize_removed_settings()
+	_sanitize_settings()
 	apply_all()
 	save_settings()
 	settings_changed.emit()
@@ -67,7 +66,7 @@ func set_setting(key: String, value: Variant, save_now: bool = true) -> void:
 		return
 	var old_language := str(values["language"])
 	values[key] = value
-	_sanitize_removed_settings()
+	_sanitize_settings()
 	apply_all()
 	if save_now:
 		save_settings()
@@ -88,10 +87,10 @@ func apply_window_settings() -> void:
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
-	# Fullscreen is no longer user-facing, so every resolution selection must
-	# apply as an actual window size immediately.
-	values["fullscreen"] = false
-	_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
+	if bool(values["fullscreen"]):
+		_apply_fullscreen_window()
+	else:
+		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
 
 func _apply_fullscreen_window() -> void:
 	var screen_size := DisplayServer.screen_get_size()
