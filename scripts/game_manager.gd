@@ -26,7 +26,7 @@ var owned_skins: Array[String] = ["white_bunny", "brown_bunny", "dune_hare", "sn
 
 var level_configs: Array = [
 	{
-		"level": 1, "time_limit": 150.0, "lives": 3,
+		"level": 1, "time_limit": 120.0, "lives": 3,
 		"required_score": 300, "fox_count": 2,
 		"hole_count": 4, "thorn_count": 4,
 		"carrot_count": 12, "golden_carrot_count": 2,
@@ -35,7 +35,7 @@ var level_configs: Array = [
 		"carrot_respawn_delay": 3.0
 	},
 	{
-		"level": 2, "time_limit": 135.0, "lives": 3,
+		"level": 2, "time_limit": 100.0, "lives": 3,
 		"required_score": 330, "fox_count": 3,
 		"hole_count": 6, "thorn_count": 7,
 		"carrot_count": 24, "golden_carrot_count": 4,
@@ -43,7 +43,7 @@ var level_configs: Array = [
 		"fox_min_dist": 112.0
 	},
 	{
-		"level": 3, "time_limit": 120.0, "lives": 2,
+		"level": 3, "time_limit": 80.0, "lives": 2,
 		"required_score": 370, "fox_count": 4,
 		"hole_count": 8, "thorn_count": 10,
 		"carrot_count": 25, "golden_carrot_count": 6,
@@ -363,7 +363,7 @@ func reset_game() -> void:
 	carrot_wallet      = 0
 	level_carrots_earned = 0
 	last_banked_carrots = 0
-	time_remaining     = 70.0
+	time_remaining     = 120.0
 	timer_running      = false
 	_level_won_emitted = false
 	_gameover_emitted  = false

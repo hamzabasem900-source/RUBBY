@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"sfx_volume": 0.85,
 	"mute_audio": false,
 	"language": "العربية",
-	"fullscreen": false,
+	"fullscreen": true,
 	"resolution": "1280 x 720",
 	"difficulty": "Normal"
 }
@@ -39,11 +39,11 @@ func load_settings() -> void:
 	_sanitize_removed_settings()
 
 func _sanitize_removed_settings() -> void:
-	# English, mute, and fullscreen controls are no longer exposed in Settings.
-	# Keep saved legacy values from reintroducing them into the visible UI.
+	# Keep the game locked to Arabic and fullscreen even if old saved
+	# settings contain legacy English/windowed values.
 	values["language"] = "العربية"
 	values["mute_audio"] = false
-	values["fullscreen"] = false
+	values["fullscreen"] = true
 
 func save_settings() -> void:
 	var config := ConfigFile.new()
@@ -88,10 +88,8 @@ func apply_window_settings() -> void:
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
-	# Fullscreen is no longer user-facing, so every resolution selection must
-	# apply as an actual window size immediately.
-	values["fullscreen"] = false
-	_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
+	values["fullscreen"] = true
+	_apply_fullscreen_window()
 
 func _apply_fullscreen_window() -> void:
 	var screen_size := DisplayServer.screen_get_size()
