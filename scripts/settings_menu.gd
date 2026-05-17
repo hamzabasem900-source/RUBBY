@@ -1,10 +1,8 @@
 extends Control
 
-# =============================================
-# Settings Menu
-# A polished settings dashboard with live-save controls.
-# =============================================
+# يبني شاشة الاعدادات ويحدث القيم مباشرة عند تعديلها
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var _labels: Array[Label] = []
 var _value_labels: Dictionary = {}
 var _language_options: OptionButton
@@ -14,19 +12,23 @@ var _option_buttons: Dictionary = {}
 var _preview_label: Label
 var _action_buttons: Array[Button] = []
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_build_interface()
 	SettingsManager.apply_wooden_buttons(self)
 	SettingsManager.language_changed.connect(_refresh_language)
 
+# يلتقط ضغطات اللاعب العامة ويرسلها للاجراء المناسب
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
 		_on_back_pressed()
 
+# يتحقق هل الادخال هو زر الرجوع او الايقاف
 func _is_escape_key(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
+# يبني كل عناصر واجهة الاعدادات برمجيا
 func _build_interface() -> void:
 	var background := ColorRect.new()
 	background.color = Color(0.10, 0.30, 0.13, 1.0)
@@ -119,6 +121,7 @@ func _build_interface() -> void:
 	back_btn.pressed.connect(_on_back_pressed)
 	actions.add_child(back_btn)
 
+# ينشئ بطاقة اعدادات تحتوي على عنوان وصفوف
 func _create_card(title_key: String, rows: Array) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(446, 220)
@@ -149,6 +152,7 @@ func _create_card(title_key: String, rows: Array) -> PanelContainer:
 		box.add_child(row)
 	return panel
 
+# ينشئ صف منزلق لقيمة رقمية مثل الصوت
 func _create_slider_row(label_key: String, setting_key: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -178,6 +182,7 @@ func _create_slider_row(label_key: String, setting_key: String) -> HBoxContainer
 	_value_labels[setting_key] = value_label
 	return row
 
+# ينشئ صف اختيار لقيمة تعمل او تتوقف
 func _create_check_row(label_key: String, setting_key: String) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -195,6 +200,7 @@ func _create_check_row(label_key: String, setting_key: String) -> HBoxContainer:
 	row.add_child(toggle)
 	return row
 
+# ينشئ صف قائمة اختيارات مثل اللغة والدقة
 func _create_option_row(label_key: String, setting_key: String, options: Array[String]) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -223,6 +229,7 @@ func _create_option_row(label_key: String, setting_key: String, options: Array[S
 		_resolution_options = option
 	return row
 
+# ينشئ عنوانا موحدا لصف الاعدادات
 func _create_row_label(label_key: String) -> Label:
 	var label := Label.new()
 	label.name = label_key + "Label"
@@ -234,6 +241,7 @@ func _create_row_label(label_key: String) -> Label:
 	_labels.append(label)
 	return label
 
+# ينشئ بطاقة معاينة تعرض اثر الاعدادات
 func _create_preview_card() -> PanelContainer:
 	var panel := _create_card("preview", [])
 	_preview_label = Label.new()
@@ -245,6 +253,7 @@ func _create_preview_card() -> PanelContainer:
 	_update_preview()
 	return panel
 
+# ينشئ زر اجراء في اسفل شاشة الاعدادات
 func _create_action_button(text_key: String, font_color: Color) -> Button:
 	var button := Button.new()
 	button.name = text_key + "Button"
@@ -255,10 +264,12 @@ func _create_action_button(text_key: String, font_color: Color) -> Button:
 	_action_buttons.append(button)
 	return button
 
+# يحدث النص الذي يعرض قيمة منزلق معين
 func _update_value_label(key: String, text: String) -> void:
 	if _value_labels.has(key):
 		_value_labels[key].text = text
 
+# يحدث معاينة الشكل او الاعدادات حسب الاختيار الحالي
 func _update_preview() -> void:
 	if _preview_label == null:
 		return
@@ -268,6 +279,7 @@ func _update_preview() -> void:
 		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + "\n" + \
 		"⛶ " + SettingsManager.text("fullscreen") + ": " + SettingsManager.text("on" if bool(SettingsManager.get_setting("fullscreen")) else "off")
 
+# يعيد كتابة النصوص بعد تغيير اللغة
 func _refresh_language(_language: String) -> void:
 	for label in _labels:
 		var key := label.name.replace("Label", "").replace("Title", "")
@@ -287,11 +299,13 @@ func _refresh_language(_language: String) -> void:
 			option_button.set_item_text(index, SettingsManager.option_text(str(data["setting_key"]), str(options[index])))
 	_update_preview()
 
+# يعيد الاعدادات للقيم الافتراضية
 func _on_reset_pressed() -> void:
 	AudioManager.play_button_click()
 	SettingsManager.reset_to_defaults()
 	get_tree().reload_current_scene()
 
+# يرجع الى القائمة الرئيسية من شاشة الاعدادات
 func _on_back_pressed() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

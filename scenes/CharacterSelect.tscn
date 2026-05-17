@@ -1,3 +1,4 @@
+; مشهد اختيار شخصية الارنب قبل بدء اللعب
 [gd_scene format=3 uid="uid://c8aix76ml6pjq"]
 
 [ext_resource type="Script" uid="uid://brthq67711yaj" path="res://scripts/character_select.gd" id="1_cs"]

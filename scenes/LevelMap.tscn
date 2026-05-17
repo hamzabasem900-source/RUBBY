@@ -1,3 +1,4 @@
+; مشهد خريطة المراحل واختيار المرحلة المفتوحة
 [gd_scene format=3 uid="uid://levelmap"]
 
 [ext_resource type="Script" uid="uid://2of2uy0i3jqd" path="res://scripts/level_map.gd" id="1_lmap"]

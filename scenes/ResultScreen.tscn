@@ -1,3 +1,4 @@
+; مشهد عرض نتيجة المرحلة والنجوم
 [gd_scene format=3 uid="uid://cs2scljidehf8"]
 
 [ext_resource type="Script" uid="uid://b54cr0v17gsso" path="res://scripts/result_screen.gd" id="1_rs"]

@@ -1,10 +1,8 @@
 extends Node2D
 
-# =============================================
-# GameLevel — Main Gameplay Controller
-# Spawns objects, handles win/gameover transitions
-# =============================================
+# يدير مرحلة اللعب الرئيسية من توليد العناصر وحتى الفوز او الخسارة
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const SCENE_WIN:      String = "res://scenes/WinScreen.tscn"
 const SCENE_GAMEOVER: String = "res://scenes/GameOver.tscn"
 
@@ -13,10 +11,10 @@ const FOX_SCENE:    String = "res://scenes/Fox.tscn"
 const HOLE_SCENE:   String = "res://scenes/Hole.tscn"
 const THORN_SCENE:  String = "res://scenes/Thorn.tscn"
 
-# Safe play area (inside border walls)
 const AREA_MIN := Vector2(96.0,  105.0)
 const AREA_MAX := Vector2(928.0, 640.0)
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var transitioning: bool = false
 var _pause_layer: CanvasLayer
 var _pause_overlay: Control
@@ -29,11 +27,13 @@ var _used_spawn_positions: Array[Vector2] = []
 var _level_carrot_slots: Array[Vector2] = []
 var _level_one_spawning: bool = false
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var background: Sprite2D = $Background
 
 const DAMAGE_EFFECT_DURATION: float = 1.2
 const DAMAGE_SHAKE_STRENGTH: float = 15.0
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_base_position = position
@@ -48,9 +48,11 @@ func _ready() -> void:
 	_build_damage_effect()
 	_build_pause_menu()
 
+# يحدث حجم الخلفية عندما يتغير حجم النافذة
 func _on_viewport_size_changed() -> void:
 	_fit_background_to_viewport()
 
+# يمد الخلفية لتغطي مساحة العرض الحالية
 func _fit_background_to_viewport() -> void:
 	if background == null or background.texture == null:
 		return
@@ -62,6 +64,7 @@ func _fit_background_to_viewport() -> void:
 	background.position = viewport_size * 0.5
 	background.scale = Vector2(cover_scale, cover_scale)
 
+# يحدث المنطق المتكرر في كل اطار عادي
 func _process(delta: float) -> void:
 	if get_tree().paused:
 		return
@@ -69,6 +72,7 @@ func _process(delta: float) -> void:
 		GameManager.tick_timer(delta)
 	_update_damage_effect(delta)
 
+# يتعامل مع الادخال الذي لم تستخدمه عناصر الواجهة
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
 		if get_tree().paused and _pause_overlay != null and _pause_overlay.visible:
@@ -76,16 +80,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			_open_pause_menu()
 
+# يتحقق هل الادخال هو زر الرجوع او الايقاف
 func _is_escape_key(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
+# ينظف الاتصالات عند خروج المشهد من شجرة اللعبة
 func _exit_tree() -> void:
 	position = _base_position
 	get_tree().paused = false
 
-
-# ── Damage Feedback ──────────────────────────────────────────────────────────
-
+# ينشئ طبقة وميض الضرر فوق الشاشة
 func _build_damage_effect() -> void:
 	_damage_layer = CanvasLayer.new()
 	_damage_layer.name = "DamageLayer"
@@ -101,12 +105,14 @@ func _build_damage_effect() -> void:
 	_damage_overlay.color = Color(1.0, 0.0, 0.0, 0.0)
 	_damage_layer.add_child(_damage_overlay)
 
+# يبدأ مؤثر الضرر عند نقص القلوب
 func _on_damage_taken(_new_lives: int) -> void:
 	_damage_timer = DAMAGE_EFFECT_DURATION
 	if _damage_overlay != null:
 		_damage_overlay.visible = true
 		_damage_overlay.color = Color(1.0, 0.02, 0.0, 0.42)
 
+# يخفف وميض الضرر تدريجيا بعد الاصابة
 func _update_damage_effect(delta: float) -> void:
 	if _damage_timer <= 0.0:
 		return
@@ -123,8 +129,7 @@ func _update_damage_effect(delta: float) -> void:
 	else:
 		position = _base_position
 
-# ── Pause Menu ────────────────────────────────────────────────────────────────
-
+# يبني قائمة الايقاف المؤقت وازرارها
 func _build_pause_menu() -> void:
 	_pause_layer = CanvasLayer.new()
 	_pause_layer.name = "PauseLayer"
@@ -194,6 +199,7 @@ func _build_pause_menu() -> void:
 	box.add_child(_pause_menu_button("pause_lobby", Color(0.60, 0.84, 1.0, 1.0), _go_to_lobby))
 	box.add_child(_pause_menu_button("pause_quit", Color(1.0, 0.48, 0.48, 1.0), _quit_game))
 
+# ينشئ زر داخل قائمة الايقاف ويربطه بالاجراء المناسب
 func _pause_menu_button(text_key: String, font_color: Color, callback: Callable) -> Button:
 	var button := Button.new()
 	button.text = SettingsManager.text(text_key)
@@ -203,6 +209,7 @@ func _pause_menu_button(text_key: String, font_color: Color, callback: Callable)
 	button.pressed.connect(callback)
 	return button
 
+# ينشئ شكل اللوحة المستخدم في قائمة الايقاف
 func _panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.04, 0.16, 0.07, 0.97)
@@ -217,6 +224,7 @@ func _panel_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 28
 	return style
 
+# يفتح قائمة الايقاف ويوقف زمن اللعبة
 func _open_pause_menu() -> void:
 	if transitioning or get_tree().paused:
 		return
@@ -225,6 +233,7 @@ func _open_pause_menu() -> void:
 	_pause_overlay.visible = true
 	get_tree().paused = true
 
+# يغلق قائمة الايقاف ويعيد زمن اللعبة
 func _resume_game() -> void:
 	if _pause_overlay == null or not _pause_overlay.visible:
 		return
@@ -233,25 +242,27 @@ func _resume_game() -> void:
 	_pause_overlay.visible = false
 	_pause_button.visible = true
 
+# يعيد تشغيل المرحلة الحالية من البداية
 func _restart_level() -> void:
 	AudioManager.play_button_click()
 	get_tree().paused = false
 	GameManager.start_level(GameManager.current_level)
 	get_tree().reload_current_scene()
 
+# يرجع اللاعب الى القائمة الرئيسية
 func _go_to_lobby() -> void:
 	AudioManager.play_button_click()
 	get_tree().paused = false
 	GameManager.timer_running = false
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
+# يغلق اللعبة من زر الخروج
 func _quit_game() -> void:
 	AudioManager.play_button_click()
 	get_tree().paused = false
 	get_tree().quit()
 
-# ── Spawning ─────────────────────────────────────────────────────────────────
-
+# يولد كل عناصر المرحلة حسب الاعدادات الحالية
 func _spawn_all() -> void:
 	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
 	_used_spawn_positions.clear()
@@ -260,7 +271,6 @@ func _spawn_all() -> void:
 	if _level_one_spawning:
 		_level_carrot_slots = _build_level_one_carrot_slots()
 
-	# Keep centre clear for player start
 	_used_spawn_positions.append(Vector2(512, 380))
 
 	for _i in range(config["carrot_count"]):
@@ -278,6 +288,7 @@ func _spawn_all() -> void:
 	for fox_index in range(config["fox_count"]):
 		_spawn_fox(_used_spawn_positions, fox_index)
 
+# يبني اماكن ثابتة لجزر المرحلة الاولى لتكون سهلة الشرح
 func _build_level_one_carrot_slots() -> Array[Vector2]:
 	var slots: Array[Vector2] = []
 	var columns := [150.0, 280.0, 410.0, 540.0, 670.0, 800.0, 900.0]
@@ -289,6 +300,7 @@ func _build_level_one_carrot_slots() -> Array[Vector2]:
 	slots.shuffle()
 	return slots
 
+# يختار مكانا عشوائيا بعيدا عن العناصر الاخرى
 func _random_pos(used: Array, min_dist: float = 55.0) -> Vector2:
 	var pos := Vector2.ZERO
 	for _attempt in range(120):
@@ -306,6 +318,7 @@ func _random_pos(used: Array, min_dist: float = 55.0) -> Vector2:
 	used.append(pos)
 	return pos
 
+# يختار مكان جزرة مناسب للمرحلة الاولى
 func _level_one_carrot_pos(used: Array, min_dist: float) -> Vector2:
 	for slot in _level_carrot_slots:
 		var ok := true
@@ -318,12 +331,14 @@ func _level_one_carrot_pos(used: Array, min_dist: float) -> Vector2:
 			return slot
 	return _random_pos(used, min_dist)
 
+# يزيل مكان عنصر قديم حتى يمكن استخدامه لاحقا
 func _forget_spawn_position(pos: Vector2) -> void:
 	for index in range(_used_spawn_positions.size() - 1, -1, -1):
 		if _used_spawn_positions[index].distance_to(pos) < 4.0:
 			_used_spawn_positions.remove_at(index)
 			return
 
+# يعوض الجزرة المجمعة بجزرة جديدة عند الحاجة
 func _on_carrot_collected_for_respawn(is_golden: bool, old_position: Vector2) -> void:
 	if not _level_one_spawning or transitioning:
 		return
@@ -334,6 +349,7 @@ func _on_carrot_collected_for_respawn(is_golden: bool, old_position: Vector2) ->
 		return
 	_spawn(CARROT_SCENE, _used_spawn_positions, is_golden)
 
+# ينشئ عنصرا قابلا للجمع في مكان مناسب
 func _spawn(scene_path: String, used: Array, golden: bool) -> void:
 	if not ResourceLoader.exists(scene_path):
 		push_warning("GameLevel: scene not found — " + scene_path)
@@ -348,12 +364,13 @@ func _spawn(scene_path: String, used: Array, golden: bool) -> void:
 	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
 	var carrot_min_dist := float(config.get("carrot_min_dist", 55.0))
 	obj.global_position = _level_one_carrot_pos(used, carrot_min_dist) if _level_one_spawning else _random_pos(used, carrot_min_dist)
-	# Property setter handles the colour update
+
 	if "is_golden" in obj:
 		obj.is_golden = golden
 	if _level_one_spawning and obj.has_signal("collected_for_respawn"):
 		obj.collected_for_respawn.connect(_on_carrot_collected_for_respawn)
 
+# ينشئ عائقا في مكان امن داخل المرحلة
 func _spawn_hazard(scene_path: String, used: Array, is_hole: bool) -> void:
 	if not ResourceLoader.exists(scene_path):
 		push_warning("GameLevel: scene not found — " + scene_path)
@@ -367,10 +384,11 @@ func _spawn_hazard(scene_path: String, used: Array, is_hole: bool) -> void:
 	obj.scale = Vector2(1.18, 1.18)
 	var config: Dictionary = GameManager.get_level_config(GameManager.current_level)
 	obj.global_position = _random_pos(used, float(config.get("hazard_min_dist", 60.0)))
-	# Property setter handles the colour update
+
 	if "is_hole" in obj:
 		obj.is_hole = is_hole
 
+# ينشئ ثعلبا ويضبط مكانه وسرعته وحدود حركته
 func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if not ResourceLoader.exists(FOX_SCENE):
 		push_warning("GameLevel: Fox scene not found")
@@ -422,8 +440,7 @@ func _spawn_fox(used: Array, fox_index: int = 0) -> void:
 	if "chase_speed" in fox and GameManager.current_level == 1:
 		fox.chase_speed = 148.0 + float(fox_index % 2) * 24.0
 
-# ── Transitions ───────────────────────────────────────────────────────────────
-
+# ينقل اللاعب الى شاشة الفوز بعد حفظ التقدم
 func _on_level_won() -> void:
 	if transitioning:
 		return
@@ -435,6 +452,7 @@ func _on_level_won() -> void:
 	await get_tree().create_timer(0.9).timeout
 	get_tree().change_scene_to_file(SCENE_WIN)
 
+# ينقل اللاعب الى شاشة الخسارة عند انتهاء القلوب او الوقت
 func _on_game_over() -> void:
 	if transitioning:
 		return

@@ -1,15 +1,13 @@
 extends CharacterBody2D
 
-# =============================================
-# Fox Enemy — Patrol + Chase AI
-# The fox patrols a fixed range but switches to
-# searching for and chasing the player across the whole world.
-# =============================================
+# يتحكم في الثعلب العدو من ناحية المطاردة والدورية والحركة والاصطدام باللاعب
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const NEW_FOX_SHEET_PATH: String = "res://assets/Gemini_Generated_Image_7zbfmh7zbfmh7zbf-removebg-preview.png"
 const FOX_SHEET_COLUMNS: int = 7
 const FOX_SHEET_ROWS: int = 4
 
+# قيم قابلة للتعديل من داخل المحرر لضبط سلوك المشهد
 @export var patrol_distance: float = 100.0
 @export var patrol_speed: float = 72.0
 @export var chase_speed: float = 154.0
@@ -35,6 +33,7 @@ const FOX_SHEET_ROWS: int = 4
 @export var chase_orbit_direction: float = 1.0
 @export var move_right_first: bool = true
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var start_pos: Vector2 = Vector2.ZERO
 var dir: float = 1.0
 var _player: Node2D = null
@@ -49,10 +48,12 @@ var _use_new_fox_frames: bool = false
 var _fox_frames_base_position: Vector2 = Vector2.ZERO
 var _fox_frames_base_scale: Vector2 = Vector2.ONE
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var hurt_area: Area2D = $HurtArea
 @onready var fox_frames: AnimatedSprite2D = get_node_or_null("FoxFrames") as AnimatedSprite2D
 @onready var shadow: ColorRect = get_node_or_null("Shadow") as ColorRect
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	add_to_group("fox")
 	start_pos = global_position
@@ -68,11 +69,11 @@ func _ready() -> void:
 	if hurt_area != null:
 		hurt_area.body_entered.connect(_on_hurt_area_body_entered)
 
+# يحدث منطق الحركة والاصطدام مع كل خطوة فيزيائية
 func _physics_process(delta: float) -> void:
 	_attack_pause_timer = max(_attack_pause_timer - delta, 0.0)
 	_damage_cooldown_timer = max(_damage_cooldown_timer - delta, 0.0)
 
-	# ── Cache player reference ───────────────────────────────────────────────
 	if _player == null or not is_instance_valid(_player):
 		var group: Array = get_tree().get_nodes_in_group("player")
 		if group.size() > 0 and group[0] is Node2D:
@@ -80,9 +81,6 @@ func _physics_process(delta: float) -> void:
 		else:
 			_player = null
 
-	# ── World search / chase mode ────────────────────────────────────────────
-	# Chase the bunny, but keep a personal-space ring so foxes do not stack
-	# on top of the player and trap the physics body.
 	if _player != null and is_instance_valid(_player):
 		var chase_velocity: Vector2 = _get_chase_velocity()
 		var separation_velocity: Vector2 = _get_fox_separation_velocity()
@@ -96,7 +94,6 @@ func _physics_process(delta: float) -> void:
 		_animate_fox(delta)
 		return
 
-	# ── Fallback patrol only if the player is not available ──────────────────
 	velocity = velocity.move_toward(Vector2(dir * patrol_speed, 0.0), acceleration * delta)
 	_update_facing_from_velocity()
 	move_and_slide()
@@ -108,10 +105,12 @@ func _physics_process(delta: float) -> void:
 	elif offset < -patrol_distance and dir < 0.0:
 		dir = 1.0
 
+# يحدد اتجاه وجه الثعلب حسب سرعة الحركة
 func _update_facing_from_velocity() -> void:
 	if abs(velocity.x) > 1.0:
 		_apply_facing(velocity.x < 0.0)
 
+# يحسب سرعة مطاردة اللاعب مع تجنب الاقتراب الزائد
 func _get_chase_velocity() -> Vector2:
 	if _player == null:
 		return Vector2.ZERO
@@ -158,6 +157,7 @@ func _get_chase_velocity() -> Vector2:
 		chase_velocity = chase_velocity.lerp(orbit_velocity, orbit_ratio)
 	return chase_velocity
 
+# يضيف تباعدا بسيطا بين الثعالب حتى لا تتكدس
 func _get_fox_separation_velocity() -> Vector2:
 	var separation: Vector2 = Vector2.ZERO
 	for fox in get_tree().get_nodes_in_group("fox"):
@@ -170,6 +170,7 @@ func _get_fox_separation_velocity() -> Vector2:
 			separation += (away / dist) * separation_strength * force
 	return separation
 
+# يجهز صور الثعلب المتحركة اذا كان ملفها متاحا
 func _setup_new_fox_frames() -> void:
 	if fox_frames == null:
 		return
@@ -186,6 +187,7 @@ func _setup_new_fox_frames() -> void:
 	_use_new_fox_frames = true
 	_set_color_rect_visuals_visible(false)
 
+# يبني اطارات حركة الثعلب من لوحة الصور
 func _build_new_fox_sprite_frames() -> SpriteFrames:
 	if not ResourceLoader.exists(NEW_FOX_SHEET_PATH):
 		push_warning("Missing fox sprite sheet: " + NEW_FOX_SHEET_PATH)
@@ -203,6 +205,7 @@ func _build_new_fox_sprite_frames() -> SpriteFrames:
 	_add_fox_animation(frames, texture, cell_size, "stagger", 3, [0, 1, 2, 3, 2, 1], 10.0, false)
 	return frames
 
+# يضيف حركة جديدة للثعلب داخل مجموعة الاطارات
 func _add_fox_animation(frames: SpriteFrames, texture: Texture2D, cell_size: Vector2, animation_name: String, row: int, columns: Array, speed: float, loop: bool) -> void:
 	frames.add_animation(animation_name)
 	frames.set_animation_loop(animation_name, loop)
@@ -213,10 +216,12 @@ func _add_fox_animation(frames: SpriteFrames, texture: Texture2D, cell_size: Vec
 		atlas.region = Rect2(float(column) * cell_size.x, float(row) * cell_size.y, cell_size.x, cell_size.y)
 		frames.add_frame(animation_name, atlas, 1.0)
 
+# يظهر او يخفي الرسوم البسيطة البديلة للثعلب
 func _set_color_rect_visuals_visible(visible_value: bool) -> void:
 	for rect in _visual_rects:
 		rect.visible = visible_value
 
+# يحفظ مواقع اجزاء الثعلب حتى تتحرك مع الاتجاه الصحيح
 func _cache_visual_offsets() -> void:
 	var visual_names: Array[String] = [
 		"Tail", "TailTip", "Sprite", "Chest", "Head", "EarLeft",
@@ -233,9 +238,9 @@ func _cache_visual_offsets() -> void:
 				rect.offset_top, rect.offset_bottom
 			]
 
+# يعكس رسمة الثعلب حسب الاتجاه دون تغيير جسم الاصطدام
 func _apply_facing(face_left: bool) -> void:
-	# Keep the physics root scale positive, and mirror only decorative visuals.
-	# Negative CharacterBody2D scale causes odd movement/collisions.
+
 	scale = _base_scale
 	if _facing_left == face_left:
 		_update_frame_facing()
@@ -245,6 +250,7 @@ func _apply_facing(face_left: bool) -> void:
 	for rect in _visual_rects:
 		_position_visual_rect(rect, 0.0, 0.0)
 
+# يضبط اتجاه اطارات الثعلب المتحركة
 func _update_frame_facing() -> void:
 	if fox_frames == null:
 		return
@@ -253,6 +259,7 @@ func _update_frame_facing() -> void:
 		facing_sign = -1.0
 	fox_frames.scale = Vector2(_fox_frames_base_scale.x * facing_sign, _fox_frames_base_scale.y)
 
+# يختار طريقة تحريك الثعلب حسب الرسوم المتاحة
 func _animate_fox(delta: float) -> void:
 	var speed_ratio: float = clamp(velocity.length() / max(chase_speed, 1.0), 0.0, 1.0)
 	if speed_ratio <= 0.03:
@@ -265,6 +272,7 @@ func _animate_fox(delta: float) -> void:
 		_animate_rect_fox(speed_ratio)
 	_update_shadow(speed_ratio)
 
+# يحرك ثعلب الصور المتحركة حسب السرعة
 func _animate_frame_fox(speed_ratio: float) -> void:
 	if fox_frames == null:
 		return
@@ -289,6 +297,7 @@ func _animate_frame_fox(speed_ratio: float) -> void:
 	fox_frames.position = _fox_frames_base_position + Vector2(0.0, -bob)
 	fox_frames.rotation = lean
 
+# يحرك شكل الثعلب البسيط عند عدم وجود صور
 func _animate_rect_fox(speed_ratio: float) -> void:
 	var body_bob: float = sin(_walk_time * 2.0) * 1.6 * speed_ratio
 	var leg_stride: float = sin(_walk_time) * 5.0 * speed_ratio
@@ -309,6 +318,7 @@ func _animate_rect_fox(speed_ratio: float) -> void:
 				y_shift = body_bob - tail_sway
 		_position_visual_rect(rect, x_shift, y_shift)
 
+# يحدث ظل الثعلب مع الحركة
 func _update_shadow(speed_ratio: float) -> void:
 	if shadow == null:
 		return
@@ -316,6 +326,7 @@ func _update_shadow(speed_ratio: float) -> void:
 	shadow.scale = Vector2(1.0 + speed_ratio * 0.10 - lift * 0.06, 1.0 - lift * 0.10)
 	shadow.modulate.a = 1.0 - speed_ratio * 0.12
 
+# يضع جزءا بصريا من الثعلب في مكانه الصحيح
 func _position_visual_rect(rect: ColorRect, x_shift: float, y_shift: float) -> void:
 	var offsets: Array = _visual_offsets[rect]
 	var signed_x_shift: float = x_shift
@@ -330,6 +341,7 @@ func _position_visual_rect(rect: ColorRect, x_shift: float, y_shift: float) -> v
 	rect.offset_top = float(offsets[2]) + y_shift
 	rect.offset_bottom = float(offsets[3]) + y_shift
 
+# يسبب الضرر للاعب عند دخوله منطقة هجوم الثعلب
 func _on_hurt_area_body_entered(body: Node2D) -> void:
 	if _damage_cooldown_timer > 0.0:
 		return

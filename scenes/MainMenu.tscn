@@ -1,3 +1,4 @@
+; مشهد القائمة الرئيسية وبداية التنقل في اللعبة
 [gd_scene format=3 uid="uid://dup67efmsqwb1"]
 
 [ext_resource type="Script" uid="uid://cmlq05o7ubvvy" path="res://scripts/main_menu.gd" id="1_mainmenu"]

@@ -1,11 +1,8 @@
 extends CharacterBody2D
 
-# =============================================
-# Player — Bunny Controller
-# Controls: WASD / Arrow keys to move
-#           Space / Enter  to DASH (short speed burst, 1.2 s cooldown)
-# =============================================
+# يتحكم في الارنب اللاعب من ناحية الحركة والاندفاع والشكل وجمع الجزر وتلقي الضرر
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const SPEED:             float = 220.0
 const DASH_SPEED:        float = 540.0
 const DASH_DURATION:     float = 0.16
@@ -22,6 +19,7 @@ const LANDING_SQUASH_DURATION: float = 0.12
 const SPOTTED_BUNNY_SKIN_ID: String = "spotted_bunny"
 const SPOTTED_BUNNY_SHEET_PATH: String = "res://assets/Gemini_Generated_Image_z29tj3z29tj3z29t-removebg-preview.png"
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var invincible:      bool  = false
 var invincible_timer: float = 0.0
 
@@ -47,6 +45,7 @@ var _bunny_facing_right: bool = true
 var _use_white_bunny_frames: bool = false
 var _skin_badge: Label
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var sprite:  ColorRect = $Sprite
 @onready var ear_l:   ColorRect = $EarLeft
 @onready var ear_r:   ColorRect = $EarRight
@@ -58,9 +57,10 @@ var _skin_badge: Label
 @onready var bunny_frames: AnimatedSprite2D = $BunnyFrames
 @onready var shadow: ColorRect = $Shadow
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	add_to_group("player")
-	# Apply selected skin visuals and matching physics shape.
+
 	var skin: Dictionary = GameManager.get_selected_skin_data()
 	var col: Color = skin["body_color"]
 	var tail_col: Color = skin["tail_color"]
@@ -101,15 +101,16 @@ func _ready() -> void:
 		if _use_white_bunny_frames:
 			bunny_frames.play("idle")
 	_set_bunny_visual_transform(0.0, 0.0, 0.0, Vector2.ZERO)
-	# Connect pickup area for carrot detection
+
 	if pickup != null:
 		pickup.area_entered.connect(_on_pickup_area_entered)
 
+# يحدد هل الشخصية تستخدم اطارات صور متحركة
 func _skin_uses_sprite_frames(skin_id: String) -> bool:
-	# Use the same hand-drawn bunny sheet for every playable bunny skin, then
-	# tint it per skin so brown/dune/snow bunnies animate like the white one.
+
 	return skin_id.ends_with("_bunny") or skin_id == "dune_hare" or skin_id == "snow_scout"
 
+# يختار لون تظليل اطارات الشخصية
 func _get_sprite_frame_tint(skin: Dictionary, fallback_tint: Color) -> Color:
 	var skin_id: String = str(skin.get("id", ""))
 	if skin_id == "white_bunny":
@@ -120,6 +121,7 @@ func _get_sprite_frame_tint(skin: Dictionary, fallback_tint: Color) -> Color:
 		return skin["icon_tint"]
 	return fallback_tint
 
+# يطبق لوحة صور الشخصية المختارة على الارنب
 func _apply_sprite_sheet_for_skin(skin_id: String) -> void:
 	if bunny_frames == null:
 		return
@@ -132,6 +134,7 @@ func _apply_sprite_sheet_for_skin(skin_id: String) -> void:
 		bunny_frames.sprite_frames = spotted_frames
 		_bunny_frames_base_tint = Color(1.0, 1.0, 1.0, 1.0)
 
+# يبني اطارات حركة الارنب من لوحة الصور
 func _build_spotted_bunny_sprite_frames() -> SpriteFrames:
 	if not ResourceLoader.exists(SPOTTED_BUNNY_SHEET_PATH):
 		push_warning("Missing spotted bunny sheet: " + SPOTTED_BUNNY_SHEET_PATH)
@@ -149,6 +152,7 @@ func _build_spotted_bunny_sprite_frames() -> SpriteFrames:
 	_add_spotted_animation(frames, texture, cell_size, "hurt", [3, 2, 1, 0], 1, 10.0, false)
 	return frames
 
+# يضيف حركة جديدة للارنب داخل مجموعة الاطارات
 func _add_spotted_animation(frames: SpriteFrames, texture: Texture2D, cell_size: Vector2, animation_name: String, columns: Array, row: int, speed: float, loop: bool) -> void:
 	frames.add_animation(animation_name)
 	frames.set_animation_loop(animation_name, loop)
@@ -159,6 +163,7 @@ func _add_spotted_animation(frames: SpriteFrames, texture: Texture2D, cell_size:
 		atlas.region = Rect2(float(column) * cell_size.x, float(row) * cell_size.y, cell_size.x, cell_size.y)
 		frames.add_frame(animation_name, atlas, 1.0)
 
+# يضبط جسم التصادم حسب حجم الشخصية
 func _apply_skin_physics(skin: Dictionary) -> void:
 	if collision_shape != null and collision_shape.shape is CapsuleShape2D:
 		var body_shape: CapsuleShape2D = collision_shape.shape.duplicate() as CapsuleShape2D
@@ -170,6 +175,7 @@ func _apply_skin_physics(skin: Dictionary) -> void:
 		pickup_shape.radius = float(skin.get("pickup_radius", 34.0))
 		pickup_collision.shape = pickup_shape
 
+# يضع علامة صغيرة على الشخصية اذا كانت مطلوبة
 func _apply_skin_badge(badge: String, badge_offset: Variant) -> void:
 	if _skin_badge == null:
 		_skin_badge = Label.new()
@@ -186,8 +192,9 @@ func _apply_skin_badge(badge: String, badge_offset: Variant) -> void:
 	_skin_badge.text = badge
 	_skin_badge.visible = badge != ""
 
+# يحدث منطق الحركة والاصطدام مع كل خطوة فيزيائية
 func _physics_process(delta: float) -> void:
-	# ── Invincibility countdown + flash ──────────────────────────────────────
+
 	if invincible:
 		invincible_timer -= delta
 		if int(invincible_timer * 8) % 2 == 0:
@@ -198,7 +205,6 @@ func _physics_process(delta: float) -> void:
 			invincible  = false
 			modulate.a  = 1.0
 
-	# ── Dash cooldown tick ───────────────────────────────────────────────────
 	if _dash_cooldown > 0.0:
 		_dash_cooldown -= delta
 	if _landing_squash_timer > 0.0:
@@ -206,7 +212,6 @@ func _physics_process(delta: float) -> void:
 	if _damage_reaction_timer > 0.0:
 		_damage_reaction_timer = max(_damage_reaction_timer - delta, 0.0)
 
-	# ── Active dash movement (ignores normal input while dashing) ────────────
 	if _dashing:
 		_dash_timer -= delta
 		velocity = _dash_dir * DASH_SPEED
@@ -218,7 +223,6 @@ func _physics_process(delta: float) -> void:
 			_landing_squash_timer = LANDING_SQUASH_DURATION
 		return
 
-	# ── Read directional input ───────────────────────────────────────────────
 	var dir: Vector2 = Vector2.ZERO
 	if Input.is_action_pressed("ui_right") or Input.is_action_pressed("move_right"):
 		dir.x += 1.0
@@ -231,12 +235,10 @@ func _physics_process(delta: float) -> void:
 
 	if dir.length() > 0.0:
 		dir = dir.normalized()
-		# Keep the CharacterBody scale positive so the bunny icon, collision,
-		# and pickup area do not mirror or jitter when moving left.
+
 		scale.x = abs(scale.x)
 		_dash_dir = dir
 
-	# ── Trigger dash (Space or Enter while moving) ───────────────────────────
 	var can_dash: bool = _dash_cooldown <= 0.0 and dir.length() > 0.0
 	if Input.is_action_just_pressed("ui_accept") and can_dash:
 		_dashing = true
@@ -247,6 +249,7 @@ func _physics_process(delta: float) -> void:
 	_keep_inside_world()
 	_animate_bunny(delta, dir, false)
 
+# يحرك شكل الارنب حسب الحركة والاندفاع والضرر
 func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	if not _has_active_bunny_visual():
 		return
@@ -258,8 +261,7 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	var moving: bool = dir.length() > 0.0
 
 	if abs(dir.x) > 0.05:
-		# Face only the visual toward the last horizontal movement direction.
-		# The physics root stays positive to avoid mirrored collisions.
+
 		_bunny_facing_right = dir.x > 0.0
 
 	if _damage_reaction_timer > 0.0:
@@ -312,6 +314,7 @@ func _animate_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	else:
 		_animate_idle_bunny(delta, blend_weight)
 
+# يشغل حركة الوقوف والتنفس للارنب
 func _animate_idle_bunny(delta: float, blend_weight: float) -> void:
 	_idle_time += delta
 	_hop_time = 0.0
@@ -322,6 +325,7 @@ func _animate_idle_bunny(delta: float, blend_weight: float) -> void:
 	_lerp_bunny_visual_transform(idle_bob, idle_squash + landing_ratio * 0.34, 0.0, blend_weight, Vector2.ZERO)
 	_was_moving_last_frame = false
 
+# يشغل حركة الجري والقفز اثناء الحركة
 func _animate_moving_bunny(delta: float, dir: Vector2, dash_active: bool) -> void:
 	if not _was_moving_last_frame:
 		_landing_squash_timer = LANDING_SQUASH_DURATION * 0.55
@@ -356,6 +360,7 @@ func _animate_moving_bunny(delta: float, dir: Vector2, dash_active: bool) -> voi
 	_set_bunny_visual_transform(hop, stride_squash + landing_squash, direction_lean + vertical_lean, forward_offset)
 	_was_moving_last_frame = true
 
+# يطبق اهتزازا وتلوينا عند تلقي الضرر
 func _apply_damage_reaction(_delta: float, _dir: Vector2, weight: float) -> void:
 	var progress: float = 1.0 - (_damage_reaction_timer / DAMAGE_REACTION_DURATION)
 	var shake: float = sin(progress * PI * 10.0) * (1.0 - progress)
@@ -366,6 +371,7 @@ func _apply_damage_reaction(_delta: float, _dir: Vector2, weight: float) -> void
 	var damage_tint: Color = Color(1.0, 0.72, 0.72, 1.0)
 	_set_bunny_visual_tint(damage_tint.lerp(Color(1.0, 1.0, 1.0, 1.0), progress))
 
+# يضبط موضع وحجم ودوران رسم الارنب مباشرة
 func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: float, local_offset: Vector2) -> void:
 	var target_position: Vector2 = _get_bunny_base_position() + local_offset + Vector2(0.0, -hop)
 	var target_scale: Vector2 = _get_bunny_facing_scale(squash)
@@ -383,6 +389,7 @@ func _set_bunny_visual_transform(hop: float, squash: float, rotation_value: floa
 		_skin_badge.position = _skin_badge_base_position + local_offset + Vector2(0.0, -hop)
 		_skin_badge.rotation = rotation_value
 
+# يمزج حركة الارنب بسلاسة بين حالتين
 func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: float, weight: float, local_offset: Vector2) -> void:
 	var target_position: Vector2 = _get_bunny_base_position() + local_offset + Vector2(0.0, -hop)
 	var target_scale: Vector2 = _get_bunny_facing_scale(squash)
@@ -399,14 +406,17 @@ func _lerp_bunny_visual_transform(hop: float, squash: float, rotation_value: flo
 		_skin_badge.position = _skin_badge.position.lerp(_skin_badge_base_position + local_offset + Vector2(0.0, -hop), weight)
 		_skin_badge.rotation = lerp(_skin_badge.rotation, rotation_value, weight)
 
+# يفحص وجود رسم ارنب جاهز للعرض
 func _has_active_bunny_visual() -> bool:
 	return (_use_white_bunny_frames and bunny_frames != null) or bunny_icon != null
 
+# يرجع الموضع الاساسي لرسم الارنب
 func _get_bunny_base_position() -> Vector2:
 	if _use_white_bunny_frames:
 		return _bunny_frames_base_position
 	return _bunny_icon_base_position
 
+# يشغل حركة الارنب الابيض عند استخدام الصور
 func _play_white_bunny_animation(animation_name: String, speed_scale: float) -> void:
 	if not _use_white_bunny_frames or bunny_frames == null:
 		return
@@ -415,6 +425,7 @@ func _play_white_bunny_animation(animation_name: String, speed_scale: float) -> 
 		_current_bunny_animation = animation_name
 		bunny_frames.play(animation_name)
 
+# يحدث ظل الارنب حسب ارتفاع القفزة
 func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	if shadow == null:
 		return
@@ -422,14 +433,14 @@ func _update_shadow_for_hop(hop: float, squash: float) -> void:
 	shadow.scale = Vector2(1.0 - lift_ratio * 0.22 + squash * 0.10, 1.0 - lift_ratio * 0.18 + squash * 0.06)
 	shadow.modulate.a = 1.0 - lift_ratio * 0.32
 
+# يحسب حجم الرسم مع اتجاه الوجه الحالي
 func _get_bunny_facing_scale(squash: float) -> Vector2:
 	var base_scale: Vector2 = _bunny_icon_base_scale
 	if _use_white_bunny_frames:
 		base_scale = _bunny_frames_base_scale
 	var facing_sign: float = _get_bunny_facing_sign()
 	if not _use_white_bunny_frames:
-		# The fallback side-view rabbit glyph points left by default, so a
-		# right-facing emoji bunny must be mirrored.
+
 		if _bunny_facing_right:
 			facing_sign = -1.0
 		else:
@@ -439,25 +450,30 @@ func _get_bunny_facing_scale(squash: float) -> Vector2:
 		1.0 - squash * 0.08
 	)
 
+# يرجع اشارة الاتجاه الافقي للارنب
 func _get_bunny_facing_sign() -> float:
 	if _bunny_facing_right:
 		return 1.0
 	return -1.0
 
+# يحسب مقدار الانضغاط عند الهبوط
 func _get_landing_squash_ratio() -> float:
 	if _landing_squash_timer <= 0.0:
 		return 0.0
 	return _landing_squash_timer / LANDING_SQUASH_DURATION
 
+# يغير لون رسم الارنب حسب الحالة
 func _set_bunny_visual_tint(tint: Color) -> void:
 	if _use_white_bunny_frames and bunny_frames != null:
 		bunny_frames.modulate = _bunny_frames_base_tint * tint
 	elif bunny_icon != null:
 		bunny_icon.modulate = _bunny_icon_base_tint * tint
 
+# يمنع اللاعب من الخروج خارج حدود المرحلة
 func _keep_inside_world() -> void:
 	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
 
+# يطبق ضرر اللاعب مع حماية مؤقتة بعد الاصابة
 func take_damage() -> void:
 	if invincible:
 		return
@@ -468,6 +484,7 @@ func take_damage() -> void:
 	AudioManager.play_damage()
 	GameManager.lose_life()
 
+# يجمع الجزرة عند دخولها منطقة الالتقاط
 func _on_pickup_area_entered(area: Area2D) -> void:
 	if area.is_in_group("carrot"):
 		var points: int = area.get_points()

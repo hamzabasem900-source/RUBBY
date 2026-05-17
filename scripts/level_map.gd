@@ -1,9 +1,8 @@
 extends Control
 
-# =============================================
-# Level Map — Scenic trail level selection + locks
-# =============================================
+# يتحكم في خريطة المراحل ويعرض المراحل المفتوحة والمغلقة
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var title_label: Label = $TitleLabel
 @onready var title_shadow: Label = get_node_or_null("TitleTextShadow") as Label
 @onready var btn1: Button = $Level1Button
@@ -17,6 +16,7 @@ extends Control
 @onready var legend_label: Label = $LegendLabel
 @onready var back_btn: Button = $BackButton
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	_apply_language()
 	SettingsManager.apply_wooden_buttons(self)
@@ -26,13 +26,16 @@ func _ready() -> void:
 	back_btn.pressed.connect(_on_back)
 	_refresh_locks()
 
+# يلتقط ضغطات اللاعب العامة ويرسلها للاجراء المناسب
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
 		_on_back()
 
+# يتحقق هل الادخال هو زر الرجوع او الايقاف
 func _is_escape_key(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
+# يطبق النصوص المناسبة للغة الحالية على عناصر الواجهة
 func _apply_language() -> void:
 	title_label.text = SettingsManager.text("map_title")
 	if title_shadow != null:
@@ -46,6 +49,7 @@ func _apply_language() -> void:
 	back_btn.text = "← " + SettingsManager.text("back")
 	_update_level_info()
 
+# يشرح هذا الجزء وظيفة مساعدة داخل السكربت
 func _update_level_info() -> void:
 	var labels := [info1, info2, info3]
 	for index in range(labels.size()):
@@ -55,6 +59,7 @@ func _update_level_info() -> void:
 			hearts += "❤"
 		labels[index].text = "⏱ %d%s | %s | 🎯 %d" % [int(config["time_limit"]), SettingsManager.text("seconds_suffix"), hearts, int(config["required_score"])]
 
+# يشرح هذا الجزء وظيفة مساعدة داخل السكربت
 func _refresh_locks() -> void:
 	var u: int = GameManager.levels_unlocked
 
@@ -64,11 +69,13 @@ func _refresh_locks() -> void:
 	btn3.disabled = u < 3
 	lock3.visible = u < 3
 
+# يشرح هذا الجزء وظيفة مساعدة داخل السكربت
 func _go(level: int) -> void:
 	AudioManager.play_button_click()
 	GameManager.start_level(level)
 	get_tree().change_scene_to_file("res://scenes/GameLevel.tscn")
 
+# يرجع الى الشاشة السابقة
 func _on_back() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
