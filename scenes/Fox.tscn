@@ -1,3 +1,4 @@
+; مشهد الثعلب العدو الذي يطارد اللاعب داخل المرحلة
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/enemy_fox.gd" id="1_fox"]

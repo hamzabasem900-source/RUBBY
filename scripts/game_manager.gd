@@ -1,9 +1,8 @@
 extends Node
 
-# =============================================
-# GameManager — AutoLoad Singleton
-# =============================================
+# يحفظ حالة اللعبة العامة مثل النقاط والمستويات والقلوب والمتجر والتقدم
 
+# اشارات يرسلها هذا السكربت حتى تعرف باقي الاجزاء ان الحالة تغيرت
 signal score_changed(new_score: int)
 signal lives_changed(new_lives: int)
 signal damage_taken(new_lives: int)
@@ -14,6 +13,7 @@ signal carrot_wallet_changed(new_total: int)
 signal skin_collection_changed
 signal selected_skin_changed(skin_id: String)
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var score:              int    = 0
 var lives:              int    = 3
 var current_level:      int    = 1
@@ -57,10 +57,10 @@ var timer_running:       bool  = false
 var _level_won_emitted:  bool  = false
 var _gameover_emitted:   bool  = false
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const SAVE_PATH: String = "user://progress.cfg"
 const SAVE_SECTION: String = "progress"
 const DEFAULT_SKIN_ID: String = "white_bunny"
-
 
 const SKIN_CATALOG: Array[Dictionary] = [
 	{
@@ -125,11 +125,11 @@ const PLAYABLE_CHARACTER_OVERRIDES: Array[Dictionary] = [
 	}
 ]
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	load_progress()
 
-# ── Skins / Shop ─────────────────────────────────────────────────────────────
-
+# يرجع قائمة الشخصيات المتاحة في المتجر والاختيار
 func get_skin_catalog() -> Array[Dictionary]:
 	var unique_catalog: Array[Dictionary] = []
 	var seen_ids: Array[String] = []
@@ -141,31 +141,38 @@ func get_skin_catalog() -> Array[Dictionary]:
 		unique_catalog.append(skin.duplicate(true))
 	return unique_catalog
 
+# يرجع بيانات شخصية معينة بعد التحقق منها
 func get_skin_data(skin_id: String) -> Dictionary:
 	return _get_playable_skin_data(skin_id).duplicate(true)
 
+# يرجع بيانات الشخصية المختارة حاليا
 func get_selected_skin_data() -> Dictionary:
 	return get_skin_data(selected_character)
 
+# يجهز بيانات شخصية قابلة للعب مع قيم احتياطية
 func _get_playable_skin_data(skin_id: String) -> Dictionary:
 	for skin in PLAYABLE_CHARACTER_OVERRIDES:
 		if str(skin["id"]) == skin_id:
 			return skin
 	return _get_base_skin_data(skin_id)
 
+# يبحث عن بيانات الشخصية داخل الكتالوج
 func _get_base_skin_data(skin_id: String) -> Dictionary:
 	for skin in SKIN_CATALOG:
 		if str(skin["id"]) == skin_id:
 			return skin
 	return SKIN_CATALOG[0]
 
+# يفحص هل الشخصية مملوكة للاعب
 func is_skin_owned(skin_id: String) -> bool:
 	return owned_skins.has(skin_id)
 
+# يفحص هل يملك اللاعب جزر كافية للشراء
 func can_afford_skin(skin_id: String) -> bool:
 	var skin := _get_base_skin_data(skin_id)
 	return carrot_wallet >= int(skin.get("price", 0))
 
+# يشتري شخصية جديدة اذا توفرت الشروط
 func purchase_skin(skin_id: String) -> bool:
 	if is_skin_owned(skin_id):
 		return equip_skin(skin_id)
@@ -182,6 +189,7 @@ func purchase_skin(skin_id: String) -> bool:
 	selected_skin_changed.emit(selected_character)
 	return true
 
+# يختار شخصية مملوكة لتكون شخصية اللعب
 func equip_skin(skin_id: String) -> bool:
 	if not is_skin_owned(skin_id):
 		return false
@@ -191,6 +199,7 @@ func equip_skin(skin_id: String) -> bool:
 	selected_skin_changed.emit(selected_character)
 	return true
 
+# ينظف قائمة الشخصيات المملوكة ويحافظ على الاساسية
 func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
 	var sanitized: Array[String] = []
 	if raw_value is Array:
@@ -210,10 +219,7 @@ func _sanitize_owned_skins(raw_value: Variant) -> Array[String]:
 			sanitized.append(starter_skin)
 	return sanitized
 
-
-
-# ── Level Setup ──────────────────────────────────────────────────────────────
-
+# يجهز قيم بداية المرحلة المطلوبة
 func start_level(level_num: int) -> void:
 	current_level        = level_num
 	var config: Dictionary = get_level_config(level_num)
@@ -229,6 +235,7 @@ func start_level(level_num: int) -> void:
 	lives_changed.emit(lives)
 	time_changed.emit(time_remaining)
 
+# يرجع اعدادات المرحلة حسب رقمها
 func get_level_config(level_num: int) -> Dictionary:
 	var selected_config: Dictionary = level_configs[0]
 	for cfg in level_configs:
@@ -237,6 +244,7 @@ func get_level_config(level_num: int) -> Dictionary:
 			break
 	return _apply_difficulty(selected_config)
 
+# يعدل اعدادات المرحلة حسب مستوى الصعوبة
 func _apply_difficulty(config: Dictionary) -> Dictionary:
 	var adjusted := config.duplicate(true)
 	var difficulty := "Normal"
@@ -253,8 +261,7 @@ func _apply_difficulty(config: Dictionary) -> Dictionary:
 			adjusted["required_score"] = int(adjusted["required_score"]) + 20
 	return adjusted
 
-# ── Score ────────────────────────────────────────────────────────────────────
-
+# يضيف نقاطا وجزرا لمحفظة اللاعب
 func add_score(points: int, carrot_currency: int = 1) -> void:
 	score += points
 	level_carrots_earned += max(carrot_currency, 0)
@@ -264,8 +271,7 @@ func add_score(points: int, carrot_currency: int = 1) -> void:
 		_level_won_emitted = true
 		level_won.emit()
 
-# ── Lives ────────────────────────────────────────────────────────────────────
-
+# ينقص قلبا واحدا ويرسل اشارة التحديث
 func lose_life() -> void:
 	if _gameover_emitted or _level_won_emitted:
 		return
@@ -276,8 +282,7 @@ func lose_life() -> void:
 		_gameover_emitted = true
 		game_over.emit()
 
-# ── Timer ────────────────────────────────────────────────────────────────────
-
+# ينقص وقت المرحلة ويتعامل مع نهاية الوقت
 func tick_timer(delta: float) -> void:
 	if not timer_running:
 		return
@@ -299,8 +304,7 @@ func tick_timer(delta: float) -> void:
 	else:
 		time_changed.emit(time_remaining)
 
-# ── Progression ──────────────────────────────────────────────────────────────
-
+# يفتح المرحلة التالية عند الفوز
 func unlock_next_level() -> void:
 	var next: int = current_level + 1
 	if next > levels_unlocked and next <= level_configs.size():
@@ -308,6 +312,7 @@ func unlock_next_level() -> void:
 	bank_level_carrots()
 	save_progress()
 
+# يحفظ الجزر التي جمعها اللاعب داخل المرحلة
 func bank_level_carrots() -> void:
 	last_banked_carrots = level_carrots_earned
 	if level_carrots_earned <= 0:
@@ -316,6 +321,7 @@ func bank_level_carrots() -> void:
 	level_carrots_earned = 0
 	carrot_wallet_changed.emit(carrot_wallet)
 
+# يحمل تقدم اللاعب من ملف الحفظ
 func load_progress() -> void:
 	var config := ConfigFile.new()
 	var err := config.load(SAVE_PATH)
@@ -331,6 +337,7 @@ func load_progress() -> void:
 	skin_collection_changed.emit()
 	selected_skin_changed.emit(selected_character)
 
+# يحفظ التقدم الحالي في ملف الحفظ
 func save_progress() -> void:
 	var config := ConfigFile.new()
 	config.set_value(SAVE_SECTION, "carrot_wallet", carrot_wallet)
@@ -341,6 +348,7 @@ func save_progress() -> void:
 	if err != OK:
 		push_warning("GameManager: could not save progress file.")
 
+# يحسب عدد النجوم بناء على النتيجة الحالية
 func get_star_rating() -> int:
 	var config: Dictionary = get_level_config(current_level)
 	var req: int = config["required_score"]
@@ -351,8 +359,7 @@ func get_star_rating() -> int:
 	else:
 		return 1
 
-# ── Full Reset ───────────────────────────────────────────────────────────────
-
+# يعيد حالة اللعبة والتقدم الى البداية
 func reset_game() -> void:
 	score              = 0
 	lives              = 3

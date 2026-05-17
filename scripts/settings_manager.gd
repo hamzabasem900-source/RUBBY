@@ -1,13 +1,12 @@
 extends Node
 
-# =============================================
-# SettingsManager — AutoLoad Singleton
-# Saves player preferences and applies global presentation settings.
-# =============================================
+# يحفظ اعدادات اللاعب ويطبق اللغة والصوت وحجم النافذة وانماط الازرار
 
+# اشارات يرسلها هذا السكربت حتى تعرف باقي الاجزاء ان الحالة تغيرت
 signal settings_changed
 signal language_changed(language: String)
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const CONFIG_PATH: String = "user://settings.cfg"
 const SECTION: String = "game"
 const DESIGN_SIZE := Vector2i(1024, 720)
@@ -23,12 +22,15 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"difficulty": "Normal"
 }
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var values: Dictionary = DEFAULT_SETTINGS.duplicate(true)
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	load_settings()
 	apply_all()
 
+# يحمل الاعدادات المحفوظة من ملف المستخدم
 func load_settings() -> void:
 	var config := ConfigFile.new()
 	var err := config.load(CONFIG_PATH)
@@ -38,12 +40,14 @@ func load_settings() -> void:
 		values[key] = config.get_value(SECTION, key, DEFAULT_SETTINGS[key])
 	_sanitize_settings()
 
+# يتاكد ان كل مفاتيح الاعدادات موجودة وصحيحة
 func _sanitize_settings() -> void:
 	if not ["العربية", "English"].has(str(values["language"])):
 		values["language"] = str(DEFAULT_SETTINGS["language"])
 	if not ["1024 x 720", "1280 x 720", "1600 x 900", "1920 x 1080"].has(str(values["resolution"])):
 		values["resolution"] = str(DEFAULT_SETTINGS["resolution"])
 
+# يحفظ الاعدادات الحالية في ملف المستخدم
 func save_settings() -> void:
 	var config := ConfigFile.new()
 	for key in values.keys():
@@ -52,6 +56,7 @@ func save_settings() -> void:
 	if err != OK:
 		push_warning("SettingsManager: could not save settings file.")
 
+# يعيد الاعدادات الى قيم البداية ثم يطبقها
 func reset_to_defaults() -> void:
 	values = DEFAULT_SETTINGS.duplicate(true)
 	_sanitize_settings()
@@ -60,6 +65,7 @@ func reset_to_defaults() -> void:
 	settings_changed.emit()
 	language_changed.emit(str(values["language"]))
 
+# يغير اعدادا واحدا ويحفظه عند الحاجة
 func set_setting(key: String, value: Variant, save_now: bool = true) -> void:
 	if not DEFAULT_SETTINGS.has(key):
 		push_warning("SettingsManager: unknown setting — " + key)
@@ -74,13 +80,16 @@ func set_setting(key: String, value: Variant, save_now: bool = true) -> void:
 	if key == "language" and old_language != str(values["language"]):
 		language_changed.emit(str(values["language"]))
 
+# يرجع قيمة اعداد محدد
 func get_setting(key: String) -> Variant:
 	return values.get(key, DEFAULT_SETTINGS.get(key))
 
+# يطبق كل الاعدادات الحالية على اللعبة
 func apply_all() -> void:
 	apply_window_settings()
 	apply_audio_settings()
 
+# يطبق وضع النافذة وحجمها حسب الاختيار
 func apply_window_settings() -> void:
 	var window := get_window()
 	window.content_scale_size = DESIGN_SIZE
@@ -92,6 +101,7 @@ func apply_window_settings() -> void:
 	else:
 		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
 
+# يطبق وضع ملء الشاشة ويضبط موضع النافذة
 func _apply_fullscreen_window() -> void:
 	var screen_size := DisplayServer.screen_get_size()
 	var screen_position := DisplayServer.screen_get_position()
@@ -102,6 +112,7 @@ func _apply_fullscreen_window() -> void:
 	get_window().size = screen_size
 	call_deferred("_finish_fullscreen_apply", screen_size, screen_position)
 
+# ينهي ضبط نافذة ملء الشاشة بعد تحديث النظام
 func _finish_fullscreen_apply(screen_size: Vector2i, screen_position: Vector2i) -> void:
 	if not bool(values["fullscreen"]):
 		return
@@ -110,6 +121,7 @@ func _finish_fullscreen_apply(screen_size: Vector2i, screen_position: Vector2i) 
 	DisplayServer.window_set_size(screen_size)
 	get_window().size = screen_size
 
+# يطبق حجم النافذة العادي
 func _apply_windowed_size(size: Vector2i) -> void:
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
@@ -118,6 +130,7 @@ func _apply_windowed_size(size: Vector2i) -> void:
 	_center_window(size)
 	call_deferred("_finish_windowed_size_apply", size)
 
+# ينهي ضبط النافذة العادية بعد تغيير الحجم
 func _finish_windowed_size_apply(size: Vector2i) -> void:
 	if bool(values["fullscreen"]):
 		return
@@ -126,6 +139,7 @@ func _finish_windowed_size_apply(size: Vector2i) -> void:
 	get_window().size = size
 	_center_window(size)
 
+# يضع النافذة في وسط الشاشة
 func _center_window(size: Vector2i) -> void:
 	var screen_size := DisplayServer.screen_get_size()
 	var centered_position := Vector2i(
@@ -134,11 +148,13 @@ func _center_window(size: Vector2i) -> void:
 	)
 	DisplayServer.window_set_position(centered_position)
 
+# يطبق مستويات الصوت والكتم على قنوات الصوت
 func apply_audio_settings() -> void:
 	_set_bus_volume("Master", float(values["master_volume"]), bool(values["mute_audio"]))
 	_set_bus_volume("Music", float(values["music_volume"]), bool(values["mute_audio"]))
 	_set_bus_volume("SFX", float(values["sfx_volume"]), bool(values["mute_audio"]))
 
+# يضبط مستوى قناة صوتية واحدة
 func _set_bus_volume(bus_name: String, linear_value: float, muted: bool) -> void:
 	_ensure_audio_bus(bus_name)
 	var bus_idx := AudioServer.get_bus_index(bus_name)
@@ -147,6 +163,7 @@ func _set_bus_volume(bus_name: String, linear_value: float, muted: bool) -> void
 	AudioServer.set_bus_mute(bus_idx, muted)
 	AudioServer.set_bus_volume_db(bus_idx, linear_to_db(clamp(linear_value, 0.0, 1.0)))
 
+# يتاكد من وجود قناة صوت مطلوبة قبل استخدامها
 func _ensure_audio_bus(bus_name: String) -> void:
 	if AudioServer.get_bus_index(bus_name) != -1:
 		return
@@ -154,6 +171,7 @@ func _ensure_audio_bus(bus_name: String) -> void:
 	var idx := AudioServer.get_bus_count() - 1
 	AudioServer.set_bus_name(idx, bus_name)
 
+# يحول نص الدقة الى حجم رقمي
 func _resolution_to_vector(resolution: String) -> Vector2i:
 	match resolution:
 		"1024 x 720":
@@ -165,12 +183,14 @@ func _resolution_to_vector(resolution: String) -> Vector2i:
 		_:
 			return Vector2i(1280, 720)
 
+# يطبق شكل الازرار الخشبي على كل ازرار المشهد
 func apply_wooden_buttons(root: Node) -> void:
 	for child in root.get_children():
 		if child is Button and not (child is CheckButton):
 			style_wooden_button(child as Button)
 		apply_wooden_buttons(child)
 
+# يضبط الوان وحدود زر خشبي واحد
 func style_wooden_button(button: Button, font_color: Color = Color.WHITE) -> void:
 	button.add_theme_font_size_override("font_size", int(max(22, button.get_theme_font_size("font_size"))))
 	button.add_theme_color_override("font_color", font_color)
@@ -185,6 +205,7 @@ func style_wooden_button(button: Button, font_color: Color = Color.WHITE) -> voi
 	button.add_theme_stylebox_override("disabled", _wood_style(Color(0.36, 0.25, 0.17, 0.82), Color(0.18, 0.11, 0.07, 0.92)))
 	button.add_theme_stylebox_override("focus", _wood_focus_style())
 
+# ينشئ نمط الزر الخشبي لحالة معينة
 func _wood_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg_color
@@ -200,6 +221,7 @@ func _wood_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
 	style.content_margin_bottom = 10
 	return style
 
+# ينشئ نمط تركيز واضح للزر
 func _wood_focus_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0, 0, 0, 0)
@@ -208,6 +230,7 @@ func _wood_focus_style() -> StyleBoxFlat:
 	style.set_corner_radius_all(16)
 	return style
 
+# يرجع نصا مترجما حسب اللغة الحالية
 func text(key: String) -> String:
 	var language := str(values["language"])
 	var english := {
@@ -460,12 +483,14 @@ func text(key: String) -> String:
 		return str(arabic.get(key, english.get(key, key)))
 	return str(english.get(key, key))
 
+# يبدل القيم داخل النص المترجم قبل عرضه
 func format_text(key: String, replacements: Dictionary) -> String:
 	var formatted := text(key)
 	for token in replacements.keys():
 		formatted = formatted.replace("{" + str(token) + "}", str(replacements[token]))
 	return formatted
 
+# يرجع نص خيار اعداد معين حسب اللغة الحالية
 func option_text(setting_key: String, value: String) -> String:
 	if setting_key != "difficulty":
 		return value

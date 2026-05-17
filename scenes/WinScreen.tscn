@@ -1,3 +1,4 @@
+; مشهد الفوز الذي يظهر بعد اكمال هدف المرحلة
 [gd_scene load_steps=2 format=3 uid="uid://winscreen"]
 
 [ext_resource type="Script" path="res://scripts/win_screen.gd" id="1_win"]

@@ -1,15 +1,14 @@
 extends Control
 
-# =============================================
-# Instructions Screen
-# Card-based, friendly guide for new players.
-# =============================================
+# يبني شاشة التعليمات ويعرض شرح اللعب والنصائح حسب اللغة المختارة
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var title_label: Label = $TitleLabel
 @onready var subtitle_label: Label = $SubtitleLabel
 @onready var cards_host: MarginContainer = $CardsHost
 @onready var back_btn: Button = $BackButton
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const CARD_DATA: Array[Dictionary] = [
 	{
 		"title": "instructions_controls_title",
@@ -49,17 +48,20 @@ const CARD_DATA: Array[Dictionary] = [
 	}
 ]
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	_apply_language()
 	_build_cards()
 	SettingsManager.apply_wooden_buttons(self)
 	back_btn.pressed.connect(_on_back)
 
+# يطبق النصوص المناسبة للغة الحالية على عناصر الواجهة
 func _apply_language() -> void:
 	title_label.text = SettingsManager.text("how_to_play")
 	subtitle_label.text = SettingsManager.text("instructions_subtitle")
 	back_btn.text = "← " + SettingsManager.text("back")
 
+# يشرح هذا الجزء وظيفة مساعدة داخل السكربت
 func _build_cards() -> void:
 	for child in cards_host.get_children():
 		child.queue_free()
@@ -79,6 +81,7 @@ func _build_cards() -> void:
 	for card in CARD_DATA:
 		grid.add_child(_create_card(card))
 
+# ينشئ بطاقة اعدادات تحتوي على عنوان وصفوف
 func _create_card(card: Dictionary) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(430, 156)
@@ -136,13 +139,16 @@ func _create_card(card: Dictionary) -> PanelContainer:
 
 	return panel
 
+# يلتقط ضغطات اللاعب العامة ويرسلها للاجراء المناسب
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
 		_on_back()
 
+# يتحقق هل الادخال هو زر الرجوع او الايقاف
 func _is_escape_key(event: InputEvent) -> bool:
 	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
+# يرجع الى الشاشة السابقة
 func _on_back() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

@@ -1,3 +1,4 @@
+; مشهد الخسارة الذي يظهر عند انتهاء القلوب او الوقت
 [gd_scene load_steps=2 format=3 uid="uid://gameover"]
 
 [ext_resource type="Script" path="res://scripts/game_over.gd" id="1_go"]

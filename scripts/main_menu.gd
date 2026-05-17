@@ -1,9 +1,8 @@
 extends Control
 
-# =============================================
-# MainMenu Scene Controller
-# =============================================
+# يدير القائمة الرئيسية والمتجر ولوحة الجزر والتنقل بين المشاهد
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var start_btn:   Button = $CenterContainer/VBoxContainer/StartButton
 @onready var instr_btn:   Button = $CenterContainer/VBoxContainer/InstructionsButton
 @onready var map_btn:     Button = $CenterContainer/VBoxContainer/LevelMapButton
@@ -14,6 +13,7 @@ extends Control
 @onready var subtitle_label: Label = $SubTitle
 @onready var background: Sprite2D = $background
 
+# متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var _bounce_t: float = 0.0
 var _opening_settings: bool = false
 var _wallet_label: Label
@@ -25,6 +25,7 @@ var _shop_wallet_label: Label
 var _shop_status_label: Label
 var _skin_cards: Dictionary = {}
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	AudioManager.play_menu_music()
 	_prepare_responsive_layout()
@@ -44,6 +45,7 @@ func _ready() -> void:
 	settings_btn.pressed.connect(_on_settings)
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 
+# يربط تغييرات حجم النافذة بتحديث الخلفية
 func _prepare_responsive_layout() -> void:
 	_fit_background_to_viewport()
 	_configure_top_labels()
@@ -51,9 +53,11 @@ func _prepare_responsive_layout() -> void:
 	_configure_settings_shortcut(get_node_or_null("SettingsButton2") as Button)
 	_configure_settings_hint()
 
+# يحدث حجم الخلفية عندما يتغير حجم النافذة
 func _on_viewport_size_changed() -> void:
 	_fit_background_to_viewport()
 
+# يمد الخلفية لتغطي مساحة العرض الحالية
 func _fit_background_to_viewport() -> void:
 	if background == null or background.texture == null:
 		return
@@ -65,6 +69,7 @@ func _fit_background_to_viewport() -> void:
 	background.position = viewport_size * 0.5
 	background.scale = Vector2(cover_scale, cover_scale)
 
+# يضبط عناوين القائمة العلوية وشكلها
 func _configure_top_labels() -> void:
 	if title_label != null:
 		title_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
@@ -79,6 +84,7 @@ func _configure_top_labels() -> void:
 		subtitle_label.offset_right = -120.0
 		subtitle_label.offset_bottom = 168.0
 
+# يجهز زر الاعدادات المختصر في القائمة
 func _configure_settings_shortcut(button: Button) -> void:
 	if button == null:
 		return
@@ -88,6 +94,7 @@ func _configure_settings_shortcut(button: Button) -> void:
 	button.offset_right = -30.0
 	button.offset_bottom = 92.0
 
+# يجهز تلميح الاعدادات الذي يظهر للاعب
 func _configure_settings_hint() -> void:
 	if settings_hint == null:
 		return
@@ -102,6 +109,7 @@ func _configure_settings_hint() -> void:
 	settings_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	settings_hint.clip_text = false
 
+# يلتقط ضغطات اللاعب العامة ويرسلها للاجراء المناسب
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
@@ -109,11 +117,13 @@ func _input(event: InputEvent) -> void:
 			if settings_btn.get_global_rect().has_point(mouse_event.position):
 				open_settings()
 
+# يحدث المنطق المتكرر في كل اطار عادي
 func _process(delta: float) -> void:
 	_bounce_t += delta
 	if title_label:
 		title_label.position.y = 28.0 + sin(_bounce_t * 1.6) * 6.0
 
+# يطبق النصوص المناسبة للغة الحالية على عناصر الواجهة
 func _apply_language() -> void:
 	title_label.text = SettingsManager.text("app_title")
 	subtitle_label.text = SettingsManager.text("main_subtitle")
@@ -127,6 +137,7 @@ func _apply_language() -> void:
 		_skin_button.text = SettingsManager.text("open_skin_shop")
 	_refresh_shop_cards()
 
+# يبني لوحة عرض رصيد الجزر وزر المتجر
 func _build_reward_panel() -> void:
 	var panel := PanelContainer.new()
 	panel.name = "RewardPanel"
@@ -168,6 +179,7 @@ func _build_reward_panel() -> void:
 	_skin_button.pressed.connect(_open_shop)
 	box.add_child(_skin_button)
 
+# يبني نافذة المتجر التي تعرض الشخصيات
 func _build_shop_overlay() -> void:
 	_shop_overlay = Control.new()
 	_shop_overlay.name = "SkinShopOverlay"
@@ -253,6 +265,7 @@ func _build_shop_overlay() -> void:
 
 	SettingsManager.apply_wooden_buttons(_shop_overlay)
 
+# ينشئ بطاقة شخصية واحدة داخل المتجر
 func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	var skin_id := str(skin["id"])
 	var accent: Color = skin["body_color"]
@@ -321,6 +334,7 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	}
 	return card
 
+# ينشئ شكل لوحة المكافات
 func _reward_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.04, 0.16, 0.07, 0.58)
@@ -335,6 +349,7 @@ func _reward_panel_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 12
 	return style
 
+# ينشئ شكل لوحة المتجر
 func _shop_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.04, 0.16, 0.07, 0.97)
@@ -349,6 +364,7 @@ func _shop_panel_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 22
 	return style
 
+# ينشئ شكل بطاقة الشخصية حسب لونها
 func _skin_card_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.08, 0.23, 0.10, 0.95)
@@ -361,6 +377,7 @@ func _skin_card_style(accent: Color) -> StyleBoxFlat:
 	style.content_margin_bottom = 14
 	return style
 
+# ينشئ شكل ايقونة الشخصية داخل البطاقة
 func _skin_icon_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = accent.darkened(0.15)
@@ -369,21 +386,26 @@ func _skin_icon_style(accent: Color) -> StyleBoxFlat:
 	style.set_corner_radius_all(18)
 	return style
 
+# يختار رمز العرض المناسب للشخصية
 func _skin_icon_text(skin: Dictionary) -> String:
 	var badge := str(skin.get("badge", ""))
 	return str(skin["icon"]) if badge == "" else str(skin["icon"]) + " " + badge
 
+# يحدد حجم خط رمز الشخصية في البطاقة
 func _skin_preview_font_size(skin: Dictionary) -> int:
 	return int(clampf(42.0 * float(skin.get("visual_scale", 1.0)), 34.0, 50.0))
 
+# يحدث لوحة الرصيد عند تغير عدد الجزر
 func _on_wallet_changed(total: int) -> void:
 	_update_reward_panel(total)
 	_refresh_shop_cards()
 
+# يحدث بطاقات المتجر عند تغيير الشخصية المختارة
 func _on_selected_skin_changed(_skin_id: String) -> void:
 	_update_reward_panel(GameManager.carrot_wallet)
 	_refresh_shop_cards()
 
+# يحدث نص رصيد الجزر في القائمة
 func _update_reward_panel(total_carrots: int) -> void:
 	var skin := GameManager.get_selected_skin_data()
 	var skin_icon := _skin_icon_text(skin)
@@ -403,16 +425,19 @@ func _update_reward_panel(total_carrots: int) -> void:
 	if _shop_wallet_label != null:
 		_shop_wallet_label.text = SettingsManager.format_text("carrot_wallet", {"count": total_carrots})
 
+# يفتح نافذة المتجر ويحدث بطاقاتها
 func _open_shop() -> void:
 	AudioManager.play_button_click()
 	_shop_status_label.text = SettingsManager.text("skin_shop_hint")
 	_shop_overlay.visible = true
 	_refresh_shop_cards()
 
+# يغلق نافذة المتجر
 func _close_shop() -> void:
 	AudioManager.play_button_click()
 	_shop_overlay.visible = false
 
+# ينفذ شراء او اختيار الشخصية عند ضغط بطاقتها
 func _on_skin_action_pressed(skin_id: String) -> void:
 	AudioManager.play_button_click()
 	if GameManager.is_skin_owned(skin_id):
@@ -424,6 +449,7 @@ func _on_skin_action_pressed(skin_id: String) -> void:
 		_shop_status_label.text = SettingsManager.text("skin_not_enough")
 	_refresh_shop_cards()
 
+# يعيد بناء بطاقات المتجر حسب الحالة الحالية
 func _refresh_shop_cards() -> void:
 	_update_reward_panel(GameManager.carrot_wallet)
 	for skin in GameManager.get_skin_catalog():
@@ -455,6 +481,7 @@ func _refresh_shop_cards() -> void:
 		else:
 			button.text = SettingsManager.text("skin_buy")
 
+# يضبط حجم نص تلميح الاعدادات حسب اللغة
 func _apply_settings_hint_language_fit() -> void:
 	if settings_hint == null:
 		return
@@ -468,21 +495,26 @@ func _apply_settings_hint_language_fit() -> void:
 		settings_hint.language = ""
 		settings_hint.add_theme_font_size_override("font_size", 16)
 
+# يبدأ اللعب من شاشة اختيار الشخصية
 func _on_start() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/LevelMap.tscn")
 
+# يفتح شاشة التعليمات
 func _on_instructions() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/Instructions.tscn")
 
+# يفتح خريطة المراحل
 func _on_level_map() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/LevelMap.tscn")
 
+# يفتح شاشة الاعدادات
 func _on_settings() -> void:
 	open_settings()
 
+# يستدعي فتح شاشة الاعدادات من خارج المشهد
 func open_settings() -> void:
 	if _opening_settings:
 		return
@@ -490,6 +522,7 @@ func open_settings() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/Settings.tscn")
 
+# يغلق اللعبة من القائمة الرئيسية
 func _on_quit() -> void:
 	AudioManager.play_button_click()
 	get_tree().quit()

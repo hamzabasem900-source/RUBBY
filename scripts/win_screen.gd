@@ -1,9 +1,8 @@
 extends Control
 
-# =============================================
-# Win Screen
-# =============================================
+# يتحكم في شاشة الفوز والانتقال للمرحلة التالية او اعادة اللعب
 
+# مراجع جاهزة لعقد المشهد حتى يتم تعديل النصوص والازرار والرسوم بسرعة
 @onready var banner_label: Label = $WinBanner
 @onready var msg_label:    Label  = $CenterContainer/VBoxContainer/MessageLabel
 @onready var score_label:  Label  = $CenterContainer/VBoxContainer/ScoreLabel
@@ -11,6 +10,7 @@ extends Control
 @onready var replay_btn:   Button = $CenterContainer/VBoxContainer/ReplayButton
 @onready var menu_btn:     Button = $CenterContainer/VBoxContainer/MenuButton
 
+# قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
 const MESSAGE_KEYS: Array[String] = [
 	"win_message_1",
 	"win_message_2",
@@ -19,6 +19,7 @@ const MESSAGE_KEYS: Array[String] = [
 	"win_message_5"
 ]
 
+# يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
 	next_btn.pressed.connect(_on_next)
 	replay_btn.pressed.connect(_on_replay)
@@ -30,6 +31,7 @@ func _ready() -> void:
 		next_btn.text     = SettingsManager.text("all_levels_complete")
 		next_btn.disabled = true
 
+# يطبق النصوص المناسبة للغة الحالية على عناصر الواجهة
 func _apply_language() -> void:
 	banner_label.text = SettingsManager.text("win_banner")
 	msg_label.text = SettingsManager.text(MESSAGE_KEYS[randi() % MESSAGE_KEYS.size()])
@@ -38,6 +40,7 @@ func _apply_language() -> void:
 	replay_btn.text = SettingsManager.text("play_again")
 	menu_btn.text = SettingsManager.text("main_menu")
 
+# ينتقل الى المرحلة التالية عند توفرها
 func _on_next() -> void:
 	AudioManager.play_button_click()
 	var nxt: int = GameManager.current_level + 1
@@ -45,11 +48,13 @@ func _on_next() -> void:
 		GameManager.start_level(nxt)
 		get_tree().change_scene_to_file("res://scenes/GameLevel.tscn")
 
+# يعيد لعب المرحلة الحالية
 func _on_replay() -> void:
 	AudioManager.play_button_click()
 	GameManager.start_level(GameManager.current_level)
 	get_tree().change_scene_to_file("res://scenes/GameLevel.tscn")
 
+# يرجع الى القائمة الرئيسية
 func _on_menu() -> void:
 	AudioManager.play_button_click()
 	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")

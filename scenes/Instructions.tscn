@@ -1,3 +1,4 @@
+; مشهد التعليمات الذي يشرح طريقة اللعب للاعب
 [gd_scene load_steps=2 format=3 uid="uid://instructions"]
 
 [ext_resource type="Script" path="res://scripts/instructions.gd" id="1_instr"]
