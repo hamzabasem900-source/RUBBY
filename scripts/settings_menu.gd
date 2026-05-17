@@ -92,10 +92,11 @@ func _build_interface() -> void:
 		_create_slider_row("master_volume", "master_volume"),
 		_create_slider_row("music_volume", "music_volume"),
 		_create_slider_row("sfx_volume", "sfx_volume"),
-		_create_option_row("language", "language", ["العربية"])
+		_create_option_row("language", "language", ["العربية", "English"])
 	]))
 
 	grid.add_child(_create_card("visuals", [
+		_create_check_row("fullscreen", "fullscreen"),
 		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"])
 	]))
 
@@ -264,7 +265,8 @@ func _update_preview() -> void:
 	_preview_label.text = "🥕 " + SettingsManager.text("language") + ": " + str(SettingsManager.get_setting("language")) + "\n" + \
 		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
 		"🎮 " + SettingsManager.text("difficulty") + ": " + SettingsManager.option_text("difficulty", str(SettingsManager.get_setting("difficulty"))) + "\n" + \
-		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution"))
+		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + "\n" + \
+		"⛶ " + SettingsManager.text("fullscreen") + ": " + SettingsManager.text("on" if bool(SettingsManager.get_setting("fullscreen")) else "off")
 
 func _refresh_language(_language: String) -> void:
 	for label in _labels:
