@@ -33,12 +33,22 @@ func _ready() -> void:
 	_on_time_changed(GameManager.time_remaining)
 	level_label.text = "🌿 " + SettingsManager.text("level") + " " + str(GameManager.current_level)
 	tip_label.text = SettingsManager.text("dash_tip")
+	_prepare_top_bar_spacing()
 	_apply_text_scale()
 	_build_dash_indicator()
 
 # يحدث مؤشر تهدئة الاندفاع في كل اطار بدون ازدحام الشاشة
 func _process(_delta: float) -> void:
 	_update_dash_indicator()
+
+# يجهز مسافات الشريط العلوي حتى تظهر القلوب كاملة
+func _prepare_top_bar_spacing() -> void:
+	var top_bar := hearts_box.get_parent() as HBoxContainer if hearts_box != null else null
+	if top_bar != null:
+		top_bar.add_theme_constant_override("separation", 12)
+	if hearts_box != null:
+		hearts_box.custom_minimum_size = Vector2(118, 44)
+		hearts_box.size_flags_horizontal = Control.SIZE_SHRINK_END
 
 # يطبق خيار تكبير وتصغير النص على عناصر HUD
 func _apply_text_scale() -> void:
@@ -53,7 +63,7 @@ func _build_dash_indicator() -> void:
 	if not bool(SettingsManager.get_setting("show_dash_hud")) or _dash_panel != null or hearts_box == null:
 		return
 	_dash_panel = PanelContainer.new()
-	_dash_panel.custom_minimum_size = Vector2(154, 48)
+	_dash_panel.custom_minimum_size = Vector2(146, 44)
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.02, 0.12, 0.10, 0.78)
 	style.border_color = Color(0.30, 0.88, 1.0, 0.86)
@@ -76,11 +86,14 @@ func _build_dash_indicator() -> void:
 	_dash_bar.min_value = 0
 	_dash_bar.max_value = 100
 	_dash_bar.show_percentage = false
-	_dash_bar.custom_minimum_size = Vector2(132, 10)
+	_dash_bar.custom_minimum_size = Vector2(124, 10)
 	box.add_child(_dash_bar)
-	var index := hearts_box.get_index()
-	hearts_box.get_parent().add_child(_dash_panel)
-	hearts_box.get_parent().move_child(_dash_panel, index)
+	add_child(_dash_panel)
+	_dash_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_dash_panel.offset_left = -176.0
+	_dash_panel.offset_top = 88.0
+	_dash_panel.offset_right = -26.0
+	_dash_panel.offset_bottom = 134.0
 
 # يحدث نص ولون شريط الاندفاع
 func _update_dash_indicator() -> void:

@@ -469,9 +469,8 @@ func _set_bunny_visual_tint(tint: Color) -> void:
 	elif bunny_icon != null:
 		bunny_icon.modulate = _bunny_icon_base_tint * tint
 
-# يمنع اللاعب من الدخول تحت شريط المعلومات مع ابقاء باقي حدود الحركة كما كانت
+# يمنع اللاعب من الدخول تحت شريط المعلومات فقط بدون اضافة حدود جانبية او سفلية
 func _keep_inside_world() -> void:
-	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
 	global_position.y = max(global_position.y, WORLD_MIN.y + _get_collision_half_height())
 
 # يرجع نصف ارتفاع جسم الارنب حتى لا يدخل جسمه داخل HUD
