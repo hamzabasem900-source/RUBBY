@@ -285,11 +285,24 @@ func _build_shop_overlay() -> void:
 	for skin in GameManager.get_skin_catalog():
 		grid.add_child(_create_skin_card(skin))
 
+	var footer := HBoxContainer.new()
+	footer.alignment = BoxContainer.ALIGNMENT_BEGIN
+	footer.add_theme_constant_override("separation", 14)
+	layout.add_child(footer)
+
+	var back_btn := Button.new()
+	back_btn.text = SettingsManager.text("back")
+	back_btn.custom_minimum_size = Vector2(150, 48)
+	back_btn.pressed.connect(_close_shop)
+	footer.add_child(back_btn)
+
 	_shop_status_label = Label.new()
+	_shop_status_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_shop_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_shop_status_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_shop_status_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 	_shop_status_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.64, 1.0))
-	layout.add_child(_shop_status_label)
+	footer.add_child(_shop_status_label)
 
 	SettingsManager.apply_wooden_buttons(_shop_overlay)
 

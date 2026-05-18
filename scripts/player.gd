@@ -469,18 +469,16 @@ func _set_bunny_visual_tint(tint: Color) -> void:
 	elif bunny_icon != null:
 		bunny_icon.modulate = _bunny_icon_base_tint * tint
 
-# يمنع اللاعب من الخروج خارج حدود المرحلة وتحت شريط المعلومات
+# يمنع اللاعب من الدخول تحت شريط المعلومات مع ابقاء باقي حدود الحركة كما كانت
 func _keep_inside_world() -> void:
-	var half_size := _get_collision_half_size()
-	var min_pos := WORLD_MIN + half_size
-	var max_pos := WORLD_MAX - half_size
-	global_position = global_position.clamp(min_pos, max_pos)
+	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
+	global_position.y = max(global_position.y, WORLD_MIN.y + _get_collision_half_height())
 
-# يرجع نصف حجم جسم الارنب حتى تبقى الحواف كلها داخل مساحة اللعب
-func _get_collision_half_size() -> Vector2:
+# يرجع نصف ارتفاع جسم الارنب حتى لا يدخل جسمه داخل HUD
+func _get_collision_half_height() -> float:
 	if collision_shape != null and collision_shape.shape is RectangleShape2D:
-		return (collision_shape.shape as RectangleShape2D).size * 0.5
-	return Vector2(18.0, 24.0)
+		return (collision_shape.shape as RectangleShape2D).size.y * 0.5
+	return 24.0
 
 # يعطي واجهة HUD حالة الاندفاع بدون ربط قوي بين المشاهد
 func get_dash_status() -> Dictionary:
