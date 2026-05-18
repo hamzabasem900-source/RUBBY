@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bc3gxc0eqoc72"
-path="res://.godot/imported/WhatsApp_Image_2026-05-12_at_4.12.01_AM-removebg-preview.png-f5a371d9e3f21672f67fdb3b8cec3288.ctex"
+uid="uid://talmbpmgfcs0"
+path="res://.godot/imported/brown_bunny_sprite_sheet.png-ec660cbe63e0954c62f176ea603db523.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/WhatsApp_Image_2026-05-12_at_4.12.01_AM-removebg-preview.png"
-dest_files=["res://.godot/imported/WhatsApp_Image_2026-05-12_at_4.12.01_AM-removebg-preview.png-f5a371d9e3f21672f67fdb3b8cec3288.ctex"]
+source_file="res://assets/images/brown_bunny_sprite_sheet.png"
+dest_files=["res://.godot/imported/brown_bunny_sprite_sheet.png-ec660cbe63e0954c62f176ea603db523.ctex"]
 
 [params]
 

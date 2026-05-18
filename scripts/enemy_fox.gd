@@ -3,7 +3,7 @@ extends CharacterBody2D
 # يتحكم في الثعلب العدو من ناحية المطاردة والدورية والحركة والاصطدام باللاعب
 
 # قيم ثابتة يستخدمها هذا السكربت اثناء التشغيل
-const NEW_FOX_SHEET_PATH: String = "res://assets/Gemini_Generated_Image_7zbfmh7zbfmh7zbf-removebg-preview.png"
+const NEW_FOX_SHEET_PATH: String = "res://assets/images/fox_sprite_sheet.png"
 const FOX_SHEET_COLUMNS: int = 7
 const FOX_SHEET_ROWS: int = 4
 

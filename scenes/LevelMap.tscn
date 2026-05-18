@@ -2,9 +2,9 @@
 [gd_scene format=3 uid="uid://levelmap"]
 
 [ext_resource type="Script" uid="uid://2of2uy0i3jqd" path="res://scripts/level_map.gd" id="1_lmap"]
-[ext_resource type="Texture2D" uid="uid://di6rm0shfvxcn" path="res://assets/Gemini_Generated_Image_ldlzhcldlzhcldlz.png" id="2_y2l36"]
-[ext_resource type="Texture2D" uid="uid://dub6q0imgilrs" path="res://assets/Screenshot_2026-05-12_040427-removebg-preview.png" id="3_he8ie"]
-[ext_resource type="Texture2D" uid="uid://bc3gxc0eqoc72" path="res://assets/WhatsApp_Image_2026-05-12_at_4.12.01_AM-removebg-preview.png" id="4_vbfs7"]
+[ext_resource type="Texture2D" uid="uid://di6rm0shfvxcn" path="res://assets/images/level_map_background.png" id="2_y2l36"]
+[ext_resource type="Texture2D" uid="uid://dub6q0imgilrs" path="res://assets/images/map_header_panel.png" id="3_he8ie"]
+[ext_resource type="Texture2D" uid="uid://bc3gxc0eqoc72" path="res://assets/images/parchment_panel.png" id="4_vbfs7"]
 
 [node name="LevelMap" type="Control" unique_id=2006392819]
 layout_mode = 3
