@@ -108,6 +108,7 @@ func _build_interface() -> void:
 		_create_check_row("show_dash_hud", "show_dash_hud")
 	]))
 
+	grid.add_child(_create_preview_card())
 
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
