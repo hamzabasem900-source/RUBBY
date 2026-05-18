@@ -6,6 +6,18 @@
 [ext_resource type="Texture2D" uid="uid://c5j25vx4s0qt2" path="res://assets/Gemini_Generated_Image_jmx22pjmx22pjmx2.png" id="2_s7260"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
 
+[sub_resource type="RectangleShape2D" id="boundary_top"]
+size = Vector2(1024, 96)
+
+[sub_resource type="RectangleShape2D" id="boundary_bottom"]
+size = Vector2(1024, 56)
+
+[sub_resource type="RectangleShape2D" id="boundary_left"]
+size = Vector2(64, 720)
+
+[sub_resource type="RectangleShape2D" id="boundary_right"]
+size = Vector2(64, 720)
+
 [node name="GameLevel" type="Node2D" unique_id=1741584425]
 script = ExtResource("1_gl")
 
@@ -130,6 +142,34 @@ offset_right = 944.0
 offset_bottom = 572.0
 theme_override_font_sizes/font_size = 34
 text = "🌻  🌸  🌼  🌷  🌹"
+
+[node name="BoundaryTop" type="StaticBody2D" parent="."]
+collision_layer = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryTop"]
+position = Vector2(512, 48)
+shape = SubResource("boundary_top")
+
+[node name="BoundaryBottom" type="StaticBody2D" parent="."]
+collision_layer = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryBottom"]
+position = Vector2(512, 748)
+shape = SubResource("boundary_bottom")
+
+[node name="BoundaryLeft" type="StaticBody2D" parent="."]
+collision_layer = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryLeft"]
+position = Vector2(-32, 360)
+shape = SubResource("boundary_left")
+
+[node name="BoundaryRight" type="StaticBody2D" parent="."]
+collision_layer = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoundaryRight"]
+position = Vector2(1056, 360)
+shape = SubResource("boundary_right")
 
 [node name="Player" parent="." unique_id=324518388 instance=ExtResource("3_player")]
 position = Vector2(512, 380)
