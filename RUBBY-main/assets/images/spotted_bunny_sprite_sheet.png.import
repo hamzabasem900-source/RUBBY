@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b3xfmre3ve663"
-path="res://.godot/imported/Gemini_Generated_Image_7zbfmh7zbfmh7zbf-removebg-preview.png-c85279a6889552f8c01cc7c3d6ece43d.ctex"
+uid="uid://talmbpmgfcs0"
+path="res://.godot/imported/spotted_bunny_sprite_sheet.png-ec660cbe63e0954c62f176ea603db523.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Gemini_Generated_Image_7zbfmh7zbfmh7zbf-removebg-preview.png"
-dest_files=["res://.godot/imported/Gemini_Generated_Image_7zbfmh7zbfmh7zbf-removebg-preview.png-c85279a6889552f8c01cc7c3d6ece43d.ctex"]
+source_file="res://assets/images/spotted_bunny_sprite_sheet.png"
+dest_files=["res://.godot/imported/spotted_bunny_sprite_sheet.png-ec660cbe63e0954c62f176ea603db523.ctex"]
 
 [params]
 
