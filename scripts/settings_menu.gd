@@ -46,7 +46,7 @@ func _build_interface() -> void:
 	title.name = "SettingsTitle"
 	title.text = "⚙  " + SettingsManager.text("settings")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 48)
+	title.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(48))
 	title.add_theme_color_override("font_color", Color.WHITE)
 	title.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	title.offset_top = 22
@@ -58,7 +58,7 @@ func _build_interface() -> void:
 	subtitle.name = "SettingsSubtitle"
 	subtitle.text = SettingsManager.text("settings_subtitle")
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 20)
+	subtitle.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(20))
 	subtitle.add_theme_color_override("font_color", Color(1, 1, 0.70, 1))
 	subtitle.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	subtitle.offset_top = 82
@@ -99,11 +99,13 @@ func _build_interface() -> void:
 
 	grid.add_child(_create_card("visuals", [
 		_create_check_row("fullscreen", "fullscreen"),
-		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"])
+		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"]),
+		_create_option_row("menu_text_size", "menu_text_size", ["Small", "Normal", "Large"])
 	]))
 
 	grid.add_child(_create_card("gameplay", [
-		_create_option_row("difficulty", "difficulty", ["Easy", "Normal", "Hard"])
+		_create_option_row("difficulty", "difficulty", ["Easy", "Normal", "Hard"]),
+		_create_check_row("show_dash_hud", "show_dash_hud")
 	]))
 
 	grid.add_child(_create_preview_card())
@@ -143,7 +145,7 @@ func _create_card(title_key: String, rows: Array) -> PanelContainer:
 	var title := Label.new()
 	title.name = title_key + "Title"
 	title.text = SettingsManager.text(title_key)
-	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(28))
 	title.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	box.add_child(title)
 	_labels.append(title)
@@ -176,7 +178,7 @@ func _create_slider_row(label_key: String, setting_key: String) -> HBoxContainer
 	var value_label := Label.new()
 	value_label.custom_minimum_size = Vector2(52, 28)
 	value_label.text = str(int(slider.value)) + "%"
-	value_label.add_theme_font_size_override("font_size", 18)
+	value_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 	value_label.add_theme_color_override("font_color", Color(1, 1, 0.75, 1))
 	row.add_child(value_label)
 	_value_labels[setting_key] = value_label
@@ -216,6 +218,9 @@ func _create_option_row(label_key: String, setting_key: String, options: Array[S
 	option.select(selected_index)
 	option.item_selected.connect(func(index: int) -> void:
 		SettingsManager.set_setting(setting_key, options[index])
+		if setting_key == "menu_text_size":
+			get_tree().reload_current_scene()
+			return
 		_update_preview()
 		if setting_key == "resolution":
 			call_deferred("_update_preview")
@@ -236,7 +241,7 @@ func _create_row_label(label_key: String) -> Label:
 	label.text = SettingsManager.text(label_key)
 	label.custom_minimum_size = Vector2(190, 30)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 	label.add_theme_color_override("font_color", Color(0.92, 0.98, 0.92, 1))
 	_labels.append(label)
 	return label
@@ -245,7 +250,7 @@ func _create_row_label(label_key: String) -> Label:
 func _create_preview_card() -> PanelContainer:
 	var panel := _create_card("preview", [])
 	_preview_label = Label.new()
-	_preview_label.add_theme_font_size_override("font_size", 22)
+	_preview_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(22))
 	_preview_label.add_theme_color_override("font_color", Color(1, 0.95, 0.72, 1))
 	_preview_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_preview_label.custom_minimum_size = Vector2(390, 130)
@@ -259,7 +264,7 @@ func _create_action_button(text_key: String, font_color: Color) -> Button:
 	button.name = text_key + "Button"
 	button.text = SettingsManager.text(text_key)
 	button.custom_minimum_size = Vector2(260, 58)
-	button.add_theme_font_size_override("font_size", 24)
+	button.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(24))
 	button.add_theme_color_override("font_color", font_color)
 	_action_buttons.append(button)
 	return button
@@ -277,6 +282,8 @@ func _update_preview() -> void:
 		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
 		"🎮 " + SettingsManager.text("difficulty") + ": " + SettingsManager.option_text("difficulty", str(SettingsManager.get_setting("difficulty"))) + "\n" + \
 		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + "\n" + \
+		"🔠 " + SettingsManager.text("menu_text_size") + ": " + SettingsManager.option_text("menu_text_size", str(SettingsManager.get_setting("menu_text_size"))) + "\n" + \
+		"💨 " + SettingsManager.text("show_dash_hud") + ": " + SettingsManager.text("on" if bool(SettingsManager.get_setting("show_dash_hud")) else "off") + "\n" + \
 		"⛶ " + SettingsManager.text("fullscreen") + ": " + SettingsManager.text("on" if bool(SettingsManager.get_setting("fullscreen")) else "off")
 
 # يعيد كتابة النصوص بعد تغيير اللغة

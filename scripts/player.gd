@@ -6,7 +6,7 @@ extends CharacterBody2D
 const SPEED:             float = 220.0
 const DASH_SPEED:        float = 540.0
 const DASH_DURATION:     float = 0.16
-const DASH_COOLDOWN:     float = 1.2
+const DASH_COOLDOWN:     float = 2.4
 const INVINCIBLE_DURATION: float = 1.5
 const WORLD_MIN: Vector2 = Vector2(32.0, 88.0)
 const WORLD_MAX: Vector2 = Vector2(992.0, 694.0)
@@ -469,9 +469,30 @@ func _set_bunny_visual_tint(tint: Color) -> void:
 	elif bunny_icon != null:
 		bunny_icon.modulate = _bunny_icon_base_tint * tint
 
-# يمنع اللاعب من الخروج خارج حدود المرحلة
+# يمنع اللاعب من الدخول تحت شريط المعلومات مع ابقاء باقي حدود الحركة كما كانت
 func _keep_inside_world() -> void:
 	global_position = global_position.clamp(WORLD_MIN, WORLD_MAX)
+	global_position.y = max(global_position.y, WORLD_MIN.y + _get_collision_half_height())
+
+# يرجع نصف ارتفاع جسم الارنب حتى لا يدخل جسمه داخل HUD
+func _get_collision_half_height() -> float:
+	if collision_shape != null and collision_shape.shape is RectangleShape2D:
+		return (collision_shape.shape as RectangleShape2D).size.y * 0.5
+	return 24.0
+
+# يعطي واجهة HUD حالة الاندفاع بدون ربط قوي بين المشاهد
+func get_dash_status() -> Dictionary:
+	var cooldown_left := max(_dash_cooldown, 0.0)
+	var progress := 1.0
+	if cooldown_left > 0.0:
+		progress = 1.0 - clamp(cooldown_left / DASH_COOLDOWN, 0.0, 1.0)
+	return {
+		"ready": cooldown_left <= 0.0 and not _dashing,
+		"cooldown_left": cooldown_left,
+		"cooldown_total": DASH_COOLDOWN,
+		"progress": progress,
+		"dashing": _dashing
+	}
 
 # يطبق ضرر اللاعب مع حماية مؤقتة بعد الاصابة
 func take_damage() -> void:
