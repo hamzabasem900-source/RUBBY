@@ -108,7 +108,6 @@ func _build_interface() -> void:
 		_create_check_row("show_dash_hud", "show_dash_hud")
 	]))
 
-	grid.add_child(_create_preview_card())
 
 	var actions := HBoxContainer.new()
 	actions.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -256,6 +255,28 @@ func _create_preview_card() -> PanelContainer:
 	_preview_label.custom_minimum_size = Vector2(390, 130)
 	panel.get_child(0).add_child(_preview_label)
 	_update_preview()
+	return panel
+
+
+# ينشئ بطاقة مقارنة قبل وبعد لحجم نصوص القوائم
+func _create_text_compare_card() -> PanelContainer:
+	var panel := _create_card("before_after", [])
+	var box := panel.get_child(0) as VBoxContainer
+	var before_label := Label.new()
+	before_label.text = SettingsManager.text("before_sample")
+	before_label.add_theme_font_size_override("font_size", 20)
+	before_label.add_theme_color_override("font_color", Color(0.78, 0.90, 0.78, 1.0))
+	box.add_child(before_label)
+	var after_label := Label.new()
+	after_label.text = SettingsManager.text("after_sample")
+	after_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(20))
+	after_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.48, 1.0))
+	box.add_child(after_label)
+	var hint := Label.new()
+	hint.text = SettingsManager.text("menu_text_size") + ": " + SettingsManager.option_text("menu_text_size", str(SettingsManager.get_setting("menu_text_size")))
+	hint.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
+	hint.add_theme_color_override("font_color", Color(0.86, 1.0, 0.84, 1.0))
+	box.add_child(hint)
 	return panel
 
 # ينشئ زر اجراء في اسفل شاشة الاعدادات
