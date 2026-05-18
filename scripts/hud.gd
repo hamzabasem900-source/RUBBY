@@ -13,6 +13,10 @@ extends CanvasLayer
 var heart_labels: Array = []
 var max_lives: int = 3
 var _last_life_tween: Tween
+var _dash_panel: PanelContainer
+var _dash_label: Label
+var _dash_bar: ProgressBar
+var _player: Node
 
 # يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
@@ -29,6 +33,87 @@ func _ready() -> void:
 	_on_time_changed(GameManager.time_remaining)
 	level_label.text = "🌿 " + SettingsManager.text("level") + " " + str(GameManager.current_level)
 	tip_label.text = SettingsManager.text("dash_tip")
+	_prepare_top_bar_spacing()
+	_apply_text_scale()
+	_build_dash_indicator()
+
+# يحدث مؤشر تهدئة الاندفاع في كل اطار بدون ازدحام الشاشة
+func _process(_delta: float) -> void:
+	_update_dash_indicator()
+
+# يجهز مسافات الشريط العلوي حتى تظهر القلوب كاملة
+func _prepare_top_bar_spacing() -> void:
+	var top_bar := hearts_box.get_parent() as HBoxContainer if hearts_box != null else null
+	if top_bar != null:
+		top_bar.add_theme_constant_override("separation", 12)
+	if hearts_box != null:
+		hearts_box.custom_minimum_size = Vector2(118, 44)
+		hearts_box.size_flags_horizontal = Control.SIZE_SHRINK_END
+
+# يطبق خيار تكبير وتصغير النص على عناصر HUD
+func _apply_text_scale() -> void:
+	for label in [score_label, time_label, level_label]:
+		if label != null:
+			label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(34))
+	if tip_label != null:
+		tip_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(22))
+
+# يبني مؤشر اندفاع صغير داخل الشريط العلوي
+func _build_dash_indicator() -> void:
+	if not bool(SettingsManager.get_setting("show_dash_hud")) or _dash_panel != null or hearts_box == null:
+		return
+	_dash_panel = PanelContainer.new()
+	_dash_panel.custom_minimum_size = Vector2(146, 44)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.02, 0.12, 0.10, 0.78)
+	style.border_color = Color(0.30, 0.88, 1.0, 0.86)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(13)
+	style.content_margin_left = 10
+	style.content_margin_right = 10
+	style.content_margin_top = 5
+	style.content_margin_bottom = 5
+	_dash_panel.add_theme_stylebox_override("panel", style)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	_dash_panel.add_child(box)
+	_dash_label = Label.new()
+	_dash_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dash_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(14))
+	_dash_label.add_theme_color_override("font_color", Color(0.86, 1.0, 1.0, 1.0))
+	box.add_child(_dash_label)
+	_dash_bar = ProgressBar.new()
+	_dash_bar.min_value = 0
+	_dash_bar.max_value = 100
+	_dash_bar.show_percentage = false
+	_dash_bar.custom_minimum_size = Vector2(124, 10)
+	box.add_child(_dash_bar)
+	add_child(_dash_panel)
+	_dash_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_dash_panel.offset_left = -176.0
+	_dash_panel.offset_top = 88.0
+	_dash_panel.offset_right = -26.0
+	_dash_panel.offset_bottom = 134.0
+
+# يحدث نص ولون شريط الاندفاع
+func _update_dash_indicator() -> void:
+	if _dash_panel == null:
+		return
+	if _player == null or not is_instance_valid(_player):
+		_player = get_tree().get_first_node_in_group("player")
+	if _player == null or not _player.has_method("get_dash_status"):
+		return
+	var status: Dictionary = _player.get_dash_status()
+	var ready := bool(status.get("ready", false))
+	var progress := float(status.get("progress", 0.0))
+	_dash_bar.value = progress * 100.0
+	if ready:
+		_dash_label.text = "💨 " + SettingsManager.text("dash_ready")
+		_dash_label.add_theme_color_override("font_color", Color(0.68, 1.0, 0.74, 1.0))
+	else:
+		var left := float(status.get("cooldown_left", 0.0))
+		_dash_label.text = SettingsManager.format_text("dash_cooling", {"time": snapped(left, 0.1)})
+		_dash_label.add_theme_color_override("font_color", Color(0.72, 0.94, 1.0, 1.0))
 
 # يشرح هذا الجزء وظيفة مساعدة داخل السكربت
 func _on_score_changed(val: int) -> void:
@@ -52,7 +137,7 @@ func _rebuild_hearts(val: int) -> void:
 	for i in range(visible_hearts):
 		var lbl := Label.new()
 		lbl.text = "❤"
-		lbl.add_theme_font_size_override("font_size", 34)
+		lbl.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(34))
 		lbl.add_theme_color_override("font_color", Color(1, 0.12, 0.18))
 		hearts_box.add_child(lbl)
 		heart_labels.append(lbl)
