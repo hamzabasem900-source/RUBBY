@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dup67efmsqwb1"]
 
 [ext_resource type="Script" uid="uid://cmlq05o7ubvvy" path="res://scripts/main_menu.gd" id="1_mainmenu"]
-[ext_resource type="Texture2D" uid="uid://c2k4cpuncfvvs" path="res://assets/Gemini_Generated_Image_xy6q7zxy6q7zxy6q.png" id="2_0ykhv"]
+[ext_resource type="Texture2D" uid="uid://c2k4cpuncfvvs" path="res://assets/images/main_menu_background.png" id="2_0ykhv"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_settings_normal"]
 bg_color = Color(0.06, 0.07, 0.06, 0.3)

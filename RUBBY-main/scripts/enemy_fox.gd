@@ -6,7 +6,7 @@ extends CharacterBody2D
 # searching for and chasing the player across the whole world.
 # =============================================
 
-const NEW_FOX_SHEET_PATH: String = "res://assets/Gemini_Generated_Image_7zbfmh7zbfmh7zbf-removebg-preview.png"
+const NEW_FOX_SHEET_PATH: String = "res://assets/images/fox_sprite_sheet.png"
 const FOX_SHEET_COLUMNS: int = 7
 const FOX_SHEET_ROWS: int = 4
 

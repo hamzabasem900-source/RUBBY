@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://btldqoiq7b3vk" path="res://scripts/game_level.gd" id="1_gl"]
 [ext_resource type="Script" uid="uid://bq6imx1wbq13f" path="res://scripts/hud.gd" id="2_hud"]
-[ext_resource type="Texture2D" uid="uid://c5j25vx4s0qt2" path="res://assets/Gemini_Generated_Image_jmx22pjmx22pjmx2.png" id="2_s7260"]
+[ext_resource type="Texture2D" uid="uid://c5j25vx4s0qt2" path="res://assets/images/game_level_background.png" id="2_s7260"]
 [ext_resource type="PackedScene" path="res://scenes/Player.tscn" id="3_player"]
 
 [sub_resource type="RectangleShape2D" id="wall_top"]
