@@ -1,0 +1,373 @@
+; مشهد الارنب اللاعب وحركته ومنطقة جمع الجزر
+[gd_scene load_steps=32 format=3]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Texture2D" path="res://assets/Gemini_Generated_Image_l7xrnml7xrnml7xr-removebg-preview.png" id="2_white_sheet"]
+
+[sub_resource type="CapsuleShape2D" id="SubResource_1"]
+height = 42.0
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="SubResource_2"]
+radius = 34.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_0"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(104, 252, 86, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_1"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(170, 252, 86, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_2"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(234, 252, 86, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_3"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(292, 252, 88, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_4"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(352, 252, 92, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_5"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(420, 252, 96, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_6"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(352, 252, 92, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_7"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(292, 252, 88, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_8"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(234, 252, 86, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_idle_9"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(170, 252, 86, 116)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_0"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(8, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_1"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(74, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_2"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(139, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_3"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(213, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_4"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(289, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_5"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(362, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hop_6"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(430, 60, 88, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_dash_0"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(15, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_dash_1"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(100, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_dash_2"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(180, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_dash_3"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(265, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_dash_4"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(345, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_dash_5"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(425, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hurt_0"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(425, 360, 96, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hurt_1"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(430, 160, 92, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hurt_2"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(365, 160, 92, 96)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_white_hurt_3"]
+atlas = ExtResource("2_white_sheet")
+region = Rect2(100, 160, 92, 96)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_white_bunny"]
+animations = [{
+"frames": [{
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_idle_0")
+}, {
+"duration": 0.90,
+"texture": SubResource("AtlasTexture_white_idle_1")
+}, {
+"duration": 0.80,
+"texture": SubResource("AtlasTexture_white_idle_2")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_idle_3")
+}, {
+"duration": 1.10,
+"texture": SubResource("AtlasTexture_white_idle_4")
+}, {
+"duration": 1.40,
+"texture": SubResource("AtlasTexture_white_idle_5")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_idle_6")
+}, {
+"duration": 0.80,
+"texture": SubResource("AtlasTexture_white_idle_7")
+}, {
+"duration": 0.90,
+"texture": SubResource("AtlasTexture_white_idle_8")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_idle_9")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 0.75,
+"texture": SubResource("AtlasTexture_white_hop_0")
+}, {
+"duration": 0.85,
+"texture": SubResource("AtlasTexture_white_hop_1")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_hop_2")
+}, {
+"duration": 1.10,
+"texture": SubResource("AtlasTexture_white_hop_3")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_hop_4")
+}, {
+"duration": 0.85,
+"texture": SubResource("AtlasTexture_white_hop_5")
+}, {
+"duration": 0.75,
+"texture": SubResource("AtlasTexture_white_hop_6")
+}],
+"loop": true,
+"name": &"hop",
+"speed": 13.0
+}, {
+"frames": [{
+"duration": 0.70,
+"texture": SubResource("AtlasTexture_white_dash_0")
+}, {
+"duration": 0.80,
+"texture": SubResource("AtlasTexture_white_dash_1")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_dash_2")
+}, {
+"duration": 0.80,
+"texture": SubResource("AtlasTexture_white_dash_3")
+}, {
+"duration": 0.90,
+"texture": SubResource("AtlasTexture_white_dash_4")
+}, {
+"duration": 0.70,
+"texture": SubResource("AtlasTexture_white_dash_5")
+}],
+"loop": true,
+"name": &"dash",
+"speed": 18.0
+}, {
+"frames": [{
+"duration": 1.20,
+"texture": SubResource("AtlasTexture_white_hurt_0")
+}, {
+"duration": 0.80,
+"texture": SubResource("AtlasTexture_white_hurt_1")
+}, {
+"duration": 0.90,
+"texture": SubResource("AtlasTexture_white_hurt_2")
+}, {
+"duration": 1.00,
+"texture": SubResource("AtlasTexture_white_hurt_3")
+}],
+"loop": false,
+"name": &"hurt",
+"speed": 10.0
+}]
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 16
+script = ExtResource("1_player")
+
+[node name="Shadow" type="ColorRect" parent="."]
+offset_left = -24.0
+offset_top = 23.0
+offset_right = 24.0
+offset_bottom = 31.0
+color = Color(0.08, 0.12, 0.06, 0.28)
+
+
+[node name="BunnyFrames" type="AnimatedSprite2D" parent="."]
+visible = false
+position = Vector2(0, -8)
+scale = Vector2(0.9, 0.9)
+sprite_frames = SubResource("SpriteFrames_white_bunny")
+animation = &"idle"
+
+[node name="BunnyIcon" type="Label" parent="."]
+layout_mode = 0
+offset_left = -39.0
+offset_top = -52.0
+offset_right = 39.0
+offset_bottom = 34.0
+theme_override_font_sizes/font_size = 58
+text = "🐇"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EarLeft" type="ColorRect" parent="."]
+visible = false
+offset_left = -20.0
+offset_top = -50.0
+offset_right = -7.0
+offset_bottom = -17.0
+color = Color(0.96, 0.96, 0.93, 1)
+
+[node name="EarRight" type="ColorRect" parent="."]
+visible = false
+offset_left = 7.0
+offset_top = -50.0
+offset_right = 20.0
+offset_bottom = -17.0
+color = Color(0.96, 0.96, 0.93, 1)
+
+[node name="InnerEarLeft" type="ColorRect" parent="."]
+visible = false
+offset_left = -16.0
+offset_top = -45.0
+offset_right = -10.0
+offset_bottom = -22.0
+color = Color(1, 0.67, 0.78, 1)
+
+[node name="InnerEarRight" type="ColorRect" parent="."]
+visible = false
+offset_left = 10.0
+offset_top = -45.0
+offset_right = 16.0
+offset_bottom = -22.0
+color = Color(1, 0.67, 0.78, 1)
+
+[node name="Sprite" type="ColorRect" parent="."]
+visible = false
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(0.96, 0.96, 0.93, 1)
+
+[node name="FacePatch" type="ColorRect" parent="."]
+visible = false
+offset_left = -17.0
+offset_top = -11.0
+offset_right = 17.0
+offset_bottom = 13.0
+color = Color(1, 1, 0.98, 1)
+
+[node name="EyeLeft" type="ColorRect" parent="."]
+visible = false
+offset_left = -12.0
+offset_top = -9.0
+offset_right = -5.0
+offset_bottom = -2.0
+color = Color(0.08, 0.04, 0.04, 1)
+
+[node name="Eye" type="ColorRect" parent="."]
+visible = false
+offset_left = 5.0
+offset_top = -9.0
+offset_right = 12.0
+offset_bottom = -2.0
+color = Color(0.08, 0.04, 0.04, 1)
+
+[node name="Nose" type="ColorRect" parent="."]
+visible = false
+offset_left = -4.0
+offset_top = 0.0
+offset_right = 4.0
+offset_bottom = 6.0
+color = Color(1, 0.45, 0.58, 1)
+
+[node name="Mouth" type="ColorRect" parent="."]
+visible = false
+offset_left = -6.0
+offset_top = 9.0
+offset_right = 6.0
+offset_bottom = 12.0
+color = Color(0.42, 0.22, 0.18, 1)
+
+[node name="PawLeft" type="ColorRect" parent="."]
+visible = false
+offset_left = -19.0
+offset_top = 13.0
+offset_right = -7.0
+offset_bottom = 25.0
+color = Color(0.9, 0.9, 0.86, 1)
+
+[node name="PawRight" type="ColorRect" parent="."]
+visible = false
+offset_left = 7.0
+offset_top = 13.0
+offset_right = 19.0
+offset_bottom = 25.0
+color = Color(0.9, 0.9, 0.86, 1)
+
+[node name="Tail" type="ColorRect" parent="."]
+visible = false
+offset_left = -32.0
+offset_top = 4.0
+offset_right = -17.0
+offset_bottom = 19.0
+color = Color(0.9, 0.9, 0.86, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("SubResource_1")
+
+[node name="PickupArea" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 8
+
+[node name="PickupCollision" type="CollisionShape2D" parent="PickupArea"]
+shape = SubResource("SubResource_2")
+
+[node name="BlinkTimer" type="Timer" parent="."]
+wait_time = 0.1
+autostart = false
