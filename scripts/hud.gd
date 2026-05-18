@@ -91,9 +91,9 @@ func _build_dash_indicator() -> void:
 	add_child(_dash_panel)
 	_dash_panel.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_dash_panel.offset_left = -176.0
-	_dash_panel.offset_top = 88.0
+	_dash_panel.offset_top = 154.0
 	_dash_panel.offset_right = -26.0
-	_dash_panel.offset_bottom = 134.0
+	_dash_panel.offset_bottom = 200.0
 
 # يحدث نص ولون شريط الاندفاع
 func _update_dash_indicator() -> void:
