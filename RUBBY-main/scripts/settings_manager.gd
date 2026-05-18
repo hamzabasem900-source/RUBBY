@@ -18,7 +18,6 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"sfx_volume": 0.85,
 	"mute_audio": false,
 	"language": "العربية",
-	"fullscreen": false,
 	"resolution": "1280 x 720",
 	"difficulty": "Normal"
 }
@@ -39,8 +38,7 @@ func load_settings() -> void:
 	_sanitize_settings()
 
 func _sanitize_settings() -> void:
-	if not ["العربية", "English"].has(str(values["language"])):
-		values["language"] = str(DEFAULT_SETTINGS["language"])
+	values["language"] = str(DEFAULT_SETTINGS["language"])
 	if not ["1024 x 720", "1280 x 720", "1600 x 900", "1920 x 1080"].has(str(values["resolution"])):
 		values["resolution"] = str(DEFAULT_SETTINGS["resolution"])
 
@@ -87,28 +85,7 @@ func apply_window_settings() -> void:
 	window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
-	if bool(values["fullscreen"]):
-		_apply_fullscreen_window()
-	else:
-		_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
-
-func _apply_fullscreen_window() -> void:
-	var screen_size := DisplayServer.screen_get_size()
-	var screen_position := DisplayServer.screen_get_position()
-	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-	DisplayServer.window_set_position(screen_position)
-	DisplayServer.window_set_size(screen_size)
-	get_window().size = screen_size
-	call_deferred("_finish_fullscreen_apply", screen_size, screen_position)
-
-func _finish_fullscreen_apply(screen_size: Vector2i, screen_position: Vector2i) -> void:
-	if not bool(values["fullscreen"]):
-		return
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
-	DisplayServer.window_set_position(screen_position)
-	DisplayServer.window_set_size(screen_size)
-	get_window().size = screen_size
+	_apply_windowed_size(_resolution_to_vector(str(values["resolution"])))
 
 func _apply_windowed_size(size: Vector2i) -> void:
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
@@ -119,8 +96,6 @@ func _apply_windowed_size(size: Vector2i) -> void:
 	call_deferred("_finish_windowed_size_apply", size)
 
 func _finish_windowed_size_apply(size: Vector2i) -> void:
-	if bool(values["fullscreen"]):
-		return
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(size)
 	get_window().size = size
@@ -209,130 +184,6 @@ func _wood_focus_style() -> StyleBoxFlat:
 	return style
 
 func text(key: String) -> String:
-	var language := str(values["language"])
-	var english := {
-		"settings": "Settings",
-		"settings_subtitle": "Tune your adventure exactly the way you like.",
-		"audio": "Audio",
-		"master_volume": "Master Volume",
-		"music_volume": "Music Volume",
-		"sfx_volume": "SFX Volume",
-		"mute_audio": "Mute all sound",
-		"language": "Language",
-		"gameplay": "Gameplay",
-		"difficulty": "Difficulty",
-		"visuals": "Display",
-		"fullscreen": "Fullscreen",
-		"resolution": "Resolution",
-		"windowed": "Windowed",
-		"reset": "Reset Defaults",
-		"back": "Back",
-		"back_to_menu": "Back to Menu",
-		"preview": "Live Preview",
-		"on": "ON",
-		"off": "OFF",
-		"app_title": "🥕 Bunny Carrot Adventure 🐰",
-		"main_subtitle": "Collect carrots, avoid foxes, dash past danger!",
-		"carrot_wallet": "🥕 {count}",
-		"open_skin_shop": "Skins",
-		"skin_shop_title": "🥕 Bunny Skin Shop",
-		"skin_shop_subtitle": "Buy bunny shapes, then equip your favorite look.",
-		"skin_shop_hint": "Collect carrots in levels, then come back to buy new bunny shapes.",
-		"skin_price": "Price: {price} 🥕",
-		"skin_owned": "Owned",
-		"skin_buy": "Buy",
-		"skin_equip": "Equip",
-		"skin_selected": "Selected",
-		"skin_not_enough": "Not enough carrots yet.",
-		"skin_bought_status": "Purchased and equipped {name}!",
-		"skin_equipped_status": "Equipped {name}.",
-		"skin_white_name": "Classic Bunny",
-		"skin_white_desc": "The original bunny look. Always ready for carrots.",
-		"skin_runner_name": "Runner Bunny",
-		"skin_runner_desc": "The earlier side-view bunny shape, ready to hop.",
-		"skin_dune_name": "Dune Hare",
-		"skin_dune_desc": "A taller desert hare with long ears, a lean body, and fast stride physics.",
-		"skin_snow_name": "Snow Scout",
-		"skin_snow_desc": "A compact white scout bunny with a rounded body and smaller collision shape.",
-		"choose_bunny": "Choose Your Bunny! 🐰",
-		"white_bunny_button": "🐰 Classic Bunny",
-		"brown_bunny_button": "🐇 Runner Bunny",
-		"select_dune_bunny_button": "🐇 Dune Hare",
-		"select_snow_bunny_button": "🐰 Snow Scout",
-		"confirm_play": "✔ Let's Go! Play!",
-		"skin_meadow_name": "Meadow Scarf",
-		"skin_meadow_desc": "A bunny outfit with a leafy scarf for garden camouflage.",
-		"skin_rose_name": "Rose Bow",
-		"skin_rose_desc": "A bunny look with a soft rose bow for spring adventures.",
-		"skin_golden_name": "Golden Vest",
-		"skin_golden_desc": "A bright golden bunny vest made for true carrot collectors.",
-		"skin_night_name": "Moon Cape",
-		"skin_night_desc": "A dark bunny cape with a moon badge for quiet night runs.",
-		"skin_tiny_name": "Tiny Mushroom Bunny",
-		"skin_tiny_desc": "A small round bunny shape with a smaller physics body for tight garden paths.",
-		"skin_lop_name": "Long-Eared Lop",
-		"skin_lop_desc": "A taller lop bunny shape with longer reach and matching collision physics.",
-		"skin_spotted_name": "Spotted Trail Bunny",
-		"skin_spotted_desc": "A premium brown-and-white bunny with its own sprite-sheet hop animation.",
-		"start_game": "▶  Start Game",
-		"instructions": "📖  Instructions",
-		"level_map": "🗺  Level Map",
-		"quit": "✖  Quit",
-		"how_to_play": "📖 How To Play",
-		"instructions_subtitle": "Quick guide cards for a safer carrot adventure.",
-		"instructions_controls_title": "Move like a pro",
-		"instructions_controls_body": "Use Arrow Keys or WASD to move. Press Space or Enter for a quick dash when danger gets close.",
-		"instructions_collect_title": "Collect carrots",
-		"instructions_collect_body": "Orange carrots give 10 points. Golden carrots give 25 points, so grab them first when it is safe.",
-		"instructions_hazards_title": "Know the hazards",
-		"instructions_hazards_body": "Foxes chase you. Burrow holes are dark dirt pits. Thorn bushes are green shrubs with pale spikes. Any hit costs 1 life.",
-		"instructions_goal_title": "Win the level",
-		"instructions_goal_body": "Reach the required score before time runs out. Collect enough carrots to unlock the next garden area.",
-		"instructions_lives_title": "Protect your lives",
-		"instructions_lives_body": "You start with the lives shown at the top of the screen. If they reach zero, the run ends.",
-		"instructions_tip_title": "Smart bunny tip",
-		"instructions_tip_body": "Plan your route around hazards, dash only when needed, and go for golden carrots when the path is clear.",
-		"instructions_body": "[b]🎮 Controls:[/b]\n  Arrow Keys or WASD — Move your bunny\n  Space or Enter — Quick dash burst\n\n[b]🥕 Collect:[/b]\n  Orange Carrot = 10 points\n  Golden Carrot = 25 points\n\n[b]⚠ Hazards:[/b]\n  🦊 Foxes — they chase the bunny and cost 1 life.\n  🕳 Burrow Holes — dark oval pits with a dirt rim; avoid stepping into them.\n  🌿 Thorn Bushes — green bushes with pale spikes; touching them costs 1 life.\n\n[b]🎯 Goal:[/b]\n  Collect enough points before the timer ends!\n  Reach the required score to win the level.\n\n[b]❤ Lives:[/b]\n  You start with 3 lives. Each hit = -1 life.\n  If lives reach 0, it's Game Over!",
-		"map_title": "Garden Adventure Map",
-		"level1_name": "🌱 1\nEasy Garden",
-		"level2_name": "🌻 2\nFox Crossing",
-		"level3_name": "🌿 3\nThorny Hill",
-		"level1_lock": "🔒 Win Level 1",
-		"level2_lock": "🔒 Win Level 2",
-		"map_legend": "Follow the trail:\nCollect carrots → unlock areas",
-		"level": "Level",
-		"seconds_suffix": "s",
-		"dash_tip": "Dash: Space / Enter",
-		"pause_button_hint": "Pause",
-		"pause_title": "⏸ Paused",
-		"pause_subtitle": "Take a breath — your bunny is safe until you resume.",
-		"pause_resume": "▶ Resume",
-		"pause_restart": "🔄 Restart Level",
-		"pause_lobby": "🏠 Back to Lobby",
-		"pause_quit": "✖ Exit Game",
-		"win_banner": "🎉 YOU WIN! 🎉",
-		"final_score": "Final Score: {score} 🥕",
-		"carrots_banked": "Saved carrots: +{count} 🥕",
-		"next_level": "➡ Next Level",
-		"play_again": "🔄 Play Again",
-		"main_menu": "🏠 Main Menu",
-		"all_levels_complete": "🎉 All Levels Complete!",
-		"win_message_1": "Amazing job! 🌟",
-		"win_message_2": "You're a carrot champion! 🥕",
-		"win_message_3": "Brilliant bunny! 🐰",
-		"win_message_4": "Wow, you're unstoppable! ⭐",
-		"win_message_5": "Super hop! Keep going! 🎉",
-		"game_over_banner": "😢 Oh No!",
-		"game_over_score": "You got: {score} points",
-		"try_again": "🔄 Try Again!",
-		"game_over_message_1": "Oops! Don't give up, little bunny! 🐰",
-		"game_over_message_2": "So close! Try again! 💪",
-		"game_over_message_3": "The carrots are waiting for you! 🥕",
-		"game_over_message_4": "You can do it! One more hop! 🌟",
-		"easy": "Easy",
-		"normal": "Normal",
-		"hard": "Hard"
-	}
 	var arabic := {
 		"settings": "الإعدادات",
 		"settings_subtitle": "غير ما تريد بسهولة.",
@@ -345,15 +196,13 @@ func text(key: String) -> String:
 		"gameplay": "اللعب",
 		"difficulty": "الصعوبة",
 		"visuals": "العرض",
-		"fullscreen": "ملء الشاشة",
 		"resolution": "الدقة",
 		"windowed": "نافذة",
 		"reset": "استعادة الافتراضي",
 		"back": "رجوع",
 		"back_to_menu": "رجوع للقائمة",
 		"preview": "معاينة مباشرة",
-		"on": "تشغيل",
-		"off": "ايقاف",
+		"level_times": "أوقات المراحل",
 		"app_title": "🥕 مغامرة الأرنب والجزر 🐰",
 		"main_subtitle": "اجمع الجزر وابتعد عن الثعالب والخطر!",
 		"carrot_wallet": "🥕 {count}",
@@ -452,13 +301,15 @@ func text(key: String) -> String:
 		"game_over_message_2": "كنت قريبا! حاول مرة أخرى! 💪",
 		"game_over_message_3": "الجزر ينتظرك! 🥕",
 		"game_over_message_4": "تستطيع الفوز! حاول مرة اخرى! 🌟",
+		"result_title": "نتيجة المرحلة",
+		"your_score": "نقاطك: {score}",
+		"time_used": "الوقت المستخدم: {time}ث",
+		"retry": "🔄 إعادة المحاولة",
 		"easy": "سهل",
 		"normal": "عادي",
 		"hard": "صعب"
 	}
-	if language == "العربية":
-		return str(arabic.get(key, english.get(key, key)))
-	return str(english.get(key, key))
+	return str(arabic.get(key, key))
 
 func format_text(key: String, replacements: Dictionary) -> String:
 	var formatted := text(key)

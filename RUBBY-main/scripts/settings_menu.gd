@@ -7,7 +7,6 @@ extends Control
 
 var _labels: Array[Label] = []
 var _value_labels: Dictionary = {}
-var _language_options: OptionButton
 var _difficulty_options: OptionButton
 var _resolution_options: OptionButton
 var _option_buttons: Dictionary = {}
@@ -91,12 +90,10 @@ func _build_interface() -> void:
 	grid.add_child(_create_card("audio", [
 		_create_slider_row("master_volume", "master_volume"),
 		_create_slider_row("music_volume", "music_volume"),
-		_create_slider_row("sfx_volume", "sfx_volume"),
-		_create_option_row("language", "language", ["العربية", "English"])
+		_create_slider_row("sfx_volume", "sfx_volume")
 	]))
 
 	grid.add_child(_create_card("visuals", [
-		_create_check_row("fullscreen", "fullscreen"),
 		_create_option_row("resolution", "resolution", ["1280 x 720", "1600 x 900", "1920 x 1080", "1024 x 720"])
 	]))
 
@@ -178,23 +175,6 @@ func _create_slider_row(label_key: String, setting_key: String) -> HBoxContainer
 	_value_labels[setting_key] = value_label
 	return row
 
-func _create_check_row(label_key: String, setting_key: String) -> HBoxContainer:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	row.add_child(_create_row_label(label_key))
-
-	var toggle := CheckButton.new()
-	toggle.button_pressed = bool(SettingsManager.get_setting(setting_key))
-	toggle.size_flags_horizontal = Control.SIZE_SHRINK_END
-	toggle.toggled.connect(func(pressed: bool) -> void:
-		SettingsManager.set_setting(setting_key, pressed)
-		_update_preview()
-		if setting_key == "fullscreen":
-			call_deferred("_update_preview")
-	)
-	row.add_child(toggle)
-	return row
-
 func _create_option_row(label_key: String, setting_key: String, options: Array[String]) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
@@ -215,9 +195,7 @@ func _create_option_row(label_key: String, setting_key: String, options: Array[S
 			call_deferred("_update_preview")
 	)
 	row.add_child(option)
-	if setting_key == "language":
-		_language_options = option
-	elif setting_key == "difficulty":
+	if setting_key == "difficulty":
 		_difficulty_options = option
 	elif setting_key == "resolution":
 		_resolution_options = option
@@ -262,11 +240,19 @@ func _update_value_label(key: String, text: String) -> void:
 func _update_preview() -> void:
 	if _preview_label == null:
 		return
-	_preview_label.text = "🥕 " + SettingsManager.text("language") + ": " + str(SettingsManager.get_setting("language")) + "\n" + \
-		"🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
+	var level_times := _get_level_times_preview()
+	_preview_label.text = "🔊 " + SettingsManager.text("master_volume") + ": " + str(int(float(SettingsManager.get_setting("master_volume")) * 100.0)) + "%\n" + \
+		"🎵 " + SettingsManager.text("music_volume") + ": " + str(int(float(SettingsManager.get_setting("music_volume")) * 100.0)) + "%\n" + \
 		"🎮 " + SettingsManager.text("difficulty") + ": " + SettingsManager.option_text("difficulty", str(SettingsManager.get_setting("difficulty"))) + "\n" + \
 		"🖥 " + SettingsManager.text("resolution") + ": " + str(SettingsManager.get_setting("resolution")) + "\n" + \
-		"⛶ " + SettingsManager.text("fullscreen") + ": " + SettingsManager.text("on" if bool(SettingsManager.get_setting("fullscreen")) else "off")
+		"⏱ " + SettingsManager.text("level_times") + ": " + level_times
+
+func _get_level_times_preview() -> String:
+	var times := PackedStringArray()
+	for level_number in range(1, 4):
+		var config: Dictionary = GameManager.get_level_config(level_number)
+		times.append(str(int(config["time_limit"])) + SettingsManager.text("seconds_suffix"))
+	return " / ".join(times)
 
 func _refresh_language(_language: String) -> void:
 	for label in _labels:

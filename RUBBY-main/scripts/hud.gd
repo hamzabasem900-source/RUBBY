@@ -12,7 +12,6 @@ extends CanvasLayer
 
 var heart_labels: Array = []
 var max_lives: int = 3
-var _last_life_tween: Tween
 
 func _ready() -> void:
 	GameManager.score_changed.connect(_on_score_changed)
@@ -42,7 +41,6 @@ func _on_lives_changed(val: int) -> void:
 func _rebuild_hearts(val: int) -> void:
 	if not hearts_box:
 		return
-	_stop_last_life_blink()
 	for child in hearts_box.get_children():
 		child.free()
 	heart_labels.clear()
@@ -54,32 +52,6 @@ func _rebuild_hearts(val: int) -> void:
 		lbl.add_theme_color_override("font_color", Color(1, 0.12, 0.18))
 		hearts_box.add_child(lbl)
 		heart_labels.append(lbl)
-	if visible_hearts == 1:
-		_start_last_life_blink(heart_labels[0])
-
-func _start_last_life_blink(heart: Label) -> void:
-	if not heart:
-		return
-	heart.pivot_offset = Vector2(heart.size.x * 0.5, heart.size.y * 0.5)
-	heart.modulate = Color(1, 1, 1, 1)
-	heart.scale = Vector2.ONE
-	_last_life_tween = create_tween()
-	_last_life_tween.set_loops()
-	_last_life_tween.set_trans(Tween.TRANS_SINE)
-	_last_life_tween.set_ease(Tween.EASE_IN_OUT)
-	_last_life_tween.tween_property(heart, "modulate:a", 0.28, 0.22)
-	_last_life_tween.parallel().tween_property(heart, "scale", Vector2(1.25, 1.25), 0.22)
-	_last_life_tween.tween_property(heart, "modulate:a", 1.0, 0.22)
-	_last_life_tween.parallel().tween_property(heart, "scale", Vector2.ONE, 0.22)
-
-func _stop_last_life_blink() -> void:
-	if _last_life_tween and _last_life_tween.is_valid():
-		_last_life_tween.kill()
-	_last_life_tween = null
-	for heart in heart_labels:
-		if heart:
-			heart.modulate = Color(1, 1, 1, 1)
-			heart.scale = Vector2.ONE
 
 func _on_time_changed(val: float) -> void:
 	if not time_label:
