@@ -111,11 +111,20 @@ func _configure_settings_hint() -> void:
 
 # يلتقط ضغطات اللاعب العامة ويرسلها للاجراء المناسب
 func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") or _is_escape_key(event):
+		if _shop_overlay != null and _shop_overlay.visible:
+			_close_shop()
+			get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			if settings_btn.get_global_rect().has_point(mouse_event.position):
 				open_settings()
+
+# يتحقق هل الادخال هو زر الرجوع او الايقاف
+func _is_escape_key(event: InputEvent) -> bool:
+	return event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE
 
 # يحدث المنطق المتكرر في كل اطار عادي
 func _process(delta: float) -> void:
@@ -135,7 +144,26 @@ func _apply_language() -> void:
 	quit_btn.text = SettingsManager.text("quit")
 	if _skin_button != null:
 		_skin_button.text = SettingsManager.text("open_skin_shop")
+	_apply_menu_text_scale()
 	_refresh_shop_cards()
+
+# يطبق حجم النص المختار على القائمة الرئيسية والمتجر
+func _apply_menu_text_scale() -> void:
+	if title_label != null:
+		title_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(54))
+	if subtitle_label != null:
+		subtitle_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(25))
+	for button in [start_btn, instr_btn, map_btn, quit_btn, settings_btn, _skin_button]:
+		if button != null:
+			button.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(24))
+	if settings_hint != null:
+		settings_hint.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(15))
+	if _wallet_label != null:
+		_wallet_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(24))
+	if _skin_name_label != null:
+		_skin_name_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
+	if _shop_status_label != null:
+		_shop_status_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 
 # يبني لوحة عرض رصيد الجزر وزر المتجر
 func _build_reward_panel() -> void:
@@ -219,13 +247,13 @@ func _build_shop_overlay() -> void:
 
 	var title := Label.new()
 	title.text = SettingsManager.text("skin_shop_title")
-	title.add_theme_font_size_override("font_size", 38)
+	title.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(38))
 	title.add_theme_color_override("font_color", Color(1.0, 0.92, 0.55, 1.0))
 	title_box.add_child(title)
 
 	var subtitle := Label.new()
 	subtitle.text = SettingsManager.text("skin_shop_subtitle")
-	subtitle.add_theme_font_size_override("font_size", 18)
+	subtitle.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 	subtitle.add_theme_color_override("font_color", Color(0.86, 1.0, 0.82, 1.0))
 	title_box.add_child(subtitle)
 
@@ -233,7 +261,7 @@ func _build_shop_overlay() -> void:
 	_shop_wallet_label.custom_minimum_size = Vector2(160, 42)
 	_shop_wallet_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_shop_wallet_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_shop_wallet_label.add_theme_font_size_override("font_size", 26)
+	_shop_wallet_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(26))
 	_shop_wallet_label.add_theme_color_override("font_color", Color(1.0, 0.95, 0.52, 1.0))
 	header.add_child(_shop_wallet_label)
 
@@ -259,7 +287,7 @@ func _build_shop_overlay() -> void:
 
 	_shop_status_label = Label.new()
 	_shop_status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_shop_status_label.add_theme_font_size_override("font_size", 18)
+	_shop_status_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 	_shop_status_label.add_theme_color_override("font_color", Color(1.0, 0.94, 0.64, 1.0))
 	layout.add_child(_shop_status_label)
 
@@ -274,7 +302,7 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	if icon_tint_value is Color:
 		icon_tint = icon_tint_value
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(390, 176)
+	card.custom_minimum_size = Vector2(390, 188)
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.add_theme_stylebox_override("panel", _skin_card_style(accent))
 
@@ -302,23 +330,23 @@ func _create_skin_card(skin: Dictionary) -> PanelContainer:
 	row.add_child(info)
 
 	var name_label := Label.new()
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(22))
 	name_label.add_theme_color_override("font_color", Color(1.0, 0.96, 0.78, 1.0))
 	info.add_child(name_label)
 
 	var description_label := Label.new()
 	description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description_label.add_theme_font_size_override("font_size", 15)
+	description_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(15))
 	description_label.add_theme_color_override("font_color", Color(0.86, 1.0, 0.84, 1.0))
 	info.add_child(description_label)
 
 	var price_label := Label.new()
-	price_label.add_theme_font_size_override("font_size", 18)
+	price_label.add_theme_font_size_override("font_size", SettingsManager.scaled_font_size(18))
 	price_label.add_theme_color_override("font_color", Color(1.0, 0.90, 0.40, 1.0))
 	info.add_child(price_label)
 
 	var action_btn := Button.new()
-	action_btn.custom_minimum_size = Vector2(132, 50)
+	action_btn.custom_minimum_size = Vector2(142, 54)
 	action_btn.pressed.connect(func() -> void:
 		_on_skin_action_pressed(skin_id)
 	)
@@ -367,9 +395,9 @@ func _shop_panel_style() -> StyleBoxFlat:
 # ينشئ شكل بطاقة الشخصية حسب لونها
 func _skin_card_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.23, 0.10, 0.95)
-	style.border_color = accent.lightened(0.20)
-	style.set_border_width_all(2)
+	style.bg_color = Color(0.07, 0.25, 0.11, 0.97)
+	style.border_color = accent.lightened(0.28)
+	style.set_border_width_all(3)
 	style.set_corner_radius_all(22)
 	style.content_margin_left = 16
 	style.content_margin_right = 16

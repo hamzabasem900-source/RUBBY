@@ -19,7 +19,9 @@ const DEFAULT_SETTINGS: Dictionary = {
 	"language": "العربية",
 	"fullscreen": false,
 	"resolution": "1280 x 720",
-	"difficulty": "Normal"
+	"difficulty": "Normal",
+	"menu_text_size": "Normal",
+	"show_dash_hud": true
 }
 
 # متغيرات تحفظ حالة هذا السكربت اثناء اللعب
@@ -46,6 +48,8 @@ func _sanitize_settings() -> void:
 		values["language"] = str(DEFAULT_SETTINGS["language"])
 	if not ["1024 x 720", "1280 x 720", "1600 x 900", "1920 x 1080"].has(str(values["resolution"])):
 		values["resolution"] = str(DEFAULT_SETTINGS["resolution"])
+	if not ["Small", "Normal", "Large"].has(str(values["menu_text_size"])):
+		values["menu_text_size"] = str(DEFAULT_SETTINGS["menu_text_size"])
 
 # يحفظ الاعدادات الحالية في ملف المستخدم
 func save_settings() -> void:
@@ -83,6 +87,20 @@ func set_setting(key: String, value: Variant, save_now: bool = true) -> void:
 # يرجع قيمة اعداد محدد
 func get_setting(key: String) -> Variant:
 	return values.get(key, DEFAULT_SETTINGS.get(key))
+
+# يرجع معامل تكبير نصوص القوائم حسب اختيار اللاعب
+func get_menu_text_scale() -> float:
+	match str(values.get("menu_text_size", DEFAULT_SETTINGS["menu_text_size"])):
+		"Small":
+			return 0.88
+		"Large":
+			return 1.16
+		_:
+			return 1.0
+
+# يرجع حجم خط مناسب بعد تطبيق خيار تكبير وتصغير النص
+func scaled_font_size(base_size: int) -> int:
+	return int(round(float(base_size) * get_menu_text_scale()))
 
 # يطبق كل الاعدادات الحالية على اللعبة
 func apply_all() -> void:
@@ -192,7 +210,8 @@ func apply_wooden_buttons(root: Node) -> void:
 
 # يضبط الوان وحدود زر خشبي واحد
 func style_wooden_button(button: Button, font_color: Color = Color.WHITE) -> void:
-	button.add_theme_font_size_override("font_size", int(max(22, button.get_theme_font_size("font_size"))))
+	button.add_theme_font_size_override("font_size", scaled_font_size(int(max(22, button.get_theme_font_size("font_size")))))
+	button.add_theme_constant_override("h_separation", 8)
 	button.add_theme_color_override("font_color", font_color)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.96, 0.78, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.86, 0.55, 1.0))
@@ -212,8 +231,8 @@ func _wood_style(bg_color: Color, border_color: Color) -> StyleBoxFlat:
 	style.border_color = border_color
 	style.set_border_width_all(3)
 	style.set_corner_radius_all(14)
-	style.shadow_color = Color(0.10, 0.04, 0.02, 0.42)
-	style.shadow_size = 5
+	style.shadow_color = Color(0.10, 0.04, 0.02, 0.50)
+	style.shadow_size = 7
 	style.shadow_offset = Vector2(0, 3)
 	style.content_margin_left = 18
 	style.content_margin_right = 18
@@ -244,6 +263,16 @@ func text(key: String) -> String:
 		"language": "Language",
 		"gameplay": "Gameplay",
 		"difficulty": "Difficulty",
+		"menu_text_size": "Menu Text Size",
+		"show_dash_hud": "Dash HUD",
+		"text_small": "Small",
+		"text_normal": "Normal",
+		"text_large": "Large",
+		"before_after": "Before / After",
+		"before_sample": "Before: regular menu text",
+		"after_sample": "After: selected size preview",
+		"dash_ready": "Dash ready",
+		"dash_cooling": "Dash cooldown {time}s",
 		"visuals": "Display",
 		"fullscreen": "Fullscreen",
 		"resolution": "Resolution",
@@ -367,6 +396,16 @@ func text(key: String) -> String:
 		"language": "اللغة",
 		"gameplay": "اللعب",
 		"difficulty": "الصعوبة",
+		"menu_text_size": "حجم نص القوائم",
+		"show_dash_hud": "مؤشر الاندفاع",
+		"text_small": "صغير",
+		"text_normal": "عادي",
+		"text_large": "كبير",
+		"before_after": "قبل / بعد",
+		"before_sample": "قبل: نص القائمة العادي",
+		"after_sample": "بعد: معاينة الحجم المختار",
+		"dash_ready": "الاندفاع جاهز",
+		"dash_cooling": "تهدئة الاندفاع {time}ث",
 		"visuals": "العرض",
 		"fullscreen": "ملء الشاشة",
 		"resolution": "الدقة",
@@ -492,6 +531,14 @@ func format_text(key: String, replacements: Dictionary) -> String:
 
 # يرجع نص خيار اعداد معين حسب اللغة الحالية
 func option_text(setting_key: String, value: String) -> String:
+	if setting_key == "menu_text_size":
+		match value:
+			"Small":
+				return text("text_small")
+			"Large":
+				return text("text_large")
+			_:
+				return text("text_normal")
 	if setting_key != "difficulty":
 		return value
 	match value:
