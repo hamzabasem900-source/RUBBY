@@ -2,7 +2,7 @@
 [gd_scene load_steps=32 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
-[ext_resource type="Texture2D" path="res://assets/Gemini_Generated_Image_l7xrnml7xrnml7xr-removebg-preview.png" id="2_white_sheet"]
+[ext_resource type="Texture2D" path="res://assets/images/white_bunny_sprite_sheet.png" id="2_white_sheet"]
 
 [sub_resource type="CapsuleShape2D" id="SubResource_1"]
 height = 42.0

@@ -17,7 +17,7 @@ const DASH_HOP_SPEED: float = 19.5
 const DAMAGE_REACTION_DURATION: float = 0.34
 const LANDING_SQUASH_DURATION: float = 0.12
 const SPOTTED_BUNNY_SKIN_ID: String = "spotted_bunny"
-const SPOTTED_BUNNY_SHEET_PATH: String = "res://assets/Gemini_Generated_Image_z29tj3z29tj3z29t-removebg-preview.png"
+const SPOTTED_BUNNY_SHEET_PATH: String = "res://assets/images/brown_bunny_sprite_sheet.png"
 
 # متغيرات تحفظ حالة هذا السكربت اثناء اللعب
 var invincible:      bool  = false

@@ -26,13 +26,13 @@ win.mp3::AudioStreamMP3::147645085577683750::1779066572::1779066572::1::::<><><>
 Carrot.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/collectible_carrot.gd
 CharacterSelect.tscn::PackedScene::7089601745840517478::1779066572::0::1::::<><><>0<>0<><>::uid://brthq67711yaj::::res://scripts/character_select.gd
 Fox.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/enemy_fox.gd
-GameLevel.tscn::PackedScene::3590519773690088420::1779066572::0::1::::<><><>0<>0<><>::uid://btldqoiq7b3vk::::res://scripts/game_level.gd<>uid://bq6imx1wbq13f::::res://scripts/hud.gd<>uid://c5j25vx4s0qt2::::res://assets/Gemini_Generated_Image_jmx22pjmx22pjmx2.png<>res://scenes/Player.tscn
+GameLevel.tscn::PackedScene::3590519773690088420::1779066572::0::1::::<><><>0<>0<><>::uid://btldqoiq7b3vk::::res://scripts/game_level.gd<>uid://bq6imx1wbq13f::::res://scripts/hud.gd<>uid://c5j25vx4s0qt2::::res://assets/images/game_level_background.png<>res://scenes/Player.tscn
 GameOver.tscn::PackedScene::315691245981::1779066572::0::1::::<><><>0<>0<><>::res://scripts/game_over.gd
 Hole.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/hazard.gd
 Instructions.tscn::PackedScene::589475419770658612::1779066572::0::1::::<><><>0<>0<><>::res://scripts/instructions.gd
-LevelMap.tscn::PackedScene::584896004727::1779066572::0::1::::<><><>0<>0<><>::uid://2of2uy0i3jqd::::res://scripts/level_map.gd<>uid://di6rm0shfvxcn::::res://assets/Gemini_Generated_Image_ldlzhcldlzhcldlz.png<>uid://dub6q0imgilrs::::res://assets/Screenshot_2026-05-12_040427-removebg-preview.png<>uid://bc3gxc0eqoc72::::res://assets/WhatsApp_Image_2026-05-12_at_4.12.01_AM-removebg-preview.png
-MainMenu.tscn::PackedScene::8595944180718920692::1779066572::0::1::::<><><>0<>0<><>::uid://cmlq05o7ubvvy::::res://scripts/main_menu.gd<>uid://c2k4cpuncfvvs::::res://assets/Gemini_Generated_Image_xy6q7zxy6q7zxy6q.png
-Player.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/player.gd<>res://assets/Gemini_Generated_Image_l7xrnml7xrnml7xr-removebg-preview.png
+LevelMap.tscn::PackedScene::584896004727::1779066572::0::1::::<><><>0<>0<><>::uid://2of2uy0i3jqd::::res://scripts/level_map.gd<>uid://di6rm0shfvxcn::::res://assets/images/level_map_background.png<>uid://dub6q0imgilrs::::res://assets/images/map_header_panel.png<>uid://bc3gxc0eqoc72::::res://assets/images/parchment_panel.png
+MainMenu.tscn::PackedScene::8595944180718920692::1779066572::0::1::::<><><>0<>0<><>::uid://cmlq05o7ubvvy::::res://scripts/main_menu.gd<>uid://c2k4cpuncfvvs::::res://assets/images/main_menu_background.png
+Player.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/player.gd<>res://assets/images/white_bunny_sprite_sheet.png
 ResultScreen.tscn::PackedScene::6093075821715754359::1779066572::0::1::::<><><>0<>0<><>::uid://b54cr0v17gsso::::res://scripts/result_screen.gd
 Settings.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/settings_menu.gd
 Thorn.tscn::PackedScene::-1::1779066572::0::1::::<><><>0<>0<><>::res://scripts/hazard.gd
