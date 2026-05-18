@@ -38,6 +38,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_base_position = position
 	_fit_background_to_viewport()
+	_show_play_bounds()
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	GameManager.level_won.connect(_on_level_won)
 	GameManager.game_over.connect(_on_game_over)
@@ -47,6 +48,18 @@ func _ready() -> void:
 	_spawn_all()
 	_build_damage_effect()
 	_build_pause_menu()
+
+# يظهر حدودا بصرية خفيفة حتى يعرف اللاعب مساحة اللعب تحت HUD
+func _show_play_bounds() -> void:
+	for path in ["FenceTop", "FenceBottom", "FenceLeft", "FenceRight"]:
+		var fence := get_node_or_null(path) as ColorRect
+		if fence != null:
+			fence.visible = true
+			fence.color = Color(0.10, 0.32, 0.08, 0.72)
+	var top_fence := get_node_or_null("FenceTop") as ColorRect
+	if top_fence != null:
+		top_fence.offset_top = 84.0
+		top_fence.offset_bottom = 102.0
 
 # يحدث حجم الخلفية عندما يتغير حجم النافذة
 func _on_viewport_size_changed() -> void:
