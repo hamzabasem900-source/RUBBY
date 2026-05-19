@@ -35,7 +35,6 @@ const DAMAGE_SHAKE_STRENGTH: float = 15.0
 
 # يبدأ تجهيز هذا المشهد عند دخوله الى شجرة اللعبة
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS
 	_base_position = position
 	_fit_background_to_viewport()
 	_show_play_bounds()
